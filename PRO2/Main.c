@@ -77,3 +77,6 @@ Per provare il programma prendere un file piccolo dalla TSPlib
 Inoltre vorrò crearmi una procedura di stampa che stampa a video la mia istanza.
 Per stampare a video usare libreria gnuplot.
 */
+
+
+// HO AGGIUNTO QUESTA PARTE
