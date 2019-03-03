@@ -41,16 +41,6 @@ Prendere -file e -timelimit
 */
 
 /*
-Se l'utente si dimentica un parametro ad esempio il timefault. Quindi definisco dei valori di default all'inizio del
-void_parse_command_line.
-"inst->timelimit" individua il campo dell'istanza nel main
-NULL per default.
-Poi la funzione fa un ciclo in cui controllo i parametri che ho dato da riga di comando.
-funzione di C per comparare due elementi = strcmp(,el1,el2). Se trovo il parametro allora incremento l'argv facendo
-argv[++i] e la copio dentro l'istanza inst con "inst->argv[++i]"
-atof = serve per convertire un alfanumerico in un floatingpoint (cioè da stringa a valore double)
-*/
-/*
 Finita la lettura stampa a video quello che ho letto. Se in un campo non ho inserito il parametro verrà fuori il
 parametro di default.
 */
