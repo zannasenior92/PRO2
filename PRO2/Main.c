@@ -7,13 +7,3 @@ int main(int argc, char **argv) {
 	}
 	return 0;
 }
-/*
-fviohehiuoheuiovhiowoioifvjiofjiofjiofjviovjrfiovjrfiojiofviofvjio
-ecencoedjncioedncioe
-erkjonovc
-vefknjoecioenjcioencionecio
-eihdciubnfi
-ondckookckocfec
-erckneccnecnecnioncioenioen
-ervioencioehncioefiocefniovnf
-*/
