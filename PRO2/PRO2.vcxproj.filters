@@ -15,11 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TSP.h">
-      <Filter>File di intestazione</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Main.c">
       <Filter>File di origine</Filter>
     </ClCompile>
