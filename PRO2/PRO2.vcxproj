@@ -21,6 +21,9 @@
   <ItemGroup>
     <ClCompile Include="Main.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TSP.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{1BDDE098-F9DE-407B-8496-ACC4C3CCAB6B}</ProjectGuid>
