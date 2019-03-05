@@ -23,7 +23,8 @@ int main(int argc, char **argv) {
 	
 	char * commandsForGnuplot[] = { "set title \"Punti TSP att48\"",
 									"show term",
-									"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt\"",
+									// NON SERVE STAMPARE QUESTA ROBA
+									//"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt\"",
 									"exit"
 	};
 	FILE * temp = fopen("coordinateAtt48.txt", "w");
