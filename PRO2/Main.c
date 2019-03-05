@@ -21,6 +21,9 @@ int main(int argc, char **argv) {
 	parse_command_line(argc, argv, &inst);
 	printf("Il file di input e': %s\n", inst.input_file);
 	read_input(&inst);
+	for (int i = 0; i < inst.nnodes; i++) {
+		printf("coord x:%f coord y:%f\n",inst.xcoord[i], inst.ycoord[i]);
+	}
 	//free_instance(&inst);
 	return 0;
 }
