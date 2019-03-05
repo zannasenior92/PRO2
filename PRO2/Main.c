@@ -2,6 +2,7 @@
 #pragma warning(disable : 4996)
 void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
+
 void free_instance(instance *inst)
 {
 	free(inst->xcoord);
@@ -19,7 +20,32 @@ int main(int argc, char **argv) {
 	for (int i = 0; i < inst.nnodes; i++) {
 		printf("Capitale %d coord x:%.0f coord y:%.0f\n",i+1,inst.xcoord[i], inst.ycoord[i]);
 	}
+	
+	char * commandsForGnuplot[] = { "set title \"Punti TSP att48\"",
+									"show term",
+									"plot \"C:/Users/marco/source/repos/PRO2/PRO2/coordinateAtt48.txt\"",
+									"exit"
+	};
+	FILE * temp = fopen("coordinateAtt48.txt", "w");
+	/*Opens an interface that one can use to send commands as if they were typing into the
+	 *     gnuplot command line.  "The -persistent" keeps the plot open even after your
+	 *     C program terminates.
+	 */
+	FILE * gnuplotPipe = _popen("C:\gnuplot\bin\gnuplot.exe ", "w");
+	
+	for (int i = 0; i < inst.nnodes; i++)
+	{
+		fprintf(temp, "%lf %lf \n", inst.xcoord[i], inst.ycoord[i]); //Write the data to a temporary file
+	}
+
+	for (int i = 0; i < 3; i++)
+	{
+		fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]); //Send commands to gnuplot one by one.
+	}
+	printf("fatto tutto");
 	free_instance(&inst);
+	printf("fatto tutto 2");
+
 	return 0;
 }
 
