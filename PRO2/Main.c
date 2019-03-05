@@ -9,11 +9,12 @@ void free_instance(instance *inst)
 }
 
 int main(int argc, char **argv) {
-	//creiamo l'istanza
+	//creiamo la variabile inst di tipo instance
 	instance inst;
 	//prendiamo gli argomenti della riga di comando
 	parse_command_line(argc, argv, &inst);
 	printf("Il file di input e': %s\n", inst.input_file);
+	//uso il nome della variabile associata all'istanza per accedere al campo dell'stanza
 	read_input(&inst);
 	for (int i = 0; i < inst.nnodes; i++) {
 		printf("Capitale %d coord x:%.0f coord y:%.0f\n",i+1,inst.xcoord[i], inst.ycoord[i]);
