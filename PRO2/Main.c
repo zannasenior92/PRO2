@@ -81,22 +81,12 @@ void read_input(instance *inst) {
 		}
 		if (coord_section == 1) {
 			int i = atoi(par_name) - 1; //prendo primo valore nelle coordinate, -1 per partire da zero
-			printf("par_name %d\n", i);
 			token1 = strtok(NULL, " "); //prendo coordinata x
 			token2 = strtok(NULL, " "); //prendo coordinata y
-			printf(token1);
-			printf("\n");
-			printf(token2);
-			printf("\n");
 			
-			/*if (i < 0 || i >= inst->nnodes) { printf(" unknown node in NODE_COORD_SECTION section"); exit(1); }
-			token1 = strtok(NULL, " :,");
-			token2 = strtok(NULL, " :,");
 			inst->xcoord[i] = atof(token1);
 			inst->ycoord[i] = atof(token2);
-			printf(" node %4d at coordinates ( %15.7lf , %15.7lf )\n", i + 1, inst->xcoord[i], inst->ycoord[i]);*/
 			continue;
-		
 		}
 	}
 
