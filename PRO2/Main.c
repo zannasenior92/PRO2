@@ -46,18 +46,19 @@ void read_input(instance *inst) {
 	char *par_name;
 	char *token1;
 	char *token2;
+	//
 	int coord_section = 0; // =1 NODE_COORD_SECTION
 	while (fgets(line, sizeof(line), input) != NULL)
 	{
 		//printf("%s", line);
 		//fflush(NULL);
 		if (strlen(line) <= 1) continue; // salta righe vuote
-		par_name = strtok(line, " :");
-		
+		par_name = strtok(line, " :"); //prende spazio e : come delimitatore e quindi la prima parola è NAME
+		//printf("par_name= %s\n", par_name);
 		if (strncmp(par_name, "DIMENSION", 9) == 0)
 		{
 			//if (inst->nnodes >= 0) print_error(" repeated DIMENSION section in input file");
-			token1 = strtok(NULL, " :"); //prende quello che c'è dopo i due punti fino al null
+			token1 = strtok(NULL, " :"); //Con il NULL passa al token successivo nella linea
 			inst->nnodes = atoi(token1); //string argument to integer
 			printf("nnodes %d\n", inst->nnodes);
 			inst->xcoord = (double *)calloc(inst->nnodes, sizeof(double));
@@ -76,15 +77,15 @@ void read_input(instance *inst) {
 			break;
 		}
 		if (coord_section == 1) {
-			int i = atoi(par_name) - 1;
+			int i = atoi(par_name) - 1; //prendo primo valore nelle coordinate, -1 per partire da zero
 			printf("par_name %d\n", i);
-			token1 = strtok(NULL, " ");
-			token2 = strtok(NULL, " ");
+			token1 = strtok(NULL, " "); //prendo coordinata x
+			token2 = strtok(NULL, " "); //prendo coordinata y
 			printf(token1);
 			printf("\n");
 			printf(token2);
 			printf("\n");
-
+			
 			/*if (i < 0 || i >= inst->nnodes) { printf(" unknown node in NODE_COORD_SECTION section"); exit(1); }
 			token1 = strtok(NULL, " :,");
 			token2 = strtok(NULL, " :,");
