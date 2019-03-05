@@ -10,12 +10,12 @@ void free_instance(instance *inst)
 }
 
 int main(int argc, char **argv) {
-	//creiamo la variabile inst di tipo instance
+	//we create the variable inst of type instance
 	instance inst;
-	//prendiamo gli argomenti della riga di comando
+	//we keep the arguments of the command line
 	parse_command_line(argc, argv, &inst);
 	printf("Il file di input e': %s\n", inst.input_file);
-	//uso il nome della variabile associata all'istanza per accedere al campo dell'stanza
+	//we use the name of the variale related to the instance to access on the field of the instance
 	read_input(&inst);
 	for (int i = 0; i < inst.nnodes; i++) {
 		printf("Capitale %d coord x:%.0f coord y:%.0f\n",i+1,inst.xcoord[i], inst.ycoord[i]);
@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
 	
 	char * commandsForGnuplot[] = { "set title \"Punti TSP att48\"",
 									"show term",
-									"plot \"C:/Users/marco/source/repos/PRO2/PRO2/coordinateAtt48.txt\"",
+									"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt\"",
 									"exit"
 	};
 	FILE * temp = fopen("coordinateAtt48.txt", "w");
