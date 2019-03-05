@@ -1,4 +1,5 @@
 #include "TSP.h"
+#include <malloc.h> //to use malloch for allocation of memory
 #pragma warning(disable : 4996)
 void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
@@ -79,7 +80,7 @@ void read_input(instance *inst) {
 	{
 		//printf("%s", line);
 		//fflush(NULL);
-		if (strlen(line) <= 1) continue; // salta righe vuote
+		if (strlen(line) <= 1) continue; // skip the blank lines
 		par_name = strtok(line, " :"); //prende spazio e : come delimitatore e quindi la prima parola è NAME
 		//printf("par_name= %s\n", par_name);
 		if (strncmp(par_name, "DIMENSION", 9) == 0)
