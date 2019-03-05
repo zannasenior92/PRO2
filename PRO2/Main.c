@@ -38,6 +38,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 }
 
 void read_input(instance *inst) {
+	//input sarebbe la variabile che identifica il file di input
 	FILE *input = fopen(inst->input_file, "r");
 	if (input == NULL) { printf(" input file not found!"); exit(1); }
 	inst->nnodes = -1;
