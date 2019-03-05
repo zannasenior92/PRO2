@@ -38,9 +38,12 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 }
 
 void read_input(instance *inst) {
-	FILE *input = fopen(inst->input_file, "r");
-	if (input == NULL) { printf(" input file not found!"); exit(1); }
-	inst->nnodes = -1;
+	//input sarebbe la variabile che identifica il file di input
+	FILE *input = fopen(inst->input_file, "r");//inst-> si prende il contenuto del file
+	if (input == NULL) { printf(" input file not found!"); exit(1); } //exit(1) finisce il programma
+	inst->nnodes = -1; /*dato che ho passato solo il puntatore all'istanza devo usare la freccetta per
+					   prendermi il valore all'interno dell'istanza. Se fossi nel main dato che ho dichiarato
+					   l'istanza posso usare inst.nnodes per prendermi il valore*/
 
 	char line[180];
 	char *par_name;
