@@ -14,7 +14,10 @@ int main(int argc, char **argv) {
 		printf(argv[i]);
 		printf("\n");
 	}*/
+
+	//creiamo l'istanza
 	instance inst;
+	//prendiamo gli argomenti della riga di comando
 	parse_command_line(argc, argv, &inst);
 	printf("Il file di input e': %s\n", inst.input_file);
 	read_input(&inst);
@@ -23,12 +26,14 @@ int main(int argc, char **argv) {
 }
 
 void parse_command_line(int argc, char** argv, instance *inst) {
-	//default configurations for instance 
+	//default configurations for instance7
+	//TODO
 	//inst->input_file = "NULL";
 	
 	//parsing of the command line
 	for (int i = 0; i < argc; i++) {
 		if (strcmp(argv[i], "-input") == 0) { strcpy(inst->input_file, argv[++i]); continue; }
+		if (strcmp(argv[i], "-timelimit") == 0) { inst->timelimit = atoi(argv[++i]); continue; }
 	}
 }
 
