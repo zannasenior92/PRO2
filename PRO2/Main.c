@@ -2,19 +2,13 @@
 #pragma warning(disable : 4996)
 void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
-/*void free_instance(instance *inst)
+void free_instance(instance *inst)
 {
 	free(inst->xcoord);
 	free(inst->ycoord);
-}*/
+}
 
 int main(int argc, char **argv) {
-	/*printf("Ci sono %d elementi.\n", argc);
-	for (int i = 0; i < argc; i++) {
-		printf(argv[i]);
-		printf("\n");
-	}*/
-
 	//creiamo l'istanza
 	instance inst;
 	//prendiamo gli argomenti della riga di comando
@@ -22,9 +16,9 @@ int main(int argc, char **argv) {
 	printf("Il file di input e': %s\n", inst.input_file);
 	read_input(&inst);
 	for (int i = 0; i < inst.nnodes; i++) {
-		printf("coord x:%f coord y:%f\n",inst.xcoord[i], inst.ycoord[i]);
+		printf("Capitale %d coord x:%.0f coord y:%.0f\n",i+1,inst.xcoord[i], inst.ycoord[i]);
 	}
-	//free_instance(&inst);
+	free_instance(&inst);
 	return 0;
 }
 
