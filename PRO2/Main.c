@@ -24,7 +24,8 @@ int main(int argc, char **argv) {
 	
 	char * commandsForGnuplot[] = { "set title \"Punti TSP att48\"",
 									"show term",
-									"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt\" with points pointtype 6",
+									"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt\" using 0:2 title 'title', \
+     '' using 0:2:0 with labels offset 0,char 1",
 									"exit"
 	};
 	FILE * temp = fopen("coordinateAtt48.txt", "w");
