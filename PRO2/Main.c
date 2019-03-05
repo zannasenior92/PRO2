@@ -1,4 +1,4 @@
-#include "TSP.h"
+#include "TSP.h" //per includere il file .h nel main
 
 int main(int argc, char **argv) {
 	printf("Ci sono %d elementi.\n", argc);
