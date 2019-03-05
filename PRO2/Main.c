@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
 	
 	char * commandsForGnuplot[] = { "set title \"Punti TSP att48\"",
 									"show term",
-									"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt\"",
+									"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt\" with points pointtype 6",
 									"exit"
 	};
 	FILE * temp = fopen("coordinateAtt48.txt", "w");
@@ -43,9 +43,7 @@ int main(int argc, char **argv) {
 	{
 		fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]); //Send commands to gnuplot one by one.
 	}
-	printf("fatto tutto");
 	free_instance(&inst);
-	printf("fatto tutto 2");
 
 	return 0;
 }
