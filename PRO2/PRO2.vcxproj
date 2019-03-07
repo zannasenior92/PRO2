@@ -22,6 +22,7 @@
     <ClCompile Include="comandiGnuplot.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="Parser.c" />
+    <ClCompile Include="TSP.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h" />

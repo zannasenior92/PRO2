@@ -27,6 +27,9 @@
     <ClCompile Include="Parser.c">
       <Filter>FileFunzioni</Filter>
     </ClCompile>
+    <ClCompile Include="TSP.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h">
