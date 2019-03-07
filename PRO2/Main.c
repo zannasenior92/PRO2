@@ -1,5 +1,5 @@
 #include "TSP.h"
-#include <malloc.h> //to use malloch for allocation of memory
+
 //#include "comandiGnuplot.c" //INCLUDE LA FUNZIONE PER STAMPARE IL GRAFICO
 #pragma warning(disable : 4996)
 void parse_command_line(int argc, char** argv, instance *inst);
