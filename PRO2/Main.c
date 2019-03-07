@@ -1,4 +1,4 @@
-//#include "comandiGnuplot.c"
+#include "comandiGnuplot.c" //INCLUDE LA FUNZIONE PER STAMPARE IL GRAFICO
 #include "TSP.h"
 #include <malloc.h> //to use malloch for allocation of memory
 #pragma warning(disable : 4996)
@@ -20,9 +20,9 @@ int main(int argc, char **argv) {
 	//we use the name of the variale related to the instance to access on the field of the instance
 	read_input(&inst);
 	for (int i = 0; i < inst.nnodes; i++) {
-		printf("Capitale %d coord x:%.0f coord y:%.0f\n",i+1,inst.xcoord[i], inst.ycoord[i]);
+		printf("Capitale %d coord x:%.0f coord y:%.0f\n", i + 1, inst.xcoord[i], inst.ycoord[i]);
 	}
-	
+
 	plot_coord(&inst);
 	free_instance(&inst);
 
@@ -33,7 +33,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 	//default configurations for instance7
 	//TODO
 	//inst->input_file = "NULL";
-	
+
 	//parsing of the command line
 	for (int i = 0; i < argc; i++) {
 		if (strcmp(argv[i], "-input") == 0) { strcpy(inst->input_file, argv[++i]); continue; }
@@ -87,39 +87,10 @@ void read_input(instance *inst) {
 			int i = atoi(par_name) - 1; //prendo primo valore nelle coordinate, -1 per partire da zero
 			token1 = strtok(NULL, " "); //prendo coordinata x
 			token2 = strtok(NULL, " "); //prendo coordinata y
-			
+
 			inst->xcoord[i] = atof(token1);
 			inst->ycoord[i] = atof(token2);
 			continue;
 		}
-	}
-}
-void plot_coord(instance *inst) {
-	char * commandsForGnuplot[] = { "set title \"Punti TSP att48\"",
-									"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txtf\" using 0:2 title 'title', \
-     '' using 0:2:0 with labels offset 0,char 1",
-									"exit"
-	};
-	//-----------------------------PATH COLLABORATORS--------------------------------------------
-	//"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt\" using 0:2 title 'title', \
-     '' using 0:2:0 with labels offset 0,char 1",
-	//"plot \"C:/Users/marco/source/repos/PRO2/PRO2/coordinateAtt48.txt\" using 0:2 title 'title', \
-     '' using 0:2:0 with labels offset 0,char 1",
-
-	FILE * temp = fopen("coordinateAtt48.txt", "w");
-	/*Opens an interface that one can use to send commands as if they were typing into the
-	 *     gnuplot command line.  "The -persistent" keeps the plot open even after your
-	 *     C program terminates.
-	 */
-	FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe -persistent", "w");
-
-	for (int i = 0; i < inst->nnodes; i++)
-	{
-		fprintf(temp, "%lf %lf \n", inst->xcoord[i], inst->ycoord[i]); //Write the data to a temporary file
-	}
-
-	for (int i = 0; i < 3; i++)
-	{
-		fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]); //Send commands to gnuplot one by one.
 	}
 }
