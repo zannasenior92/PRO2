@@ -5,6 +5,7 @@
 void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
 void plot_coord(instance *inst);
+double dist(int i, int j, instance *inst);
 void free_instance(instance *inst){
 	free(inst->xcoord);
 	free(inst->ycoord);
@@ -21,7 +22,8 @@ int main(int argc, char **argv) {
 	for (int i = 0; i < inst.nnodes; i++) {
 		printf("Capitale %d coord x:%.0f coord y:%.0f\n", i + 1, inst.xcoord[i], inst.ycoord[i]);
 	}
-
+	double dProva = dist(0,1, &inst);
+	printf("Distanza tra 0 e 1 : %.2f\n", dProva);
 	plot_coord(&inst);
 	free_instance(&inst);
 	
