@@ -1,12 +1,11 @@
-#include "comandiGnuplot.c" //INCLUDE LA FUNZIONE PER STAMPARE IL GRAFICO
 #include "TSP.h"
-#include <malloc.h> //to use malloch for allocation of memory
+
+//#include "comandiGnuplot.c" //INCLUDE LA FUNZIONE PER STAMPARE IL GRAFICO
 #pragma warning(disable : 4996)
 void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
-//void plot_coord(instance *inst);
-void free_instance(instance *inst)
-{
+void plot_coord(instance *inst);
+void free_instance(instance *inst){
 	free(inst->xcoord);
 	free(inst->ycoord);
 }
@@ -25,7 +24,7 @@ int main(int argc, char **argv) {
 
 	plot_coord(&inst);
 	free_instance(&inst);
-
+	
 	return 0;
 }
 
@@ -93,4 +92,40 @@ void read_input(instance *inst) {
 			continue;
 		}
 	}
+}
+void plot_coord(instance *inst) {
+	char * commandsForGnuplot[] = {
+		"set title \"Punti TSP att48\"",
+		"plot \"C:/Users/marco/source/repos/PRO2/PRO2/coordinateAtt48.txt\" with labels point pointtype 7 offset char 1,-1.0 notitle",
+		"set output 'nodes.eps'",
+		"unset border",
+		"unset xtics",
+		"unset ytics",
+		"exit"
+	};
+	//-----------------------------PATH COLLABORATORS--------------------------------------------
+	/*"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt\" using 0:2 title 'title', \
+	 '' using 0:2:0 with labels offset 0,char 1",
+	//"plot \"C:/Users/marco/source/repos/PRO2/PRO2/coordinateAtt48.txt\" using 0:2 title 'title', \
+	 '' using 0:2:0 with labels offset 0,char 1",
+	*/
+	FILE * temp = fopen("coordinateAtt48.txt", "w");
+	/*Opens an interface that one can use to send commands as if they were typing into the
+	 *     gnuplot command line.  "The -persistent" keeps the plot open even after your
+	 *     C program terminates.
+	 */
+
+
+	for (int i = 0; i < inst->nnodes; i++)
+	{
+		fprintf(temp, "%lf %lf \n", inst->xcoord[i], inst->ycoord[i]); //Write the data to a temporary file
+	}
+	fclose(temp);
+
+	FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe -persistent", "w");
+	for (int i = 0; i < 6; i++)
+	{
+		fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]); //Send commands to gnuplot one by one.
+	}
+	_pclose(gnuplotPipe);
 }
