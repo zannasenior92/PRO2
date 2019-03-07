@@ -1,8 +1,7 @@
 #include "TSP.h"
-#include <stdio.h>
-#include <stdlib.h>
+
 //-------------------------COMANDS FOR GNUPLOT----------------------------------------
-void plot_coord(instance *inst) {
+/*void plot_coord(instance *inst) {
 	char * commandsForGnuplot[] = { 
 		"set title \"Punti TSP att48\"",
 		"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt\" with labels point pointtype 7 offset char 1,-1.0 notitle",
@@ -18,14 +17,14 @@ void plot_coord(instance *inst) {
 	//"plot \"C:/Users/marco/source/repos/PRO2/PRO2/coordinateAtt48.txt\" using 0:2 title 'title', \
      '' using 0:2:0 with labels offset 0,char 1",
 	*/
-	FILE * temp = fopen("coordinateAtt48.txt", "w");
+/*	FILE * temp = fopen("coordinateAtt48.txt", "w");
 	/*Opens an interface that one can use to send commands as if they were typing into the
 	 *     gnuplot command line.  "The -persistent" keeps the plot open even after your
 	 *     C program terminates.
 	 */
 	
 
-	for (int i = 0; i < inst->nnodes; i++)
+/*	for (int i = 0; i < inst->nnodes; i++)
 	{
 		fprintf(temp, "%lf %lf \n", inst->xcoord[i], inst->ycoord[i]); //Write the data to a temporary file
 	}
@@ -37,4 +36,4 @@ void plot_coord(instance *inst) {
 		fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]); //Send commands to gnuplot one by one.
 	}
 	_pclose(gnuplotPipe);
-}
+}*/
