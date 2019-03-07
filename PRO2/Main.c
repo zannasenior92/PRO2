@@ -4,7 +4,7 @@
 #pragma warning(disable : 4996)
 void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
-void plot_coord(instance *inst);
+//void plot_coord(instance *inst);
 void free_instance(instance *inst)
 {
 	free(inst->xcoord);

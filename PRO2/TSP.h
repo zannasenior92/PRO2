@@ -1,3 +1,7 @@
+#ifndef VRP_H_
+
+#define VRP_H_
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -12,3 +16,5 @@ typedef struct {
 	double timelimit;
 	char input_file[1000];
 } instance;//"instance" sarebbe il nome che diamo ad una istanza della nostra struttura
+
+#endif VRP_H_
