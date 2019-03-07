@@ -98,6 +98,8 @@ void read_input(instance *inst) {
 void plot_coord(instance *inst) {
 	char * commandsForGnuplot[] = {
 		"set title \"Punti TSP att48\"",
+		//-----------------------------PATH COLLABORATORS--------------------------------------------
+		//BASTA MODIFICARE modificare il pezzo di path da "marco" a "Luca" e viceversa
 		"plot \"C:/Users/marco/source/repos/PRO2/PRO2/coordinateAtt48.txt\" with labels point pointtype 7 offset char 1,-1.0 notitle",
 		"set output 'nodes.eps'",
 		"unset border",
@@ -105,12 +107,7 @@ void plot_coord(instance *inst) {
 		"unset ytics",
 		"exit"
 	};
-	//-----------------------------PATH COLLABORATORS--------------------------------------------
-	/*"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt\" using 0:2 title 'title', \
-	 '' using 0:2:0 with labels offset 0,char 1",
-	//"plot \"C:/Users/marco/source/repos/PRO2/PRO2/coordinateAtt48.txt\" using 0:2 title 'title', \
-	 '' using 0:2:0 with labels offset 0,char 1",
-	*/
+
 	FILE * temp = fopen("coordinateAtt48.txt", "w");
 	/*Opens an interface that one can use to send commands as if they were typing into the
 	 *     gnuplot command line.  "The -persistent" keeps the plot open even after your
