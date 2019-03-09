@@ -7,7 +7,7 @@
 #include <math.h>
 #include <string.h>
 #include <malloc.h> //to use malloch for allocation of memory
-#include <ilcplex/cplex.h>
+
 
 #define VERBOSE 50
 

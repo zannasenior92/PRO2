@@ -1,5 +1,5 @@
 #include "TSP.h"
-
+#include <ilcplex/cplex.h>
 //#include "comandiGnuplot.c" //INCLUDE LA FUNZIONE PER STAMPARE IL GRAFICO
 #pragma warning(disable : 4996)
 void parse_command_line(int argc, char** argv, instance *inst);
@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 	double dProva = dist(0,1, &inst);
 	printf("Distanza tra 0 e 1 : %.2f\n", dProva);
 	plot_coord(&inst);
-	free_instance(&inst);
+	free_instance(&inst);//libero la memoria occupata dall'istanza creata nel file TSP
 	
 	return 0;
 }

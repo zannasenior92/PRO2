@@ -1,7 +1,7 @@
 /*
 File che contiene le funzioni che usano cplex
 */
-#include "TSP.h";
+#include "TSP.h"
 
 //Funzione per trovare la distanza tra due punti; ritorna un double
 double dist(int i, int j, instance *inst){
