@@ -29,10 +29,10 @@ int main(int argc, char **argv) {
 	for (int i = 0; i < inst.nnodes; i++) {
 		printf("Capitale %d coord x:%.0f coord y:%.0f\n", i + 1, inst.xcoord[i], inst.ycoord[i]);
 	}
-
-
-	double dProva = dist(0,1, &inst);
-	printf("Distanza tra 0 e 1 : %.2f\n", dProva);
+	if(VERBOSE>=100){
+		double dProva = dist(31, 39, &inst);
+		printf("Distanza tra 32 e 40 : %.2f\n", dProva);
+	}
 
 	plot_coord(&inst);
 	if (TSPopt(&inst)) print_error(" error within TSPopt()");
