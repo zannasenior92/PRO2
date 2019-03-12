@@ -9,7 +9,8 @@ void plot_coord(instance *inst) {
 		
 		"set title \"Punti TSP att48\"",
 		"set output 'nodes.eps'",
-		"set style line 1 \	linecolor rgb '#0060ad' ", //set the color line
+		"set style line 1 \
+    linecolor rgb '#0060ad' ", //set the color line
 		"unset border", //remove the bordes
 		"unset xtics", //remove axis x
 		"unset ytics", //remove axis y
@@ -20,7 +21,7 @@ void plot_coord(instance *inst) {
 
 	//--------------------NUMBER OF GNUPLOT COMMANDS------------------------------
 	int n_commands = sizeof(commandsForGnuplot) / sizeof(commandsForGnuplot[0]);
-
+	
 	if (VERBOSE>200)
 	{
 		printf("Numero comandi gnuplot: %d \n", n_commands);
@@ -45,7 +46,6 @@ void plot_coord(instance *inst) {
 	for (int i = 0; i < n_commands; i++)
 	{
 		fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]); //Send commands to gnuplot one by one.
-		printf("1");
 	}
 	_pclose(gnuplotPipe);
 }
