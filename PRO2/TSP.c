@@ -7,23 +7,25 @@ File che contiene le funzioni che usano cplex
 
 //-----------------------------FUNCTIONS & METHODS-----------------------------------
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
-//Funzione che mi restituisce la posizione della variabile all'interno del modello
+
+
+//------------------POSITION OF VARIABLE INSIDE THE MODEL-------------------------------
 int xpos(int i, int j, instance *inst) {
 	if (i > j) return xpos(j, i, inst);
 	return i * inst->nnodes + j-((i+1)*(i+2)/2);
 }
 
 
-//Funzione per trovare la distanza tra due punti; ritorna un double
+//-------------------------DISTANCE BETWEEN TWO POINTS-------------------------------
 double dist(int i, int j, instance *inst){
 	double dx = inst->xcoord[i] - inst->xcoord[j];
 	double dy = inst->ycoord[i] - inst->ycoord[j];
-	return (int)(sqrt(dx*dx + dy * dy)+0.5);
+	return (int)(sqrt(dx*dx + dy*dy)+0.5);
 }
 
 
 
-//--------------------------------------------------------------------------------
+//------------------------------SOLVE THE MODEL----------------------------------
 int TSPopt(instance *inst)
 {
 	// open cplex model
@@ -57,7 +59,7 @@ int TSPopt(instance *inst)
 	return 0;
 }
 
-//--------------------------------------------------------------------------------
+//------------------------------BUILD MODEL OF CPLEX---------------------------------------
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	//Definisco alcune variabili
 	double zero = 0.0; // one = 1.0;
@@ -74,6 +76,12 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		{
 			sprintf(cname[0], "x(%d,%d)", i + 1, j + 1);
 			double obj = dist(i, j, inst);
+			
+			//--------------------PRINT DISTANCE d(i,j)------------------------------
+			if (VERBOSE >= 100) {
+				printf("Distance d(%d,%d): %f \n",i+1,j+1, dist(i, j,inst));
+			}
+
 			//Metodo per inserire colonna: env=environment, lp=problema, obj=funzione obiettivo, 
 			// zero=lower bound, ub=upper bound, binary=tipo della variabile, cname=nome della colonna
 			if (CPXnewcols(env, lp, 1, &obj, &zero, &ub, &binary, cname)) print_error(" wrong CPXnewcols on x var.s");

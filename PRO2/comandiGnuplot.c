@@ -22,6 +22,7 @@ void plot_coord(instance *inst) {
 	//--------------------NUMBER OF GNUPLOT COMMANDS------------------------------
 	int n_commands = sizeof(commandsForGnuplot) / sizeof(commandsForGnuplot[0]);
 	
+	//--------------------n° COMMANDS GNUPLOT-------------------------------------
 	if (VERBOSE>200)
 	{
 		printf("Numero comandi gnuplot: %d \n", n_commands);
