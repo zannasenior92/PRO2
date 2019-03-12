@@ -53,6 +53,7 @@ int TSPopt(instance *inst)
 			}
 		}
 	}
+	//mettere VERBOSE 
 	printf("Nodi selezionati: %d\n", count);
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
@@ -69,7 +70,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	//Definisco cname per scrivere il modello in modo più chiaro
 	char **cname = (char **)calloc(1, sizeof(char *));		// (char **) required by cplex...
 	cname[0] = (char *)calloc(100, sizeof(char));
-
+	//-------------------------DEFINE VARIABLES ON THE MODEL-------------------------------
 	for (int i = 0; i < inst->nnodes; i++)
 	{
 		for (int j = i+1; j < inst->nnodes; j++)
@@ -77,7 +78,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			sprintf(cname[0], "x(%d,%d)", i + 1, j + 1);
 			double obj = dist(i, j, inst);
 			
-			//--------------------PRINT DISTANCE d(i,j)------------------------------
+			//--------------------PRINT DISTANCE d(i,j)---------------------
 			if (VERBOSE >= 100) {
 				printf("Distance d(%d,%d): %f \n",i+1,j+1, dist(i, j,inst));
 			}
@@ -92,7 +93,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 		}
 	}
-	//AGGIUNGO I VINCOLI
+	//--------------------------------ADD CONSTRAINTS----------------------------------------------
 	for (int h = 0; h < inst->nnodes; h++)  // out-degree ciclo esterno per ogni vincolo che voglio aggiungere per nodo h
 	{
 		int lastrow = CPXgetnumrows(env, lp);	//chiedo a cplex ultima riga cambiata chiedendo numero di righe
