@@ -6,13 +6,13 @@ File che contiene le funzioni che usano cplex
 
 
 //-----------------------------FUNCTIONS & METHODS-----------------------------------
-void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
+/*void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
 //Funzione che mi restituisce la posizione della variabile all'interno del modello
 int xpos(int i, int j, instance *inst) {
 	if (i > j) return xpos(j, i, inst);
 	return i * inst->nnodes + j-((i+1)*(i+2)/2);
 }
-
+*/
 
 //Funzione per trovare la distanza tra due punti; ritorna un double
 double dist(int i, int j, instance *inst){
@@ -24,7 +24,7 @@ double dist(int i, int j, instance *inst){
 
 
 //--------------------------------------------------------------------------------
-int TSPopt(instance *inst)
+/*/int TSPopt(instance *inst)
 {
 	// open cplex model
 	int error;
@@ -105,3 +105,4 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	}
 	CPXwriteprob(env, lp, "model.lp", NULL);
 }
+*/
