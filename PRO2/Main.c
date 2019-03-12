@@ -12,6 +12,7 @@ void free_instance(instance *inst){
 	free(inst->xcoord);
 	free(inst->ycoord);
 }
+void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(NULL); exit(1); } 
 
 //-------------------------MAIN-------------------------------
 int main(int argc, char **argv) {
@@ -32,7 +33,9 @@ int main(int argc, char **argv) {
 
 	double dProva = dist(0,1, &inst);
 	printf("Distanza tra 0 e 1 : %.2f\n", dProva);
+
 	plot_coord(&inst);
+	if (TSPopt(&inst)) print_error(" error within TSPopt()");
 	free_instance(&inst);//libero la memoria occupata dall'istanza creata nel file TSP
 	
 	return 0;
