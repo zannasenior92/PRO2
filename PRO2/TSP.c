@@ -18,7 +18,7 @@ int xpos(int i, int j, instance *inst) {
 double dist(int i, int j, instance *inst){
 	double dx = inst->xcoord[i] - inst->xcoord[j];
 	double dy = inst->ycoord[i] - inst->ycoord[j];
-	return sqrt(dx*dx + dy * dy);
+	return (int)(sqrt(dx*dx + dy * dy)+0.5);
 }
 
 
@@ -32,6 +32,20 @@ double dist(int i, int j, instance *inst){
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP"); //create the structure for our model(lp)
 	build_model(inst, env, lp);
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
+
+	int ncols = CPXgetnumcols(env, lp);
+	inst->best_sol= (double *)calloc(ncols, sizeof(double));
+	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
+	if(VERBOSE>=200){
+		for (int i = 0; i < ncols - 1; i++) {
+			printf("Best %f\n", inst->best_sol[i]);
+		}
+	}
+	//CPXgetbestobjval(env, lp, &inst->best_lb);
+	
+	CPXfreeprob(env, &lp);
+	CPXcloseCPLEX(&env);
+	return 0;
 }
 
 //--------------------------------------------------------------------------------
@@ -40,7 +54,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	double zero = 0.0; // one = 1.0;
 	double ub = 1.0;
 	char binary = 'B';
-	char continuous = 'C';
+	//char continuous = 'C';
 	//Definisco cname per scrivere il modello in modo più chiaro
 	char **cname = (char **)calloc(1, sizeof(char *));		// (char **) required by cplex...
 	cname[0] = (char *)calloc(100, sizeof(char));
@@ -68,14 +82,15 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		if (VERBOSE >= 200) {
 			printf("lastrow %d\n", lastrow);
 		}
-		double rhs = 2.0; 	 	//NOI vogliamo 2 uno entrante e uno uscente
+		double maxdeg = 2.0; 	 	//NOI vogliamo 2 uno entrante e uno uscente
 		char sense = 'E'; 			//// E equazione
 		sprintf(cname[0], "degree(%d)", h + 1);   // DO un nome NOI degree 
-		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");  //Nuova riga vuota con coeff diversi da 0 e con informazioni nella posizione last row 																posizione last row
+		if (CPXnewrows(env, lp, 1, &maxdeg, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");  //Nuova riga vuota con coeff diversi da 0 e con informazioni nella posizione last row 																posizione last row
 		for (int i = 0; i < inst->nnodes; i++)		//cambio coefficienti non 0 mettendoli a 1 NOI se i=h salto istruzione, se i!=h faccio chgcoef change coeff a 1
 									// non importa se i>h perché xpos fa inversione
 		{
-			if (i == h) continue;
+			if (i == h)
+				continue;
 			else
 				if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}

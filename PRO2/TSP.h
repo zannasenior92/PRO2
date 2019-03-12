@@ -27,7 +27,7 @@ typedef struct {
 
 	//----------------------GLOBAL DATA-------------------------
 	double *best_sol;						// best sol. available
-	double	best_lb;						// best lower bound available 
+	double *best_lb;						// best lower bound available 
 
 	//---------------------MODEL--------------------------------
 	int xstart;
