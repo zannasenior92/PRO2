@@ -43,6 +43,14 @@ int TSPopt(instance *inst)
 	}
 	//CPXgetbestobjval(env, lp, &inst->best_lb);
 	
+	for (int i = 0; i < inst->nnodes; i++) {
+		for (int j = i + 1; j < inst->nnodes; j++) {
+			if (inst->best_sol[xpos(i, j, inst)] > 0.5){
+				printf("Il nodo (%d,%d) e' selezionato\n", i+1, j+1);
+			}
+		}
+	}
+	
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
 	return 0;
