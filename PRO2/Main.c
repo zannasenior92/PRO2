@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
 	}
 
 	plot_coord(&inst);
-	if (TSPopt(&inst)) print_error(" error within TSPopt()");
+	//if (TSPopt(&inst)) print_error(" error within TSPopt()");
 	free_instance(&inst);//libero la memoria occupata dall'istanza creata nel file TSP
 	
 	return 0;
