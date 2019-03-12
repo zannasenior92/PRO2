@@ -6,13 +6,13 @@ File che contiene le funzioni che usano cplex
 
 
 //-----------------------------FUNCTIONS & METHODS-----------------------------------
-/*void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
 //Funzione che mi restituisce la posizione della variabile all'interno del modello
 int xpos(int i, int j, instance *inst) {
 	if (i > j) return xpos(j, i, inst);
 	return i * inst->nnodes + j-((i+1)*(i+2)/2);
 }
-*/
+
 
 //Funzione per trovare la distanza tra due punti; ritorna un double
 double dist(int i, int j, instance *inst){
@@ -24,7 +24,7 @@ double dist(int i, int j, instance *inst){
 
 
 //--------------------------------------------------------------------------------
-/*/int TSPopt(instance *inst)
+int TSPopt(instance *inst)
 {
 	// open cplex model
 	int error;
@@ -42,15 +42,16 @@ double dist(int i, int j, instance *inst){
 		}
 	}
 	//CPXgetbestobjval(env, lp, &inst->best_lb);
-	
+	int count = 0;
 	for (int i = 0; i < inst->nnodes; i++) {
 		for (int j = i + 1; j < inst->nnodes; j++) {
 			if (inst->best_sol[xpos(i, j, inst)] > 0.5){
 				printf("Il nodo (%d,%d) e' selezionato\n", i+1, j+1);
+				count++;
 			}
 		}
 	}
-	
+	printf("Nodi selezionati: %d\n", count);
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
 	return 0;
@@ -105,4 +106,3 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	}
 	CPXwriteprob(env, lp, "model.lp", NULL);
 }
-*/

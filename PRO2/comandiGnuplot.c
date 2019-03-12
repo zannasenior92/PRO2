@@ -6,8 +6,7 @@ void plot_coord(instance *inst) {
 		"set title \"Punti TSP att48\"",
 		//-----------------------------PATH COLLABORATORS--------------------------------------------
 		//BASTA MODIFICARE modificare il pezzo di path da "marco" a "Luca" e viceversa
-		"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt\" with labels point pointtype 7 offset char 1,-1.0 notitle",
-		"plot \"C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt\ with linespoints linestyle 1",
+		"plot \"C:/Users/marco/source/repos/PRO2/PRO2/coordinateAtt48.txt\" with labels point pointtype 7 offset char 1,-1.0 notitle",
 		"set output 'nodes.eps'",
 		"unset border",
 		"unset xtics",
