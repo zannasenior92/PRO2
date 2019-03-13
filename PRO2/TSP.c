@@ -45,19 +45,21 @@ int TSPopt(instance *inst)
 			printf("Best %f\n", inst->best_sol[i]);
 		}
 	}
-	//CPXgetbestobjval(env, lp, &inst->best_lb);
 	int count = 0;
 	for (int i = 0; i < inst->nnodes; i++) {
 		for (int j = i + 1; j < inst->nnodes; j++) {
 			if (inst->best_sol[xpos(i, j, inst)] > 0.5){
-				printf("Il nodo (%d,%d) e' selezionato\n", i+1, j+1);
+				if(VERBOSE>=100){
+					printf("Il nodo (%d,%d) e' selezionato\n", i+1, j+1);
+				}
 				add_edge_to_plot(i, j, inst);
 				count++;
 			}
 		}
 	}
-	//mettere VERBOSE 
-	printf("Nodi selezionati: %d\n", count);
+	if (VERBOSE >= 100) {
+		printf("Nodi selezionati: %d\n", count);
+	}
 	plot_edge(&inst);
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
@@ -83,7 +85,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			double obj = dist(i, j, inst);
 			
 			//--------------------PRINT DISTANCE d(i,j)---------------------
-			if (VERBOSE >= 100) {
+			if (VERBOSE >= 500) {
 				printf("Distance d(%d,%d): %f \n",i+1,j+1, dist(i, j,inst));
 			}
 

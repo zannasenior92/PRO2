@@ -1,6 +1,5 @@
 #include "TSP.h"
 #include <ilcplex/cplex.h>
-//#include "comandiGnuplot.c" //INCLUDE LA FUNZIONE PER STAMPARE IL GRAFICO
 #pragma warning(disable : 4996)
 
 
@@ -25,11 +24,13 @@ int main(int argc, char **argv) {
 	//we use the name of the variale related to the instance to access on the field of the instance
 	read_input(&inst);
 
+	if(VERBOSE>=200){
+		for (int i = 0; i < inst.nnodes; i++) {
+			printf("Capitale %d coord x:%.0f coord y:%.0f\n", i + 1, inst.xcoord[i], inst.ycoord[i]);
+		}
 
-	for (int i = 0; i < inst.nnodes; i++) {
-		printf("Capitale %d coord x:%.0f coord y:%.0f\n", i + 1, inst.xcoord[i], inst.ycoord[i]);
 	}
-	if(VERBOSE>=100){
+	if(VERBOSE>=500){
 		double dProva = dist(31, 39, &inst);
 		printf("Distanza tra 32 e 40 : %.2f\n", dProva);
 	}
