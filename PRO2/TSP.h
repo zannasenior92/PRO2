@@ -27,10 +27,7 @@ typedef struct {
 
 	//----------------------GLOBAL DATA-------------------------
 	double *best_sol;						// best sol. available
-	double *best_lb;						// best lower bound available 
-
-	//---------------------MODEL--------------------------------
-	int xstart;
+	//double *choosen_node;						// Nodi scelti 
 
 
 } instance; //"instance" sarebbe il nome che diamo ad una istanza della nostra struttura

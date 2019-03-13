@@ -7,6 +7,8 @@ File che contiene le funzioni che usano cplex
 
 //-----------------------------FUNCTIONS & METHODS-----------------------------------
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
+void add_edge_to_plot(int i, int j, instance *inst);
+void plot_edge(instance *inst);
 
 
 //------------------POSITION OF VARIABLE INSIDE THE MODEL-------------------------------
@@ -49,12 +51,14 @@ int TSPopt(instance *inst)
 		for (int j = i + 1; j < inst->nnodes; j++) {
 			if (inst->best_sol[xpos(i, j, inst)] > 0.5){
 				printf("Il nodo (%d,%d) e' selezionato\n", i+1, j+1);
+				add_edge_to_plot(i, j, inst);
 				count++;
 			}
 		}
 	}
 	//mettere VERBOSE 
 	printf("Nodi selezionati: %d\n", count);
+	plot_edge(&inst);
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
 	return 0;
@@ -88,13 +92,12 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (CPXnewcols(env, lp, 1, &obj, &zero, &ub, &binary, cname)) print_error(" wrong CPXnewcols on x var.s");
 			//confronto se la posizione della colonna aggiunta sia uguale a quella della xpos
 			//printf("La colonna con i=%d e j=%d e' in posizione %d e xpos e' %d\n", i, j, CPXgetnumcols(env, lp), xpos(i,j,inst));
-			//-------------PROBLEMI CON XPOS
 			if (CPXgetnumcols(env, lp) - 1 != xpos(i, j, inst)) print_error(" wrong position for x var.s");
 
 		}
 	}
 	//--------------------------------ADD CONSTRAINTS----------------------------------------------
-	for (int h = 0; h < inst->nnodes; h++)  // out-degree ciclo esterno per ogni vincolo che voglio aggiungere per nodo h
+	for (int h = 0; h < inst->nnodes; h++)  // degree ciclo esterno per ogni vincolo che voglio aggiungere per nodo h
 	{
 		int lastrow = CPXgetnumrows(env, lp);	//chiedo a cplex ultima riga cambiata chiedendo numero di righe
 		if (VERBOSE >= 200) {
