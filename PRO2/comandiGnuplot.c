@@ -1,12 +1,12 @@
 #include "TSP.h"
 
-//-------------------------COMANDS FOR GNUPLOT----------------------------------------
+//-------------------------------PLOT POINTS-------------------------------------------
 void plot_coord(instance *inst) {
 	char * commandsForGnuplot[] = {
+
+		//-------------------------COMANDS FOR GNUPLOT----------------------------------------
 		
-		//-----------------------------PATH COLLABORATORS--------------------------------------------
-		//BASTA MODIFICARE modificare il pezzo di path da "marco" a "Luca" e viceversa
-		
+		"set terminal windows",
 		"set title \"Punti TSP att48\"",
 		"set output 'nodes.eps'",
 		"set style line 1 \
@@ -15,7 +15,9 @@ void plot_coord(instance *inst) {
 		"unset xtics", //remove axis x
 		"unset ytics", //remove axis y
 		"unset key", //toglie legenda path
-		"plot 'C:/Users/marco/source/repos/PRO2/PRO2/coordinateAtt48.txt' with lp ls 1, '' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
+		//-----------------------------PATH COLLABORATORS--------------------------------------------
+		//BASTA MODIFICARE modificare il pezzo di path da "marco" a "Luca" e viceversa
+		"plot 'C:/Users/Luca/source/repos/PRO2/PRO2/coordinateAtt48.txt' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
 		"exit"
 	};
 
@@ -33,7 +35,6 @@ void plot_coord(instance *inst) {
 	 *     gnuplot command line.  "The -persistent" keeps the plot open even after your
 	 *     C program terminates.
 	 */
-
 
 	for (int i = 0; i < inst->nnodes; i++)
 	{
@@ -63,8 +64,8 @@ void plot_edge(instance *inst) {
 
 		//-----------------------------PATH COLLABORATORS--------------------------------------------
 		//BASTA MODIFICARE modificare il pezzo di path da "marco" a "Luca" e viceversa
-
-		"set title \"Punti TSP att48\"",
+		"set terminal windows 1",
+		"set title \"Lines TSP att48\"",
 		"set output 'nodes.eps'",
 		"set style line 1 \
     linecolor rgb '#0060ad' ", //set the color line
@@ -72,7 +73,7 @@ void plot_edge(instance *inst) {
 		"unset xtics", //remove axis x
 		"unset ytics", //remove axis y
 		"unset key", //toglie legenda path
-		"plot 'C:/Users/marco/source/repos/PRO2/PRO2/edge_to_plot.txt' with lp ls 1, '' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
+		"plot 'C:/Users/Luca/source/repos/PRO2/PRO2/edge_to_plot.txt' with lp ls 1, '' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
 		"exit"
 	};
 

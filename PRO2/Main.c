@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
 		printf("Distanza tra 32 e 40 : %.2f\n", dProva);
 	}
 
-	//plot_coord(&inst);
+	plot_coord(&inst);
 	if (TSPopt(&inst)) print_error(" error within TSPopt()");
 	free_instance(&inst);//libero la memoria occupata dall'istanza creata nel file TSP
 	
