@@ -125,8 +125,10 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (i == h)
 				continue;
 			else
+				/*-------------SET TO 1 THE VARIABLES COEFFICIENT IN THE EQUATION----------------------------*/
 				if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
-	CPXwriteprob(env, lp, "model.lp", NULL);
+
+	CPXwriteprob(env, lp, "model.lp", NULL); //write the cplex model in file model.lp
 }
