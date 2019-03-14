@@ -19,10 +19,17 @@ void free_instance(instance *inst) {
 
 /*----------------------------------------MAIN-------------------------------------------*/
 int main(int argc, char **argv) {
-	
+
+	/*------------------------VERBOSE FROM TERMINAL INPUT--------------------------------*/
+	/*
+	int VERBOSE = 0;
+	printf("SET VERBOSE LEVEL: ");
+	scanf("%d",&VERBOSE);
+	*/
+	/*-----------------------------------------------------------------------------------*/
+
 	instance inst; //we create the variable inst of type instance
 
-	
 	parse_command_line(argc, argv, &inst); //keep the arguments of the command line
 	printf("Il file di input e': %s\n", inst.input_file);
 	read_input(&inst);//use the name of the variale related to the instance to access on the field of the instance
