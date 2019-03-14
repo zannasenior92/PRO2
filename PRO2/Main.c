@@ -2,27 +2,30 @@
 #include <ilcplex/cplex.h>
 #pragma warning(disable : 4996)
 
-
+/*---------------------------DEFINITION OF METHODS---------------------------------------*/
 void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
-void plot_coord(instance *inst);
+void plot_gnuplot(instance *inst);
+//void plot_edge(instance *inst);
+int TSPopt(instance *inst);
 double dist(int i, int j, instance *inst);
-void free_instance(instance *inst){
+void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(NULL); exit(1); } 
+void free_instance(instance *inst) {
 	free(inst->xcoord);
 	free(inst->ycoord);
 }
-void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(NULL); exit(1); } 
+/*---------------------------------------------------------------------------------------*/
 
-//-------------------------MAIN-------------------------------
+
+/*----------------------------------------MAIN-------------------------------------------*/
 int main(int argc, char **argv) {
-	//we create the variable inst of type instance
-	instance inst;
+	
+	instance inst; //we create the variable inst of type instance
 
-	//we keep the arguments of the command line
-	parse_command_line(argc, argv, &inst);
+	
+	parse_command_line(argc, argv, &inst); //keep the arguments of the command line
 	printf("Il file di input e': %s\n", inst.input_file);
-	//we use the name of the variale related to the instance to access on the field of the instance
-	read_input(&inst);
+	read_input(&inst);//use the name of the variale related to the instance to access on the field of the instance
 
 	if(VERBOSE>=200){
 		for (int i = 0; i < inst.nnodes; i++) {
@@ -35,7 +38,8 @@ int main(int argc, char **argv) {
 		printf("Distanza tra 32 e 40 : %.2f\n", dProva);
 	}
 
-	plot_coord(&inst);
+	plot_gnuplot(&inst); //plot coord in a gnuplot window
+	//plot_edge(&inst); //plot selected edges in a gnuplot window 
 	if (TSPopt(&inst)) print_error(" error within TSPopt()");
 	free_instance(&inst);//libero la memoria occupata dall'istanza creata nel file TSP
 	
@@ -45,3 +49,6 @@ int main(int argc, char **argv) {
 
 
 
+
+
+/*--------------------------------------------------------*/
