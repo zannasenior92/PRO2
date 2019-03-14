@@ -17,8 +17,8 @@ int xpos(int i, int j, instance *inst) {
 
 /*-------------------------DISTANCE BETWEEN TWO POINTS-------------------------------*/
 double dist(int i, int j, instance *inst){
-	double dx = inst->xcoord[i] - inst->xcoord[j];
-	double dy = inst->ycoord[i] - inst->ycoord[j];
+	double dx = fabs(inst->xcoord[i] - inst->xcoord[j]);
+	double dy = fabs(inst->ycoord[i] - inst->ycoord[j]);
 	return (int)(sqrt(dx*dx + dy*dy)+0.5);
 }
 
