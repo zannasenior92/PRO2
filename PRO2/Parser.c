@@ -59,7 +59,6 @@ void read_input(instance *inst) {
 			int i = atoi(par_name) - 1; //prendo primo valore nelle coordinate, -1 per partire da zero
 			token1 = strtok(NULL, " "); //prendo coordinata x
 			token2 = strtok(NULL, " "); //prendo coordinata y
-
 			inst->xcoord[i] = atof(token1);
 			inst->ycoord[i] = atof(token2);
 			continue;
