@@ -114,26 +114,36 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 
 	/*--------------------------------ADD CONSTRAINTS----------------------------*/
-	for (int h = 0; h < inst->nnodes; h++)  // degree ciclo esterno per ogni vincolo che voglio aggiungere per nodo h
+	for (int h = 0; h < inst->nnodes; h++)  // out-degree 
 	{
-		int lastrow = CPXgetnumrows(env, lp);	//chiedo a cplex ultima riga cambiata chiedendo numero di righe
-		if (VERBOSE >= 200) {
-			printf("lastrow %d\n", lastrow);
-		}
-		double maxdeg = 2.0; 	 	//NOI vogliamo 2 uno entrante e uno uscente
+		int lastrow = CPXgetnumrows(env, lp);	
+		double rhs = 1.0; 	 
 		char sense = 'E'; 			//// E equazione
-		sprintf(cname[0], "degree(%d)", h + 1);   // DO un nome NOI degree 
-		if (CPXnewrows(env, lp, 1, &maxdeg, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");  //Nuova riga vuota con coeff diversi da 0 e con informazioni nella posizione last row 																posizione last row
-		for (int i = 0; i < inst->nnodes; i++)		//cambio coefficienti non 0 mettendoli a 1 NOI se i=h salto istruzione, se i!=h faccio chgcoef change coeff a 1
-									// non importa se i>h perché xpos fa inversione
+		sprintf(cname[0], "outdeg(%d)", h + 1);    
+		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");  
+		for (int i = 0; i < inst->nnodes; i++)	
 		{
-			if (i == h)
-				continue;
-			else
-				/*-------------SET TO 1 THE VARIABLES COEFFICIENT IN THE EQUATION----------------------------*/
-				if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
+			if (h == i) continue;
+			if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
+	for (int h = 0; h < inst->nnodes; h++) // in-degree
+	{
+		int lastrow = CPXgetnumrows(env, lp);
+		double rhs = 1.0;
+		char sense = 'E';
+		sprintf(cname[0], "indeg(%d)", h + 1);
+		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x2]");
+		for (int i = 0; i < inst->nnodes; i++)
+		{
+			if (h == i) continue;
+			if (CPXchgcoef(env, lp, lastrow, xpos(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x2]");
+		}
+	}
+	for (int i = 0; i < inst->nnodes; i++) {
+		for (int j = 0; j < inst->nnodes; j++) {
 
+		}
+	}
 	CPXwriteprob(env, lp, "model.lp", NULL); //write the cplex model in file model.lp
 }
