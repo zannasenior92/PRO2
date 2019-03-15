@@ -117,7 +117,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	for (int h = 0; h < inst->nnodes; h++)  // out-degree 
 	{
 		int lastrow = CPXgetnumrows(env, lp);	
-		double rhs = 1.0; 	 
+		double rhs = 2.0; 	 
 		char sense = 'E'; 			//// E equazione
 		sprintf(cname[0], "outdeg(%d)", h + 1);    
 		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");  
@@ -127,20 +127,8 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
-	for (int h = 0; h < inst->nnodes; h++) // in-degree
-	{
-		int lastrow = CPXgetnumrows(env, lp);
-		double rhs = 1.0;
-		char sense = 'E';
-		sprintf(cname[0], "indeg(%d)", h + 1);
-		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x2]");
-		for (int i = 0; i < inst->nnodes; i++)
-		{
-			if (h == i) continue;
-			if (CPXchgcoef(env, lp, lastrow, xpos(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x2]");
-		}
-	}
-	for (int i = 0; i < inst->nnodes; i++) {
+
+	/*for (int i = 0; i < inst->nnodes; i++) {
 		int lastrow = CPXgetnumrows(env, lp);
 		double rhs = 1.0;
 		char sense = 'L';
@@ -148,6 +136,6 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x3]");
 		
 		
-	}
+	}*/
 	CPXwriteprob(env, lp, "model.lp", NULL); //write the cplex model in file model.lp
 }
