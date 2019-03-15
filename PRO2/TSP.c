@@ -70,7 +70,7 @@ int TSPopt(instance *inst)
 		}
 	}
 	add_edge_to_file(inst);
-	if (VERBOSE >= 100) {
+	if (VERBOSE >= 10) {
 		printf("Selected nodes: %d \n", count);
 	}
 	/*-------------------------------------------------------------------------------*/
