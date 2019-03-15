@@ -141,9 +141,13 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		}
 	}
 	for (int i = 0; i < inst->nnodes; i++) {
-		for (int j = 0; j < inst->nnodes; j++) {
-
-		}
+		int lastrow = CPXgetnumrows(env, lp);
+		double rhs = 1.0;
+		char sense = 'L';
+		sprintf(cname[0], "no-cicle(%d)", i + 1);
+		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x3]");
+		
+		
 	}
 	CPXwriteprob(env, lp, "model.lp", NULL); //write the cplex model in file model.lp
 }
