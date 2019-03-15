@@ -78,13 +78,24 @@ void plot_gnuplot(instance *inst) {
 
 
 /*------------------- PRINT SELECTED EDGES (x_i,x_j) IN A TEMPORARY FILE------------*/
-void add_edge_to_plot(int i, int j, instance *inst) {
+/*void add_edge_to_plot(int i, int j, instance *inst) {
 	FILE * file = fopen("edge_to_plot.txt", "a");
 	fprintf(file, "%lf %lf %d \n", inst->xcoord[i], inst->ycoord[i], i + 1); //Write x_i to a temporary file
 	fprintf(file, "%lf %lf %d \n", inst->xcoord[j], inst->ycoord[j], j + 1); //Write x_j to a temporary file
 	fprintf(file, "\n");
 	fclose(file);
+}*/
+//metodo per inserire in un file i nodi per tracciare gli archi 
+void add_edge_to_file(instance *inst) {
+	FILE * file = fopen("edge_to_plot.txt", "w");
+	for (int i = 0; i < 2 * inst->nnodes; i=i+2) {
+		fprintf(file, "%lf %lf %d \n", inst->xcoord[inst->choosen_edge[i]], inst->ycoord[inst->choosen_edge[i]], inst->choosen_edge[i]+1); //Write x_i to a temporary file
+		fprintf(file, "%lf %lf %d \n", inst->xcoord[inst->choosen_edge[i+1]], inst->ycoord[inst->choosen_edge[i+1]], inst->choosen_edge[i+1]+1); //Write x_i to a temporary file
+		fprintf(file, "\n");
+	}
+	fclose(file);
 }
+
 /*----------------------------------------------------------------------------------*/
 
 

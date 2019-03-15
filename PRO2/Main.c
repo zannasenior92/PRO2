@@ -13,6 +13,7 @@ void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(N
 void free_instance(instance *inst) {
 	free(inst->xcoord);
 	free(inst->ycoord);
+	free(inst->choosen_edge);
 }
 /*---------------------------------------------------------------------------------------*/
 
@@ -45,9 +46,9 @@ int main(int argc, char **argv) {
 		printf("Distanza tra 32 e 40 : %.2f\n", dProva);
 	}
 
-	plot_gnuplot(&inst); //plot coord in a gnuplot window
 	//plot_edge(&inst); //plot selected edges in a gnuplot window 
 	if (TSPopt(&inst)) print_error(" error within TSPopt()");
+	plot_gnuplot(&inst); //plot coord in a gnuplot window
 	free_instance(&inst);//libero la memoria occupata dall'istanza creata nel file TSP
 	
 	return 0;
