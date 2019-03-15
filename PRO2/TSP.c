@@ -117,7 +117,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		int lastrow = CPXgetnumrows(env, lp);	
 		double rhs =  1.0; 	 	
 		char sense = 'E'; 			
-		sprintf(cname[0], "indeg(%d)", h + 1);   
+		sprintf(cname[0], "outdeg(%d)", h + 1);   
 		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]"); 
 		for (int i = 0; i < inst->nnodes; i++)	
 		{
@@ -130,7 +130,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		int lastrow = CPXgetnumrows(env, lp);
 		double rhs = 1.0;
 		char sense = 'E';
-		sprintf(cname[0], "outdeg(%d)", h + 1);
+		sprintf(cname[0], "indeg(%d)", h + 1);
 		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x2]");
 		for (int i = 0; i < inst->nnodes; i++)
 		{
@@ -145,7 +145,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			int lastrow = CPXgetnumrows(env, lp);
 			double rhs = 1.0;
 			char sense = 'L';
-			sprintf(cname[0], "link(%d %d)", i + 1, j+1);
+			sprintf(cname[0], "link(%d,%d)", i + 1, j+1);
 			if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [l3]");
 			if (CPXchgcoef(env, lp, lastrow, xpos(i, j, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
 			if (CPXchgcoef(env, lp, lastrow, xpos(j, i, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
