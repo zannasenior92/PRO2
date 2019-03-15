@@ -10,8 +10,7 @@ void add_edge_to_plot(int i, int j, instance *inst);
 
 /*------------------POSITION OF VARIABLE INSIDE THE MODEL----------------------------*/
 int xpos(int i, int j, instance *inst) {
-	if (i > j) return xpos(j, i, inst);
-	return i * inst->nnodes + j-((i+1)*(i+2)/2);
+	return i * inst->nnodes + j;
 }
 
 
@@ -40,7 +39,7 @@ int TSPopt(instance *inst)
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n"); //CPXmipopt to solve the model
 
 	int ncols = CPXgetnumcols(env, lp);
-	
+	printf("numero colonne %d\n", ncols);
 	inst->best_sol= (double *)calloc(ncols, sizeof(double)); //best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
 	
@@ -56,7 +55,7 @@ int TSPopt(instance *inst)
 		for (int j = i + 1; j < inst->nnodes; j++) {
 			if (inst->best_sol[xpos(i, j, inst)] > 0.5){
 				
-				if(VERBOSE>=100){
+				if(VERBOSE>=1){
 					printf("Il nodo (%d,%d) e' selezionato\n", i+1, j+1);
 				}
 
@@ -66,7 +65,7 @@ int TSPopt(instance *inst)
 		}
 	}
 
-	if (VERBOSE >= 100) {
+	if (VERBOSE >= 1) {
 		printf("Selected nodes: %d \n", count);
 	}
 	/*-------------------------------------------------------------------------------*/
@@ -81,7 +80,6 @@ int TSPopt(instance *inst)
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0; //lower bound
-	double ub = 1.0; //upper bound
 	char binary = 'B'; //binary variable (0 OR 1)
 	//char continuous = 'C';
 
@@ -92,11 +90,12 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	/*-------------------------DEFINE VARIABLES ON THE MODEL----------------------*/
 	for (int i = 0; i < inst->nnodes; i++)
 	{
-		for (int j = i+1; j < inst->nnodes; j++)
+		for (int j = 0; j < inst->nnodes; j++)
 		{
+			
 			double obj = dist(i, j, inst);
 			sprintf(cname[0], "x(%d,%d)", i + 1, j + 1);//print variables on cplex 
-			
+			double ub = (i == j) ? 0.0 : 1.0;
 			/*--------------------PRINT DISTANCE d(i,j)-------------------*/
 			if (VERBOSE >= 500) {
 				printf("Distance d(%d,%d): %f \n",i+1,j+1, dist(i, j,inst));
@@ -108,34 +107,51 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			//confronto se la posizione della colonna aggiunta sia uguale a quella della xpos
 			//printf("La colonna con i=%d e j=%d e' in posizione %d e xpos e' %d\n", i, j, CPXgetnumcols(env, lp), xpos(i,j,inst));
 			if (CPXgetnumcols(env, lp) - 1 != xpos(i, j, inst)) print_error(" wrong position for x var.s");
-
 		}
 	}
 
 
 	/*--------------------------------ADD CONSTRAINTS----------------------------*/
-	for (int h = 0; h < inst->nnodes; h++)  // out-degree 
+	for (int h = 0; h < inst->nnodes; h++)  
 	{
 		int lastrow = CPXgetnumrows(env, lp);	
-		double rhs = 2.0; 	 
-		char sense = 'E'; 			//// E equazione
-		sprintf(cname[0], "outdeg(%d)", h + 1);    
-		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");  
+		double rhs =  1.0; 	 	
+		char sense = 'E'; 			
+		sprintf(cname[0], "indeg(%d)", h + 1);   
+		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]"); 
 		for (int i = 0; i < inst->nnodes; i++)	
 		{
-			if (h == i) continue;
+			if (i == h) continue;
 			if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
-
-	/*for (int i = 0; i < inst->nnodes; i++) {
+	for (int h = 0; h < inst->nnodes; h++) // in-degree
+	{
 		int lastrow = CPXgetnumrows(env, lp);
 		double rhs = 1.0;
-		char sense = 'L';
-		sprintf(cname[0], "no-cicle(%d)", i + 1);
-		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x3]");
+		char sense = 'E';
+		sprintf(cname[0], "outdeg(%d)", h + 1);
+		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x2]");
+		for (int i = 0; i < inst->nnodes; i++)
+		{
+			if (i == h) continue;
+			if (CPXchgcoef(env, lp, lastrow, xpos(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x2]");
+		}
+	}
+
+	for (int i = 0; i < inst->nnodes; i++) {
+		for (int j = i+1; j < inst->nnodes; j++) {
+			if (i == j) continue;
+			int lastrow = CPXgetnumrows(env, lp);
+			double rhs = 1.0;
+			char sense = 'L';
+			sprintf(cname[0], "link(%d %d)", i + 1, j+1);
+			if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [l3]");
+			if (CPXchgcoef(env, lp, lastrow, xpos(i, j, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
+			if (CPXchgcoef(env, lp, lastrow, xpos(j, i, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
+		}
 		
-		
-	}*/
+	}
+
 	CPXwriteprob(env, lp, "model.lp", NULL); //write the cplex model in file model.lp
 }
