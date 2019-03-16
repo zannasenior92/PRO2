@@ -115,7 +115,12 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	for (int h = 0; h < inst->nnodes; h++) //----------------------------out-degree 
 		/*(For every node h, the sum of all the outgoings arcs (h,j) must be 1)*/
 	{
-		int lastrow = CPXgetnumrows(env, lp);	
+		int lastrow = CPXgetnumrows(env, lp);
+		if (VERBOSE >= 300)//print every outdeg
+		{
+			printf("outdeg(%d) \n", h + 1);
+		}
+
 		double rhs =  1.0; 	 	
 		char sense = 'E'; 			
 		sprintf(cname[0], "outdeg(%d)", h + 1);   
@@ -130,6 +135,11 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		/*(For every node h, the sum of all the incoming arcs (i,h) must be 1)*/
 	{
 		int lastrow = CPXgetnumrows(env, lp);
+		if(VERBOSE>=300)//print every indeg
+		{
+			printf("indeg(%d) \n", h + 1);
+		}
+		
 		double rhs = 1.0;
 		char sense = 'E';
 		sprintf(cname[0], "indeg(%d)", h + 1);
@@ -141,19 +151,60 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		}
 	}
 
+
+	int ncols = CPXgetnumcols(env, lp);
+	int nnz = 0;
+	int izero = 0;
+	int *index = (int *)malloc(ncols * sizeof(int));
+	double *value = (double *)malloc(ncols * sizeof(double));
+
+	/*for (int i = 0; i < inst->nnodes; i++) {
+		for (int j = i + 1; j < inst->nnodes; j++) {
+			if (i == j) continue;
+
+			
+			
+
+		}
+
+	}
+	*/
+	/*---------------------------y_ij + y_ji <= 1 for all i<j--------------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
+		//variabili per poter inserire i lazy
+		int ncols = CPXgetnumcols(env, lp);
+		int nnz = 0;
+		int izero = 0;
+		int *index = (int *)malloc(ncols * sizeof(int));
+		double *value = (double *)malloc(ncols * sizeof(double));
+
+		
 		for (int j = i+1; j < inst->nnodes; j++) {
+			// ho cercato di inserire i lazy ma non ci capisco na mazza di come funziona la funzione CPXaddlazyconstraint
+			index[nnz] = xpos(i, j, inst); //index column
+			value[nnz] = 1.0;
+			nnz++;
+			index[nnz] = xpos(j, i, inst);
+			value[nnz] = 1.0;
+			nnz++;
+
+
 			if (i == j) continue;
 			int lastrow = CPXgetnumrows(env, lp);
 			double rhs = 1.0;
 			char sense = 'L';
-			sprintf(cname[0], "link(%d,%d)", i + 1, j+1);
-			if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [l3]");
-			if (CPXchgcoef(env, lp, lastrow, xpos(i, j, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
-			if (CPXchgcoef(env, lp, lastrow, xpos(j, i, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
+			sprintf(cname[0], "link(%d,%d)", i + 1, j + 1);
+			/*enviroenment, lp problem, nuber of lazy constraints to insert, */
+			if (CPXaddlazyconstraints(env, lp, 1, 2, &rhs, &sense, &izero, index, value, NULL)) print_error("wrong CPXnewrows [l3]");
+			//if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [l3]");
+			//if (CPXchgcoef(env, lp, lastrow, xpos(i, j, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
+			//if (CPXchgcoef(env, lp, lastrow, xpos(j, i, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
+			
 		}
 		
 	}
+	free(index);
+	free(value);
 
 	CPXwriteprob(env, lp, "model.lp", NULL); //write the cplex model in file model.lp
 }
