@@ -112,7 +112,8 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 
 	/*--------------------------------ADD CONSTRAINTS----------------------------*/
-	for (int h = 0; h < inst->nnodes; h++)  
+	for (int h = 0; h < inst->nnodes; h++) //----------------------------out-degree 
+		/*(For every node h, the sum of all the outgoings arcs (h,j) must be 1)*/
 	{
 		int lastrow = CPXgetnumrows(env, lp);	
 		double rhs =  1.0; 	 	
@@ -122,10 +123,11 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int i = 0; i < inst->nnodes; i++)	
 		{
 			if (i == h) continue;
-			if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
+			if (CPXchgcoef(env, lp, lastrow, xpos(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
-	for (int h = 0; h < inst->nnodes; h++) // in-degree
+	for (int h = 0; h < inst->nnodes; h++) //-----------------------------in-degree
+		/*(For every node h, the sum of all the incoming arcs (i,h) must be 1)*/
 	{
 		int lastrow = CPXgetnumrows(env, lp);
 		double rhs = 1.0;
@@ -135,7 +137,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int i = 0; i < inst->nnodes; i++)
 		{
 			if (i == h) continue;
-			if (CPXchgcoef(env, lp, lastrow, xpos(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x2]");
+			if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x2]");
 		}
 	}
 
