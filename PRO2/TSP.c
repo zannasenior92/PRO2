@@ -152,12 +152,6 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	}
 
 
-	int ncols = CPXgetnumcols(env, lp);
-	int nnz = 0;
-	int izero = 0;
-	int *index = (int *)malloc(ncols * sizeof(int));
-	double *value = (double *)malloc(ncols * sizeof(double));
-
 	/*for (int i = 0; i < inst->nnodes; i++) {
 		for (int j = i + 1; j < inst->nnodes; j++) {
 			if (i == j) continue;
@@ -180,9 +174,11 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 		
 		for (int j = i+1; j < inst->nnodes; j++) {
+			//Each entry, index[i], specifies the column index of the corresponding coefficient, value[i]
+
 			// ho cercato di inserire i lazy ma non ci capisco na mazza di come funziona la funzione CPXaddlazyconstraint
-			index[nnz] = xpos(i, j, inst); //index column
-			value[nnz] = 1.0;
+			index[nnz] = xpos(i, j, inst); //devo inserirci l'indice della colonna ovvero della variabile 
+			value[nnz] = 1.0; //setto a 1 il valore della variabile  
 			nnz++;
 			index[nnz] = xpos(j, i, inst);
 			value[nnz] = 1.0;
@@ -195,16 +191,17 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			char sense = 'L';
 			sprintf(cname[0], "link(%d,%d)", i + 1, j + 1);
 			/*enviroenment, lp problem, nuber of lazy constraints to insert, */
-			if (CPXaddlazyconstraints(env, lp, 1, 2, &rhs, &sense, &izero, index, value, NULL)) print_error("wrong CPXnewrows [l3]");
+			if (CPXaddlazyconstraints(env, lp, 1, 2, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXnewrows [l3]");
 			//if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [l3]");
 			//if (CPXchgcoef(env, lp, lastrow, xpos(i, j, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
 			//if (CPXchgcoef(env, lp, lastrow, xpos(j, i, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
 			
 		}
+		free(index);
+		free(value);
 		
 	}
-	free(index);
-	free(value);
+	
 
 	CPXwriteprob(env, lp, "model.lp", NULL); //write the cplex model in file model.lp
 }
