@@ -6,12 +6,16 @@
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
 void add_edge_to_plot(int i, int j, instance *inst);
-
+void add_edge_to_file(instance *inst);
 
 /*------------------POSITION OF VARIABLE INSIDE THE MODEL----------------------------*/
 int xpos(int i, int j, instance *inst) {
 	return i * inst->nnodes + j;
 }
+int upos(int i, instance *inst) {
+	return inst->u[i];
+}
+
 
 
 /*-------------------------DISTANCE BETWEEN TWO POINTS-------------------------------*/
@@ -49,20 +53,19 @@ int TSPopt(instance *inst)
 		}
 	}
 	int count = 0;
-
+	int n = 0;
 	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		for (int j = i + 1; j < inst->nnodes; j++) {
 			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
 
-				if (VERBOSE >= 100) {
+				if (VERBOSE >= 1) {
 					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
 				}
 				//Aggiungo i nodi a due a due, cosi so che ad ogni coppia corrisponde un arco
 				inst->choosen_edge[n] = i;	//Uso un vettore lungo 2*nnodes per salvare i nodi corrispondenti agli archi
 				inst->choosen_edge[n + 1] = j; //scelti. Cosi aggiorno il file per il plot una sola volta e lo sovrascrivo.
 				n += 2;
-				//add_edge_to_plot(i, j, inst);//add in a file selected edges
 				count++;
 			}
 		}
@@ -74,7 +77,7 @@ int TSPopt(instance *inst)
 	}
 	/*-------------------------------------------------------------------------------*/
 
-	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIROENMENT-----------*/
+	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
 	return 0;
@@ -85,7 +88,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0; //lower bound
 	char binary = 'B'; //binary variable (0 OR 1)
-	//char continuous = 'C';
+	char integer = 'I';
 
 	//Definisco cname per scrivere il modello in modo più chiaro
 	char **cname = (char **)calloc(1, sizeof(char *));		// (char **) required by cplex...
@@ -112,6 +115,19 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			//printf("La colonna con i=%d e j=%d e' in posizione %d e xpos e' %d\n", i, j, CPXgetnumcols(env, lp), xpos(i,j,inst));
 			if (CPXgetnumcols(env, lp) - 1 != xpos(i, j, inst)) print_error(" wrong position for x var.s");
 		}
+	}
+	/*--------ADD THE u VARIABLES dove ui=posizione di i nel circuito-----------*/
+	for (int i = 0; i < inst->nnodes; i++)
+	{
+
+		double lbu = 2.0; //lower bound u
+		double obj = upos(i, inst);
+		sprintf(cname[0], "u(%d)", i + 1);//print variables on cplex 
+		double ub = inst->nnodes;
+		
+		//Metodo per inserire colonna: env=environment, lp=problema, obj=funzione obiettivo, 
+		// lb=lower bound, ub=upper bound, binary=tipo della variabile, cname=nome della colonna
+		if (CPXnewcols(env, lp, 1, &obj, &lb, &ub, &integer, cname)) print_error(" wrong CPXnewcols on u var.s");
 	}
 
 

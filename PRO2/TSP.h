@@ -27,8 +27,8 @@ typedef struct {
 
 	//----------------------GLOBAL DATA-------------------------
 	double *best_sol;						// best sol. available
-	//double *choosen_node;						// Nodi scelti 
-
+	int *choosen_edge;						// archi scelti 
+	int *u;
 
 } instance; //"instance" sarebbe il nome che diamo ad una istanza della nostra struttura
 

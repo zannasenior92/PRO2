@@ -42,6 +42,8 @@ void read_input(instance *inst) {
 			printf("nnodes %d\n", inst->nnodes);
 			inst->xcoord = (double *)calloc(inst->nnodes, sizeof(double));
 			inst->ycoord = (double *)calloc(inst->nnodes, sizeof(double));
+			inst->choosen_edge= (int *)calloc(inst->nnodes*2, sizeof(int));
+			inst->u= (int *)calloc(inst->nnodes, sizeof(int));
 			continue;
 		}
 		if (strncmp(par_name, "NODE_COORD_SECTION", 18) == 0)
