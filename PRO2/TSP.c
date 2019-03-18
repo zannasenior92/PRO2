@@ -53,17 +53,21 @@ int TSPopt(instance *inst)
 	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		for (int j = i + 1; j < inst->nnodes; j++) {
-			if (inst->best_sol[xpos(i, j, inst)] > 0.5){
-				
-				if(VERBOSE>=1){
-					printf("Il nodo (%d,%d) e' selezionato\n", i+1, j+1);
-				}
+			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
 
-				add_edge_to_plot(i, j, inst);//add in a file selected edges
+				if (VERBOSE >= 100) {
+					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
+				}
+				//Aggiungo i nodi a due a due, cosi so che ad ogni coppia corrisponde un arco
+				inst->choosen_edge[n] = i;	//Uso un vettore lungo 2*nnodes per salvare i nodi corrispondenti agli archi
+				inst->choosen_edge[n + 1] = j; //scelti. Cosi aggiorno il file per il plot una sola volta e lo sovrascrivo.
+				n += 2;
+				//add_edge_to_plot(i, j, inst);//add in a file selected edges
 				count++;
 			}
 		}
 	}
+	add_edge_to_file(inst);
 
 	if (VERBOSE >= 1) {
 		printf("Selected nodes: %d \n", count);
