@@ -29,6 +29,12 @@ double dist(int i, int j, instance *inst){
 		return tij;
 }
 
+double dist_euc(int i, int j, instance *inst) {
+	double dx = inst->xcoord[i] - inst->xcoord[j];
+	double dy = inst->ycoord[i] - inst->ycoord[j];
+	return (int)(sqrt((dx*dx + dy * dy))+0.5);
+	}
+
 
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
@@ -118,38 +124,21 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	/*--------ADD THE u VARIABLES dove ui=posizione di i nel circuito-----------*/
 	for (int i = 0; i < inst->nnodes; i++)
 	{
-
-		double lbu = 2.0; //lower bound u
+		double lbu = (i == 0) ? 1.0 : 2.0;
+		//double lbu = 2.0; //lower bound u
 		double obj = 0;
 		sprintf(cname[0], "u(%d)", i + 1);//print variables on cplex 
-		double ub = inst->nnodes;
+		double ub = (i == 0) ? 1.0 : inst->nnodes;
+		//double ub = inst->nnodes;
 		
 		//Metodo per inserire colonna: env=environment, lp=problema, obj=funzione obiettivo, 
 		// lb=lower bound, ub=upper bound, binary=tipo della variabile, cname=nome della colonna
-		if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &binary, cname)) print_error(" wrong CPXnewcols on u var.s");
+		if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on u var.s");
 	}
 
 
 	/*--------------------------------ADD CONSTRAINTS----------------------------*/
-	for (int h = 0; h < inst->nnodes; h++) //----------------------------out-degree 
-		/*(For every node h, the sum of all the outgoings arcs (h,j) must be 1)*/
-	{
-		int lastrow = CPXgetnumrows(env, lp);
-		if (VERBOSE >= 300)//print every outdeg
-		{
-			printf("outdeg(%d) \n", h + 1);
-		}
-
-		double rhs =  1.0; 	 	
-		char sense = 'E'; 			
-		sprintf(cname[0], "outdeg(%d)", h + 1);   
-		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]"); 
-		for (int i = 0; i < inst->nnodes; i++)	
-		{
-			if (i == h) continue;
-			if (CPXchgcoef(env, lp, lastrow, xpos(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
-		}
-	}
+	
 	for (int h = 0; h < inst->nnodes; h++) //-----------------------------in-degree
 		/*(For every node h, the sum of all the incoming arcs (i,h) must be 1)*/
 	{
@@ -169,7 +158,25 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x2]");
 		}
 	}
+	for (int h = 0; h < inst->nnodes; h++) //----------------------------out-degree 
+		/*(For every node h, the sum of all the outgoings arcs (h,j) must be 1)*/
+	{
+		int lastrow = CPXgetnumrows(env, lp);
+		if (VERBOSE >= 300)//print every outdeg
+		{
+			printf("outdeg(%d) \n", h + 1);
+		}
 
+		double rhs = 1.0;
+		char sense = 'E';
+		sprintf(cname[0], "outdeg(%d)", h + 1);
+		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");
+		for (int i = 0; i < inst->nnodes; i++)
+		{
+			if (i == h) continue;
+			if (CPXchgcoef(env, lp, lastrow, xpos(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
+		}
+	}
 
 	/*---------------------------y_ij + y_ji <= 1 for all i<j--------------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
@@ -202,30 +209,40 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		free(index);
 		free(value);
 	}
-	
+	/* INSERISCO u1=1*/
+	int izero = 0;
+	int *index = (int *)malloc(1 * sizeof(int));
+	double *value = (double *)malloc(1* sizeof(double));
+	double rhs = 1.0;
+	char sense = 'E';
+	index[0] = upos(0, inst);
+	value[0] = 1.0;
+	sprintf(cname[0], "u1(1)");
+	if (CPXaddlazyconstraints(env, lp, 1, 1, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
+
 	/*-------------CONSTRAINTS ON u VARIABLES-----------------------*/
 	/*------------  ui-uj+M*yij<=M-1 -------------------- */
 	
-	for (int i = 0; i < inst->nnodes; i++) {
+	for (int i = 1; i < inst->nnodes; i++) {
 		
 		char sense = 'L';
 		int izero = 0;
 		int *index = (int *)malloc(3 * sizeof(int));
 		double *value = (double *)malloc(3 * sizeof(double));
 
-		for (int j = i + 1; j < inst->nnodes; j++) {
+		for (int j = 1; j < inst->nnodes; j++) {
 			if (i == j) continue;
 			double big_M = (double)inst->nnodes - 1;
 			double rhs = big_M - 1;
 
-			sprintf(cname[0], "ui(%d)", i + 1);
+			sprintf(cname[0], "uij(%d,%d)", i + 1, j+1);
 			index[0] = upos(i,inst); //devo inserirci l'indice della colonna ovvero della variabile
 			printf("upos=%d\n", index[0]);
 			value[0] = 1.0; //setto a 1 il valore della variabile  
 			index[1] = (upos(j,inst));
 			value[1] = -1.0;
 			index[2] = xpos(i,j,inst);
-			value[2] = 1.0;
+			value[2] = big_M;
 			//inst->u[i] - inst->u[i] + big_M * xpos(i, j, inst);
 			if (CPXaddlazyconstraints(env, lp, 1, 3, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 
