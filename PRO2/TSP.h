@@ -19,6 +19,7 @@ typedef struct {
 	double *xcoord;
 	double *ycoord;
 	double timelimit;
+	int dist_type;
 
 
 	//-----------------------PARAMETERS-----------------------

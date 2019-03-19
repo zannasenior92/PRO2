@@ -19,21 +19,24 @@ int upos(int i, instance *inst) {
 
 /*-------------------------DISTANCE BETWEEN TWO POINTS-------------------------------*/
 double dist(int i, int j, instance *inst){
-	double dx = inst->xcoord[i] - inst->xcoord[j];
-	double dy = inst->ycoord[i] - inst->ycoord[j];
-	double rij = sqrt((dx*dx+dy*dy)/10.0);
-	int tij = (int)(rij + 0.5);
-	if (tij < rij)
-		return (tij + 1);
-	else
-		return tij;
+	if(inst->dist_type==0) {
+		double dx = inst->xcoord[i] - inst->xcoord[j];
+		double dy = inst->ycoord[i] - inst->ycoord[j];
+		return (int)(sqrt((dx*dx + dy * dy)) + 0.5);
+	}
+	if(inst->dist_type==1){
+		double dx = inst->xcoord[i] - inst->xcoord[j];
+		double dy = inst->ycoord[i] - inst->ycoord[j];
+		double rij = sqrt((dx*dx+dy*dy)/10.0);
+		int tij = (int)(rij + 0.5);
+		if (tij < rij)
+			return (tij + 1);
+		else
+			return tij;
+	}
+	
 }
 
-double dist_euc(int i, int j, instance *inst) {
-	double dx = inst->xcoord[i] - inst->xcoord[j];
-	double dy = inst->ycoord[i] - inst->ycoord[j];
-	return (int)(sqrt((dx*dx + dy * dy))+0.5);
-	}
 
 
 
@@ -230,7 +233,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		int *index = (int *)malloc(3 * sizeof(int));
 		double *value = (double *)malloc(3 * sizeof(double));
 
-		for (int j = 1; j < inst->nnodes; j++) {
+		for (int j = 2; j < inst->nnodes; j++) {
 			if (i == j) continue;
 			double big_M = (double)inst->nnodes - 1;
 			double rhs = big_M - 1;
