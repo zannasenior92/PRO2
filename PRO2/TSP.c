@@ -5,7 +5,6 @@
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
-void add_edge_to_plot(int i, int j, instance *inst);
 void add_edge_to_file(instance *inst);
 
 /*------------------POSITION OF VARIABLE INSIDE THE MODEL----------------------------*/
@@ -13,7 +12,7 @@ int xpos(int i, int j, instance *inst) {
 	return i * inst->nnodes + j;
 }
 int upos(int i, instance *inst) {
-	return inst->u[i];
+	return inst->nnodes*inst->nnodes + i;
 }
 
 
@@ -121,13 +120,13 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	{
 
 		double lbu = 2.0; //lower bound u
-		double obj = upos(i, inst);
+		double obj = 0;
 		sprintf(cname[0], "u(%d)", i + 1);//print variables on cplex 
 		double ub = inst->nnodes;
 		
 		//Metodo per inserire colonna: env=environment, lp=problema, obj=funzione obiettivo, 
 		// lb=lower bound, ub=upper bound, binary=tipo della variabile, cname=nome della colonna
-		if (CPXnewcols(env, lp, 1, &obj, &lb, &ub, &integer, cname)) print_error(" wrong CPXnewcols on u var.s");
+		if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &binary, cname)) print_error(" wrong CPXnewcols on u var.s");
 	}
 
 
@@ -172,45 +171,25 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	}
 
 
-	/*for (int i = 0; i < inst->nnodes; i++) {
-		for (int j = i + 1; j < inst->nnodes; j++) {
-			if (i == j) continue;
-
-			
-			
-
-		}
-
-	}
-	*/
 	/*---------------------------y_ij + y_ji <= 1 for all i<j--------------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		//variabili per poter inserire i lazy
-		int ncols = CPXgetnumcols(env, lp);
-		int nnz = 0;
 		int izero = 0;
 		int *index = (int *)malloc(2 * sizeof(int));
 		double *value = (double *)malloc(2 * sizeof(double));
-		int lastrow = CPXgetnumrows(env, lp);
 		double rhs = 1.0;
 		char sense = 'L';
 
 		for (int j = i+1; j < inst->nnodes; j++) {
 			//Each entry, index[i], specifies the column index of the corresponding coefficient, value[i]
-
+			if (i == j) continue;
 			// ho cercato di inserire i lazy ma non ci capisco na mazza di come funziona la funzione CPXaddlazyconstraint
 			index[0] = xpos(i, j, inst); //devo inserirci l'indice della colonna ovvero della variabile
 			value[0] = 1.0; //setto a 1 il valore della variabile  
-			//nnz++;
 			index[1] = xpos(j, i, inst);
 			value[1] = 1.0;
-			//nnz++;
-			
-
-			if (i == j) continue;
-			
 			sprintf(cname[0], "link(%d,%d)", i + 1, j + 1);
-			/*enviroenment, lp problem, nuber of lazy constraints to insert, */
+			/*environment, lp problem, nuber of lazy constraints to insert, */
 
 			if (CPXaddlazyconstraints(env, lp, 1, 2, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 			
@@ -223,6 +202,37 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		free(index);
 		free(value);
 	}
+	
+	/*-------------CONSTRAINTS ON u VARIABLES-----------------------*/
+	/*------------  ui-uj+M*yij<=M-1 -------------------- */
+	
+	for (int i = 0; i < inst->nnodes; i++) {
+		
+		char sense = 'L';
+		int izero = 0;
+		int *index = (int *)malloc(3 * sizeof(int));
+		double *value = (double *)malloc(3 * sizeof(double));
+
+		for (int j = i + 1; j < inst->nnodes; j++) {
+			if (i == j) continue;
+			double big_M = (double)inst->nnodes - 1;
+			double rhs = big_M - 1;
+
+			sprintf(cname[0], "ui(%d)", i + 1);
+			index[0] = upos(i,inst); //devo inserirci l'indice della colonna ovvero della variabile
+			printf("upos=%d\n", index[0]);
+			value[0] = 1.0; //setto a 1 il valore della variabile  
+			index[1] = (upos(j,inst));
+			value[1] = -1.0;
+			index[2] = xpos(i,j,inst);
+			value[2] = 1.0;
+			//inst->u[i] - inst->u[i] + big_M * xpos(i, j, inst);
+			if (CPXaddlazyconstraints(env, lp, 1, 3, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
+
+		}
+
+	}
+	
 	
 
 	CPXwriteprob(env, lp, "model.lp", NULL); //write the cplex model in file model.lp
