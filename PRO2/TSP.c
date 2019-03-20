@@ -13,6 +13,9 @@ int xpos(int i, int j, instance *inst) {
 	if (i > j) return xpos(j, i, inst);
 	return i * inst->nnodes + j-((i+1)*(i+2)/2);
 }
+int zpos(int i, int j, instance *inst) {
+	return ((xpos(inst->nnodes,inst->nnodes,inst)+(i * inst->nnodes + j))+1);
+}
 
 
 /*-------------------------DISTANCE BETWEEN TWO POINTS-------------------------------*/
@@ -81,6 +84,13 @@ int TSPopt(instance *inst)
 	if (VERBOSE >= 10) {
 		printf("Selected nodes: %d \n", count);
 	}
+	for (int i = 0; i < inst->nnodes; i++) {
+		for (int j = 0; j < inst->nnodes; j++) {
+			printf("posizione z(%d,%d)=%d\n", i + 1, j + 1, zpos(i, j, inst));
+
+		}
+	}
+	
 	/*-------------------------------------------------------------------------------*/
 
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIROENMENT-----------*/
@@ -159,6 +169,59 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		}
 	}
 	/*---------------VINCOLI PER Z-------------*/
+	/* INSERISCO z11=1*/
+	int izero = 0;
+	int *index = (int *)malloc(1 * sizeof(int));
+	double *value = (double *)malloc(1 * sizeof(double));
+	double rhs = 1.0;
+	char sense = 'E';
+	index[0] = zpos(0,0, inst);
+	value[0] = 1.0;
+	sprintf(cname[0], "z11");
+	if (CPXaddlazyconstraints(env, lp, 1, 1, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
+	
+	/*-------------ogni vertice deve avere una posizione---*/
+	for (int v = 0; v < inst->nnodes; v++)  
+	{
+		int lastrow = CPXgetnumrows(env, lp);	//chiedo a cplex ultima riga cambiata chiedendo numero di righe
+		double rhs = 1.0; 	 	
+		char sense = 'E'; 			
+		sprintf(cname[0], "somme_z((%d),h)", v + 1);    
+		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");  
+		for (int h = 0; h < inst->nnodes; h++)	
+		{
+			/*-------------SET TO 1 THE VARIABLES COEFFICIENT IN THE EQUATION----------------------------*/
+			if (CPXchgcoef(env, lp, lastrow, zpos(v,h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
+		}
+	}
+	/*-------------ogni posizione deve avere un vertice---*/
+	for (int h = 0; h < inst->nnodes; h++)
+	{
+		int lastrow = CPXgetnumrows(env, lp);	//chiedo a cplex ultima riga cambiata chiedendo numero di righe
+		double rhs = 1.0;
+		char sense = 'E';
+		sprintf(cname[0], "somme_z(v,(%d))", h + 1);
+		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");
+		for (int v = 0; v < inst->nnodes; v++)
+		{
+			/*-------------SET TO 1 THE VARIABLES COEFFICIENT IN THE EQUATION----------------------------*/
+			if (CPXchgcoef(env, lp, lastrow, zpos(v, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
+		}
+	}
+	/*---------------Vincolo forte somme(zit)+xij+somme(jt)<=2*/
+	for (int h = 0; h < inst->nnodes; h++)
+	{
+		int lastrow = CPXgetnumrows(env, lp);	//chiedo a cplex ultima riga cambiata chiedendo numero di righe
+		double rhs = 2.0;
+		char sense = 'L';
+		sprintf(cname[0], "vincolo_z(v,(%d))", h + 1);
+		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");
+		for (int v = 0; v < inst->nnodes; v++)
+		{
+			/*-------------SET TO 1 THE VARIABLES COEFFICIENT IN THE EQUATION----------------------------*/
+			if (CPXchgcoef(env, lp, lastrow, zpos(v, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
+		}
+	}
 
 
 	CPXwriteprob(env, lp, "model_pers.lp", NULL); //write the cplex model in file model.lp
