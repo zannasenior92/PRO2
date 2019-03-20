@@ -84,12 +84,7 @@ int TSPopt(instance *inst)
 	if (VERBOSE >= 10) {
 		printf("Selected nodes: %d \n", count);
 	}
-	for (int i = 0; i < inst->nnodes; i++) {
-		for (int j = 0; j < inst->nnodes; j++) {
-			printf("posizione z(%d,%d)=%d\n", i + 1, j + 1, zpos(i, j, inst));
-
-		}
-	}
+	
 	
 	/*-------------------------------------------------------------------------------*/
 
@@ -209,20 +204,37 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		}
 	}
 	/*---------------Vincolo forte somme(zit)+xij+somme(jt)<=2*/
-	for (int h = 0; h < inst->nnodes; h++)
-	{
-		int lastrow = CPXgetnumrows(env, lp);	//chiedo a cplex ultima riga cambiata chiedendo numero di righe
-		double rhs = 2.0;
-		char sense = 'L';
-		sprintf(cname[0], "vincolo_z(v,(%d))", h + 1);
-		if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");
-		for (int v = 0; v < inst->nnodes; v++)
-		{
-			/*-------------SET TO 1 THE VARIABLES COEFFICIENT IN THE EQUATION----------------------------*/
-			if (CPXchgcoef(env, lp, lastrow, zpos(v, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
+	
+	for (int i = 0; i < inst->nnodes; i++) {
+		for (int j = 0; j < inst->nnodes; j++) {
+			for (int h = 2; h < inst->nnodes; h++) {
+				int n = 0;
+				if (i == j) continue;
+				char sense = 'L';
+				int izero = 0;
+				int *index = (int *)malloc((inst->nnodes-2) * sizeof(int));
+				double *value = (double *)malloc((inst->nnodes - 2) * sizeof(double));
+				double rhs = 2;
+
+				sprintf(cname[0], "h%d_x(%d,%d)",h, i + 1, j + 1);
+				for (int t = 2; t < h; t++) {
+					index[n] = zpos(i, t, inst);
+					value[n] = 1.0;
+					n++;
+				}
+				index[n] = xpos(i, j, inst);
+				n++;
+				for (int t = h+2; t < inst->nnodes; t++) {
+					index[n] = zpos(j, t, inst);
+					value[n] = 1.0;
+					n++;
+				}
+				if (CPXaddlazyconstraints(env, lp, 1, sizeof(index), &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
+			
+			}
+			
 		}
 	}
-
 
 	CPXwriteprob(env, lp, "model_pers.lp", NULL); //write the cplex model in file model.lp
 }
