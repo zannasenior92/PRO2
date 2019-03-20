@@ -98,7 +98,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	char binary = 'B'; //binary variable (0 OR 1)
 	char integer = 'I';
 
-	//Definisco cname per scrivere il modello in modo più chiaro
+	//Definisco cname per scrivere il modello in modo piÃ¹ chiaro
 	char **cname = (char **)calloc(1, sizeof(char *));		// (char **) required by cplex...
 	cname[0] = (char *)calloc(100, sizeof(char));
 
@@ -233,7 +233,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		int *index = (int *)malloc(3 * sizeof(int));
 		double *value = (double *)malloc(3 * sizeof(double));
 
-		for (int j = 2; j < inst->nnodes; j++) {
+		for (int j = 1; j < inst->nnodes; j++) {
 			if (i == j) continue;
 			double big_M = (double)inst->nnodes - 1;
 			double rhs = big_M - 1;
