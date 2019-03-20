@@ -139,5 +139,5 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		}
 	}
 
-	CPXwriteprob(env, lp, "model.lp", NULL); //write the cplex model in file model.lp
+	CPXwriteprob(env, lp, "model_pers.lp", NULL); //write the cplex model in file model.lp
 }
