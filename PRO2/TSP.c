@@ -17,15 +17,23 @@ int xpos(int i, int j, instance *inst) {
 
 
 /*-------------------------DISTANCE BETWEEN TWO POINTS-------------------------------*/
-double dist(int i, int j, instance *inst){
-	double dx = inst->xcoord[i] - inst->xcoord[j];
-	double dy = inst->ycoord[i] - inst->ycoord[j];
-	double rij = sqrt((dx*dx+dy*dy)/10.0);
-	int tij = (int)(rij + 0.5);
-	if (tij < rij)
-		return (tij + 1);
-	else
-		return tij;
+double dist(int i, int j, instance *inst) {
+	if (inst->dist_type == 0) {
+		double dx = inst->xcoord[i] - inst->xcoord[j];
+		double dy = inst->ycoord[i] - inst->ycoord[j];
+		return (int)(sqrt((dx*dx + dy * dy)) + 0.5);
+	}
+	if (inst->dist_type == 1) {
+		double dx = inst->xcoord[i] - inst->xcoord[j];
+		double dy = inst->ycoord[i] - inst->ycoord[j];
+		double rij = sqrt((dx*dx + dy * dy) / 10.0);
+		int tij = (int)(rij + 0.5);
+		if (tij < rij)
+			return (tij + 1);
+		else
+			return tij;
+	}
+
 }
 
 
