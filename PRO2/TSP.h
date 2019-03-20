@@ -30,6 +30,7 @@ typedef struct {
 	double *best_sol;						// best sol. available
 	int *choosen_edge;						// archi scelti 
 	int *u;
+	double best_obj_val;
 
 } instance; //"instance" sarebbe il nome che diamo ad una istanza della nostra struttura
 

@@ -54,7 +54,8 @@ int TSPopt(instance *inst)
 	printf("numero colonne %d\n", ncols);
 	inst->best_sol= (double *)calloc(ncols, sizeof(double)); //best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
-	
+	if(CPXgetobjval(env, lp, &inst->best_obj_val)) print_error("no best objective function");
+	printf("Miglior soluzione: %.0f\n", inst->best_obj_val);
 	if(VERBOSE>=200){
 		for (int i = 0; i < ncols - 1; i++){
 			printf("Best %f\n", inst->best_sol[i]);
@@ -240,7 +241,6 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 			sprintf(cname[0], "uij(%d,%d)", i + 1, j+1);
 			index[0] = upos(i,inst); //devo inserirci l'indice della colonna ovvero della variabile
-			printf("upos=%d\n", index[0]);
 			value[0] = 1.0; //setto a 1 il valore della variabile  
 			index[1] = (upos(j,inst));
 			value[1] = -1.0;
