@@ -212,24 +212,26 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 				if (i == j) continue;
 				char sense = 'L';
 				int izero = 0;
-				int *index = (int *)malloc((inst->nnodes-2) * sizeof(int));
-				double *value = (double *)malloc((inst->nnodes - 2) * sizeof(double));
+				int node = inst->nnodes;
+				int *index = (int *)malloc(node * sizeof(int));
+				double *value = (double *)malloc(node * sizeof(double));
 				double rhs = 2;
-
+				
 				sprintf(cname[0], "h%d_x(%d,%d)",h, i + 1, j + 1);
-				for (int t = 2; t < h; t++) {
+				for (int t = 1; t < h; t++) {
 					index[n] = zpos(i, t, inst);
 					value[n] = 1.0;
 					n++;
 				}
 				index[n] = xpos(i, j, inst);
+				value[n] = 1.0;
 				n++;
 				for (int t = h+2; t < inst->nnodes; t++) {
 					index[n] = zpos(j, t, inst);
 					value[n] = 1.0;
 					n++;
 				}
-				if (CPXaddlazyconstraints(env, lp, 1, sizeof(index), &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
+				if (CPXaddlazyconstraints(env, lp, 1, n-1, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 			
 			}
 			
