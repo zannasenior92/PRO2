@@ -205,38 +205,41 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	}
 	/*---------------Vincolo forte somme(zit)+xij+somme(jt)<=2*/
 	
-	for (int i = 0; i < inst->nnodes; i++) {
-		for (int j = 0; j < inst->nnodes; j++) {
-			for (int h = 2; h < inst->nnodes; h++) {
+	for (int i = 1; i < inst->nnodes; i++) {
+		for (int j = 1; j < inst->nnodes; j++) {
+			for (int h = 1; h < inst->nnodes; h++) {
 				int n = 0;
 				if (i == j) continue;
 				char sense = 'L';
 				int izero = 0;
-				int node = inst->nnodes;
-				int *index = (int *)malloc(node * sizeof(int));
-				double *value = (double *)malloc(node * sizeof(double));
+				int *index = (int *)malloc((inst->nnodes) * sizeof(int));
+				double *value = (double *)malloc((inst->nnodes) * sizeof(double));
 				double rhs = 2;
 				
 				sprintf(cname[0], "h%d_x(%d,%d)",h, i + 1, j + 1);
 				for (int t = 1; t < h; t++) {
+					if (i == t) continue;
 					index[n] = zpos(i, t, inst);
 					value[n] = 1.0;
 					n++;
 				}
+				
 				index[n] = xpos(i, j, inst);
 				value[n] = 1.0;
 				n++;
-				for (int t = h+2; t < inst->nnodes; t++) {
+				for (int t = h+1; t < inst->nnodes; t++) {
+					if (j == t) continue;
 					index[n] = zpos(j, t, inst);
 					value[n] = 1.0;
 					n++;
 				}
-				if (CPXaddlazyconstraints(env, lp, 1, n-1, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
-			
+				if (CPXaddlazyconstraints(env, lp, 1, n, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
+				//free(index);
+				//free(value);
 			}
 			
 		}
 	}
 
-	CPXwriteprob(env, lp, "model_pers.lp", NULL); //write the cplex model in file model.lp
+	CPXwriteprob(env, lp, "model_pers1.lp", NULL); //write the cplex model in file model.lp
 }
