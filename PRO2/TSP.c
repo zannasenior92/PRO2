@@ -5,7 +5,6 @@
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
-void add_edge_to_plot(int i, int j, instance *inst);
 void add_edge_to_file(instance *inst);
 
 
@@ -49,7 +48,8 @@ int TSPopt(instance *inst)
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n"); //CPXmipopt to solve the model
 
 	int ncols = CPXgetnumcols(env, lp);
-	
+	if (CPXgetobjval(env, lp, &inst->best_obj_val)) print_error("no best solution avaialable");
+	printf("Miglior soluzione=%.0f\n", inst->best_obj_val);
 	inst->best_sol= (double *)calloc(ncols, sizeof(double)); //best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
 	
@@ -123,6 +123,18 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 		}
 	}
+	/*----------------INSERISCO LE Z: zvh=1 se vertice v si trova in posizione h*/
+	for (int i = 0; i < inst->nnodes; i++)
+	{
+		for (int j = 0; j < inst->nnodes; j++)
+		{
+			double obj =0;
+			sprintf(cname[0], "z(%d,%d)", i + 1, j + 1);//print variables on cplex 
+
+			if (CPXnewcols(env, lp, 1, &obj, &lb, &ub, &binary, cname)) print_error(" wrong CPXnewcols on v variables");
+		
+		}
+	}
 
 
 	/*--------------------------------ADD CONSTRAINTS----------------------------*/
@@ -146,6 +158,8 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 				if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
+	/*---------------VINCOLI PER Z-------------*/
+
 
 	CPXwriteprob(env, lp, "model_pers.lp", NULL); //write the cplex model in file model.lp
 }
