@@ -72,9 +72,9 @@ int TSPopt(instance *inst)
 				if (VERBOSE >= 1) {
 					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
 				}
-				//Aggiungo i nodi a due a due, cosi so che ad ogni coppia corrisponde un arco
-				inst->choosen_edge[n] = i;	//Uso un vettore lungo 2*nnodes per salvare i nodi corrispondenti agli archi
-				inst->choosen_edge[n + 1] = j; //scelti. Cosi aggiorno il file per il plot una sola volta e lo sovrascrivo.
+				/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
+				inst->choosen_edge[n] = i;
+				inst->choosen_edge[n + 1] = j;
 				n += 2;
 				count++;
 			}
@@ -96,12 +96,12 @@ int TSPopt(instance *inst)
 /*------------------------------BUILD CPLEX MODEL------------------------------------*/
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
-	double lb = 0.0; //lower bound
-	char binary = 'B'; //binary variable (0 OR 1)
+	double lb = 0.0;																	//lower bound
+	char binary = 'B';																	//binary variable (0 OR 1)
 	char integer = 'I';
 
-	//Definisco cname per scrivere il modello in modo più chiaro
-	char **cname = (char **)calloc(1, sizeof(char *));		// (char **) required by cplex...
+	/*-------------------------TO WRITE WELL THE MODEL-------------------------------*/
+	char **cname = (char **)calloc(1, sizeof(char *));									// (char **) required by cplex...
 	cname[0] = (char *)calloc(100, sizeof(char));
 
 	/*-------------------------DEFINE VARIABLES ON THE MODEL----------------------*/
@@ -111,44 +111,50 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		{
 			
 			double obj = dist(i, j, inst);
-			sprintf(cname[0], "x(%d,%d)", i + 1, j + 1);//print variables on cplex 
+			sprintf(cname[0], "x(%d,%d)", i + 1, j + 1);								//PRINT VARIABLES IN CPLEX IN .lp FILE  
 			double ub = (i == j) ? 0.0 : 1.0;
+
 			/*--------------------PRINT DISTANCE d(i,j)-------------------*/
 			if (VERBOSE >= 500) {
 				printf("Distance d(%d,%d): %f \n",i+1,j+1, dist(i, j,inst));
 			}
 
-			//Metodo per inserire colonna: env=environment, lp=problema, obj=funzione obiettivo, 
-			// lb=lower bound, ub=upper bound, binary=tipo della variabile, cname=nome della colonna
+			/*----------------------INSERT VARIABLE IN CPLEX--------------*/
 			if (CPXnewcols(env, lp, 1, &obj, &lb, &ub, &binary, cname)) print_error(" wrong CPXnewcols on x var.s");
-			//confronto se la posizione della colonna aggiunta sia uguale a quella della xpos
-			//printf("La colonna con i=%d e j=%d e' in posizione %d e xpos e' %d\n", i, j, CPXgetnumcols(env, lp), xpos(i,j,inst));
+			/*--------------------CHECK VARIABLE POSITION-----------------*/
 			if (CPXgetnumcols(env, lp) - 1 != xpos(i, j, inst)) print_error(" wrong position for x var.s");
+
+			if (VERBOSE >= 500)
+			{
+				printf("The column with i=%d e j=%d is in position %d and xpos is %d\n", i, j, CPXgetnumcols(env, lp), xpos(i, j, inst));
+			}
 		}
 	}
-	/*--------ADD THE u VARIABLES- ui=i position in the circuit-----------*/
+
+	/*------------------------------------ADD CONSTRAINTS-----------------------------------------*/
+
+	/*--------ADD THE u VARIABLES- ui=i POSITION IN THE CIRCUIT-----------*/
 	for (int i = 0; i < inst->nnodes; i++)
 	{
-		double lbu = (i == 0) ? 1.0 : 2.0;
-		//double lbu = 2.0; //lower bound u
+		double lbu = (i == 0) ? 1.0 : 2.0;												//LOWER BOUND
 		double obj = 0;
-		sprintf(cname[0], "u(%d)", i + 1);//print variables on cplex 
+		sprintf(cname[0], "u(%d)", i + 1);												//PRINT VARIABLES IN CPLEX IN .lp FILE 
 		double ub = (i == 0) ? 1.0 : inst->nnodes;
 		//double ub = inst->nnodes;
 		
-		//Metodo per inserire colonna: env=environment, lp=problema, obj=funzione obiettivo, 
-		// lb=lower bound, ub=upper bound, binary=tipo della variabile, cname=nome della colonna
+		/*--------------------INSERT VARIABLE IN CPLEX----------------*/
 		if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on u var.s");
 	}
 
 
 	/*--------------------------------ADD CONSTRAINTS----------------------------*/
 	
-	for (int h = 0; h < inst->nnodes; h++) //-----------------------------in-degree
-		/*(For every node h, the sum of all the incoming arcs (i,h) must be 1)*/
+	/*--------------------------------IN DEGREE----------------------------------*/
+	for (int h = 0; h < inst->nnodes; h++)	
+		
 	{
 		int lastrow = CPXgetnumrows(env, lp);
-		if(VERBOSE>=300)//print every indeg
+		if(VERBOSE>=300)																//print every indeg
 		{
 			printf("indeg(%d) \n", h + 1);
 		}
@@ -163,11 +169,13 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x2]");
 		}
 	}
-	for (int h = 0; h < inst->nnodes; h++) //----------------------------out-degree 
-		/*(For every node h, the sum of all the outgoings arcs (h,j) must be 1)*/
+
+
+	/*--------------------------------OUT DEGREE----------------------------------*/
+	for (int h = 0; h < inst->nnodes; h++)													
 	{
 		int lastrow = CPXgetnumrows(env, lp);
-		if (VERBOSE >= 300)//print every outdeg
+		if (VERBOSE >= 300)																//print every outdeg
 		{
 			printf("outdeg(%d) \n", h + 1);
 		}
@@ -185,27 +193,28 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	/*---------------------------y_ij + y_ji <= 1 for all i<j--------------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
-		//variabili per poter inserire i lazy
+
+		/*---------------VARIABLES FOR LAZY CONSTRAINTS--------------*/
 		int izero = 0;
 		int *index = (int *)malloc(2 * sizeof(int));
 		double *value = (double *)malloc(2 * sizeof(double));
 		double rhs = 1.0;
 		char sense = 'L';
 
+
 		for (int j = i+1; j < inst->nnodes; j++) {
-			//Each entry, index[i], specifies the column index of the corresponding coefficient, value[i]
+
 			if (i == j) continue;
-			// ho cercato di inserire i lazy ma non ci capisco na mazza di come funziona la funzione CPXaddlazyconstraint
-			index[0] = xpos(i, j, inst); //devo inserirci l'indice della colonna ovvero della variabile
-			value[0] = 1.0; //setto a 1 il valore della variabile  
+			index[0] = xpos(i, j, inst);										//VARIABLE'S  INDEX
+			value[0] = 1.0;														//VARIABLE'S VALUE  
 			index[1] = xpos(j, i, inst);
 			value[1] = 1.0;
 			sprintf(cname[0], "link(%d,%d)", i + 1, j + 1);
 			
-			/*environment, lp problem, nuber of lazy constraints to insert, number of variables, */
+			
 			if (CPXaddlazyconstraints(env, lp, 1, 2, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 			
-			/*INSERIMENTO STATICO
+			/*STATICO INSERT
 			if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [l3]");
 			if (CPXchgcoef(env, lp, lastrow, xpos(i, j, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
 			if (CPXchgcoef(env, lp, lastrow, xpos(j, i, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
@@ -225,9 +234,10 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	sprintf(cname[0], "u1(1)");
 	if (CPXaddlazyconstraints(env, lp, 1, 1, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 
-	/*-------------CONSTRAINTS ON u VARIABLES-----------------------*/
+
+	/*-----------------------------CONSTRAINTS ON u VARIABLES-----------------------*/
+
 	/*------------------------ui-uj+M*yij<=M-1--------------------- */
-	
 	for (int i = 1; i < inst->nnodes; i++) {
 		
 		char sense = 'L';
@@ -257,6 +267,5 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	
 	
-
-	CPXwriteprob(env, lp, "modelMTZ.lp", NULL);									//write the cplex model in file modelMTZ.lp
-}
+	/*-------------------write the cplex model in file model.lp------------------*/
+	CPXwriteprob(env, lp, "modelMTZ.lp", NULL);
