@@ -213,19 +213,19 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		free(index);
 		free(value);
 	}
-	/* INSERISCO u1=1*/
+	
 	int izero = 0;
 	int *index = (int *)malloc(1 * sizeof(int));
 	double *value = (double *)malloc(1* sizeof(double));
 	double rhs = 1.0;
 	char sense = 'E';
-	index[0] = upos(0, inst);
+	index[0] = upos(0, inst);													//INSERT u1=1 (indexes start from 0)
 	value[0] = 1.0;
 	sprintf(cname[0], "u1(1)");
 	if (CPXaddlazyconstraints(env, lp, 1, 1, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 
 	/*-------------CONSTRAINTS ON u VARIABLES-----------------------*/
-	/*------------  ui-uj+M*yij<=M-1 -------------------- */
+	/*------------------------ui-uj+M*yij<=M-1--------------------- */
 	
 	for (int i = 1; i < inst->nnodes; i++) {
 		
@@ -240,8 +240,8 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			double rhs = big_M - 1;
 
 			sprintf(cname[0], "uij(%d,%d)", i + 1, j+1);
-			index[0] = upos(i,inst); //devo inserirci l'indice della colonna ovvero della variabile
-			value[0] = 1.0; //setto a 1 il valore della variabile  
+			index[0] = upos(i,inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+			value[0] = 1.0;														//SET TO 1 VARIABLE'S VALUE  
 			index[1] = (upos(j,inst));
 			value[1] = -1.0;
 			index[2] = xpos(i,j,inst);
@@ -255,5 +255,5 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	
 	
 
-	CPXwriteprob(env, lp, "model.lp", NULL); //write the cplex model in file model.lp
+	CPXwriteprob(env, lp, "modelMTZ.lp", NULL); //write the cplex model in file model.lp
 }

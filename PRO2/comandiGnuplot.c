@@ -74,7 +74,7 @@ void plot_gnuplot(instance *inst) {
 
 
 
-//metodo per inserire in un file i nodi per tracciare gli archi 
+/*---------------------------------FILE WITH NODES TO PLOT-----------------------------*/ 
 void add_edge_to_file(instance *inst) {
 	FILE * file = fopen("edge_to_plot.txt", "w");
 	for (int i = 0; i < 2 * inst->nnodes; i = i + 2) {
