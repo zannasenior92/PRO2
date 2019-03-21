@@ -2,7 +2,7 @@
 
 /*-------------------------------GNUPLOT PLOT-------------------------------------------*/
 void plot_gnuplot(instance *inst) {
-	char name = inst->input_file_name;
+	//char file_name = inst->input_file_name;
 	char * commandsForGnuplot[] = {
 
 		/*-------------------------PLOTTING COMMANDS TO PRINT NODES---------------------*/
@@ -11,14 +11,12 @@ void plot_gnuplot(instance *inst) {
 		"set title \"Punti TSP att48\"", 
 		"set output 'nodes.eps'",
 		"set style line 1 \
-    linecolor rgb '#0060ad' ", //set the color line
-		"unset border", //remove the bordes
-		"unset xtics", //remove axis x
-		"unset ytics", //remove axis y
-		"unset key", //toglie legenda path
+    linecolor rgb '#0060ad' ",									//set the color line
+		"unset border",											//remove the bordes
+		"unset xtics",											//remove axis x
+		"unset ytics",											//remove axis y
+		"unset key",											//remove path legend
 
-		//-----------------------------PATH COLLABORATORS--------------------------------------------
-		//BASTA MODIFICARE modificare il pezzo di path da "marco" a "Luca" e viceversa
 		"plot 'coordinateAtt48.txt' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
 		/*------------------------------------------------------------------------------*/
 
@@ -29,12 +27,12 @@ void plot_gnuplot(instance *inst) {
 		"set title \"Lines TSP att48\"",
 		"set output 'nodes.eps'",
 		"set style line 1 \
-    linecolor rgb '#0060ad' ", //set the color line
-		"unset border", //remove the bordes
-		"unset xtics", //remove axis x
-		"unset ytics", //remove axis y
-		"unset key", //toglie legenda path
-		"plot 'edge_to_plot.txt' with lp ls 1, '' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
+    linecolor rgb '#0060ad' ",									//set the color line
+		"unset border",											//remove the bordes
+		"unset xtics",											//remove axis x
+		"unset ytics",											//remove axis y
+		"unset key",											//remove path legend
+		"plot 'edge_to_plotMTZ.txt' with lp ls 1, '' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
 		"exit"
 	};
 	/*----------------------------------------------------------------------------------*/
@@ -45,10 +43,10 @@ void plot_gnuplot(instance *inst) {
 	{
 		printf("Numero comandi gnuplot: %d \n", n_commands);
 	}
-	/*----------------------------------------------------------------------------*/
+	/*----------------------------------------------------------------------------------*/
 
 	
-	/*---------------------------PRINTING POINTS IN FILE--------------------------*/
+	/*---------------------------PRINTING POINTS IN FILE--------------------------------*/
 	FILE * temp = fopen("coordinateAtt48.txt", "w");
 	/*Opens an interface that one can use to send commands as if they were typing into the
 	  gnuplot command line.  "The -persistent" keeps the plot open even after your
@@ -59,10 +57,10 @@ void plot_gnuplot(instance *inst) {
 		fprintf(temp, "%lf %lf %d \n", inst->xcoord[i], inst->ycoord[i], i+1); //Write the data to a temporary file
 	}
 	fclose(temp);
-	/*-----------------------------------------------------------------------------*/
+	/*----------------------------------------------------------------------------------*/
 	
 	
-	/*----------------USING A PIPE FOR GNUPLOT TO PRINT POINTS---------------------*/
+	/*----------------USING A PIPE FOR GNUPLOT TO PRINT POINTS--------------------------*/
 	FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe -persistent", "w");
 
 	for (int i = 0; i < n_commands; i++)
@@ -71,13 +69,13 @@ void plot_gnuplot(instance *inst) {
 	}
 	_pclose(gnuplotPipe);
 }
-/*----------------------------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------*/
 
 
 
-/*---------------------------------FILE WITH NODES TO PLOT-----------------------------*/ 
+/*---------------------------------FILE WITH NODES TO PLOT------------------------------*/ 
 void add_edge_to_file(instance *inst) {
-	FILE * file = fopen("edge_to_plot.txt", "w");
+	FILE * file = fopen("edge_to_plotMTZ.txt", "w");
 	for (int i = 0; i < 2 * inst->nnodes; i = i + 2) {
 		fprintf(file, "%lf %lf %d \n", inst->xcoord[inst->choosen_edge[i]], inst->ycoord[inst->choosen_edge[i]], inst->choosen_edge[i] + 1); //Write x_i to a temporary file
 		fprintf(file, "%lf %lf %d \n", inst->xcoord[inst->choosen_edge[i + 1]], inst->ycoord[inst->choosen_edge[i + 1]], inst->choosen_edge[i + 1] + 1); //Write x_i to a temporary file

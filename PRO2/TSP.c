@@ -46,17 +46,17 @@ int TSPopt(instance *inst)
 {
 	
 	int error;
-	CPXENVptr env = CPXopenCPLEX(&error); //create the environment(env)
-	CPXLPptr lp = CPXcreateprob(env, &error, "TSP"); //create the structure for our model(lp)
-	build_model(inst, env, lp); //populate the model
-	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n"); //CPXmipopt to solve the model
+	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
+	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
+	build_model(inst, env, lp);												//populate the model
+	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 
 	int ncols = CPXgetnumcols(env, lp);
 	printf("numero colonne %d\n", ncols);
-	inst->best_sol= (double *)calloc(ncols, sizeof(double)); //best objective solution
+	inst->best_sol= (double *)calloc(ncols, sizeof(double));				//best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
 	if(CPXgetobjval(env, lp, &inst->best_obj_val)) print_error("no best objective function");
-	printf("Miglior soluzione: %.0f\n", inst->best_obj_val);
+	printf("Best Solution: %.0f\n", inst->best_obj_val);
 	if(VERBOSE>=200){
 		for (int i = 0; i < ncols - 1; i++){
 			printf("Best %f\n", inst->best_sol[i]);
@@ -66,7 +66,7 @@ int TSPopt(instance *inst)
 	int n = 0;
 	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
-		for (int j = i + 1; j < inst->nnodes; j++) {
+		for (int j = 0; j < inst->nnodes; j++) {
 			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
 
 				if (VERBOSE >= 1) {
@@ -201,8 +201,8 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			index[1] = xpos(j, i, inst);
 			value[1] = 1.0;
 			sprintf(cname[0], "link(%d,%d)", i + 1, j + 1);
-			/*environment, lp problem, nuber of lazy constraints to insert, */
-
+			
+			/*environment, lp problem, nuber of lazy constraints to insert, number of variables, */
 			if (CPXaddlazyconstraints(env, lp, 1, 2, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 			
 			/*INSERIMENTO STATICO
@@ -251,10 +251,12 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (CPXaddlazyconstraints(env, lp, 1, 3, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 
 		}
-
+		free(index);
+		free(value);
 	}
+
 	
 	
 
-	CPXwriteprob(env, lp, "modelMTZ.lp", NULL); //write the cplex model in file model.lp
+	CPXwriteprob(env, lp, "modelMTZ.lp", NULL);									//write the cplex model in file modelMTZ.lp
 }
