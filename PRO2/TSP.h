@@ -20,6 +20,7 @@ typedef struct {
 	double *ycoord;
 	double timelimit;
 	int dist_type;
+	char input_file_name[1];
 
 
 	//-----------------------PARAMETERS-----------------------
@@ -32,6 +33,6 @@ typedef struct {
 	int *u;
 	double best_obj_val;
 
-} instance; //"instance" sarebbe il nome che diamo ad una istanza della nostra struttura
+} instance;														//NAME OF THE INSTANCE
 
 #endif   /* TSP_H_ */

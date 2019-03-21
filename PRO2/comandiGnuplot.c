@@ -2,12 +2,13 @@
 
 /*-------------------------------GNUPLOT PLOT-------------------------------------------*/
 void plot_gnuplot(instance *inst) {
+	char name = inst->input_file_name;
 	char * commandsForGnuplot[] = {
 
 		/*-------------------------PLOTTING COMMANDS TO PRINT NODES---------------------*/
 		
 		"set terminal windows",
-		"set title \"Punti TSP att48\"",
+		"set title \"Punti TSP att48\"", 
 		"set output 'nodes.eps'",
 		"set style line 1 \
     linecolor rgb '#0060ad' ", //set the color line

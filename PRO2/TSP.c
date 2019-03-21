@@ -34,6 +34,7 @@ double dist(int i, int j, instance *inst){
 		else
 			return tij;
 	}
+	else return printf("Something go wrong in dist function");
 	
 }
 
@@ -125,7 +126,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (CPXgetnumcols(env, lp) - 1 != xpos(i, j, inst)) print_error(" wrong position for x var.s");
 		}
 	}
-	/*--------ADD THE u VARIABLES dove ui=posizione di i nel circuito-----------*/
+	/*--------ADD THE u VARIABLES- ui=i position in the circuit-----------*/
 	for (int i = 0; i < inst->nnodes; i++)
 	{
 		double lbu = (i == 0) ? 1.0 : 2.0;
