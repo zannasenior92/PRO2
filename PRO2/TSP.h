@@ -20,6 +20,7 @@ typedef struct {
 	double *ycoord;
 	double timelimit;
 	int dist_type;
+	char input_file_name[100];
 
 	//-----------------------PARAMETERS-----------------------
 	char input_file[1000];
