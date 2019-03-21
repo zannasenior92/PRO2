@@ -1,14 +1,19 @@
 #include "TSP.h"
-
+#include <string.h>
 /*-------------------------------GNUPLOT PLOT-------------------------------------------*/
 void plot_gnuplot(instance *inst) {
-	char file_name = inst->input_file_name;
+							//NAME FILE
+	char title[100];
+	strcpy(title, "set title \"Punti TSP ");
+	strcat(title, inst->input_file_name);
+	strcat(title, "\"");
+	
 	char * commandsForGnuplot[] = {
 
 		/*-------------------------PLOTTING COMMANDS TO PRINT NODES---------------------*/
 		
 		"set terminal windows",
-		"set title \"Punti TSP att48\"", 
+		title,													//set title from input file
 		"set output 'nodes.eps'",
 		"set style line 1 \
     linecolor rgb '#0060ad' ",									//set the color line
@@ -24,7 +29,7 @@ void plot_gnuplot(instance *inst) {
 		/*----------------PLOTTING COMMANDS TO PRINT SELECTED EDGES---------------------*/
 
 		"set terminal windows 1", // set a different window to plot with gnuplot
-		"set title \"Lines TSP att48\"",
+		title,													//set title from input file
 		"set output 'nodes.eps'",
 		"set style line 1 \
     linecolor rgb '#0060ad' ",									//set the color line
@@ -36,7 +41,7 @@ void plot_gnuplot(instance *inst) {
 		"exit"
 	};
 	/*----------------------------------------------------------------------------------*/
-
+	//commandsForGnuplot[1] = title;
 	/*--------------------NUMBER OF GNUPLOT COMMANDS------------------------------------*/
 	int n_commands = sizeof(commandsForGnuplot) / sizeof(commandsForGnuplot[0]);
 	if (VERBOSE>200)
