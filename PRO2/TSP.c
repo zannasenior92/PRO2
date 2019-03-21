@@ -191,10 +191,10 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		}
 	}
 
-	/*---------------------------y_ij + y_ji <= 1 for all i<j--------------------*/
+	/*----------------------------ADD VARIABLES FOR LAZY CONSTRAINTS--------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
-
-		/*---------------VARIABLES FOR LAZY CONSTRAINTS--------------*/
+		/*--------------y_ij + y_ji <= 1 for all i<j-----------------*/
+		
 		int izero = 0;
 		int *index = (int *)malloc(2 * sizeof(int));
 		double *value = (double *)malloc(2 * sizeof(double));
