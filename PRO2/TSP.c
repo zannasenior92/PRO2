@@ -109,14 +109,14 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	{
 		for (int j = 0; j < inst->nnodes; j++)
 		{
-			
+
 			double obj = dist(i, j, inst);
 			sprintf(cname[0], "x(%d,%d)", i + 1, j + 1);								//PRINT VARIABLES IN CPLEX IN .lp FILE  
 			double ub = (i == j) ? 0.0 : 1.0;
 
 			/*--------------------PRINT DISTANCE d(i,j)-------------------*/
 			if (VERBOSE >= 500) {
-				printf("Distance d(%d,%d): %f \n",i+1,j+1, dist(i, j,inst));
+				printf("Distance d(%d,%d): %f \n", i + 1, j + 1, dist(i, j, inst));
 			}
 
 			/*----------------------INSERT VARIABLE IN CPLEX--------------*/
@@ -141,24 +141,24 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		sprintf(cname[0], "u(%d)", i + 1);												//PRINT VARIABLES IN CPLEX IN .lp FILE 
 		double ub = (i == 0) ? 1.0 : inst->nnodes;
 		//double ub = inst->nnodes;
-		
+
 		/*--------------------INSERT VARIABLE IN CPLEX----------------*/
 		if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on u var.s");
 	}
 
 
 	/*--------------------------------ADD CONSTRAINTS----------------------------*/
-	
+
 	/*--------------------------------IN DEGREE----------------------------------*/
-	for (int h = 0; h < inst->nnodes; h++)	
-		
+	for (int h = 0; h < inst->nnodes; h++)
+
 	{
 		int lastrow = CPXgetnumrows(env, lp);
-		if(VERBOSE>=300)																//print every indeg
+		if (VERBOSE >= 300)																//print every indeg
 		{
 			printf("indeg(%d) \n", h + 1);
 		}
-		
+
 		double rhs = 1.0;
 		char sense = 'E';
 		sprintf(cname[0], "indeg(%d)", h + 1);
@@ -172,7 +172,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 
 	/*--------------------------------OUT DEGREE----------------------------------*/
-	for (int h = 0; h < inst->nnodes; h++)													
+	for (int h = 0; h < inst->nnodes; h++)
 	{
 		int lastrow = CPXgetnumrows(env, lp);
 		if (VERBOSE >= 300)																//print every outdeg
@@ -194,7 +194,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	/*----------------------------ADD VARIABLES FOR LAZY CONSTRAINTS--------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		/*--------------y_ij + y_ji <= 1 for all i<j-----------------*/
-		
+
 		int izero = 0;
 		int *index = (int *)malloc(2 * sizeof(int));
 		double *value = (double *)malloc(2 * sizeof(double));
@@ -202,7 +202,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		char sense = 'L';
 
 
-		for (int j = i+1; j < inst->nnodes; j++) {
+		for (int j = i + 1; j < inst->nnodes; j++) {
 
 			if (i == j) continue;
 			index[0] = xpos(i, j, inst);										//VARIABLE'S  INDEX
@@ -210,10 +210,10 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			index[1] = xpos(j, i, inst);
 			value[1] = 1.0;
 			sprintf(cname[0], "link(%d,%d)", i + 1, j + 1);
-			
-			
+
+
 			if (CPXaddlazyconstraints(env, lp, 1, 2, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
-			
+
 			/*STATICO INSERT
 			if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [l3]");
 			if (CPXchgcoef(env, lp, lastrow, xpos(i, j, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
@@ -223,10 +223,10 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		free(index);
 		free(value);
 	}
-	
+
 	int izero = 0;
 	int *index = (int *)malloc(1 * sizeof(int));
-	double *value = (double *)malloc(1* sizeof(double));
+	double *value = (double *)malloc(1 * sizeof(double));
 	double rhs = 1.0;
 	char sense = 'E';
 	index[0] = upos(0, inst);													//INSERT u1=1 (indexes start from 0)
@@ -239,7 +239,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	/*------------------------ui-uj+M*yij<=M-1--------------------- */
 	for (int i = 1; i < inst->nnodes; i++) {
-		
+
 		char sense = 'L';
 		int izero = 0;
 		int *index = (int *)malloc(3 * sizeof(int));
@@ -250,12 +250,12 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			double big_M = (double)inst->nnodes - 1;
 			double rhs = big_M - 1;
 
-			sprintf(cname[0], "uij(%d,%d)", i + 1, j+1);
-			index[0] = upos(i,inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+			sprintf(cname[0], "uij(%d,%d)", i + 1, j + 1);
+			index[0] = upos(i, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 			value[0] = 1.0;														//SET TO 1 VARIABLE'S VALUE  
-			index[1] = (upos(j,inst));
+			index[1] = (upos(j, inst));
 			value[1] = -1.0;
-			index[2] = xpos(i,j,inst);
+			index[2] = xpos(i, j, inst);
 			value[2] = big_M;
 			//inst->u[i] - inst->u[i] + big_M * xpos(i, j, inst);
 			if (CPXaddlazyconstraints(env, lp, 1, 3, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
@@ -265,7 +265,8 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		free(value);
 	}
 
-	
-	
+
+
 	/*-------------------write the cplex model in file model.lp------------------*/
 	CPXwriteprob(env, lp, "modelMTZ.lp", NULL);
+}
