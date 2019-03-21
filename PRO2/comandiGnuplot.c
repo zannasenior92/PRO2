@@ -33,7 +33,7 @@ void plot_gnuplot(instance *inst) {
 		"unset xtics", //remove axis x
 		"unset ytics", //remove axis y
 		"unset key", //toglie legenda path
-		"plot 'edge_to_plot.txt' with lp ls 1, '' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
+		"plot 'edge_to_plotModFisch.txt' with lp ls 1, '' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
 		"exit"
 
 		//C:/Users/marco/source/repos/PRO2/PRO2/coordinateAtt48.txt
@@ -87,7 +87,7 @@ void plot_gnuplot(instance *inst) {
 }*/
 //metodo per inserire in un file i nodi per tracciare gli archi 
 void add_edge_to_file(instance *inst) {
-	FILE * file = fopen("edge_to_plot.txt", "w");
+	FILE * file = fopen("edge_to_plotModFisch.txt", "w");
 	for (int i = 0; i < 2 * inst->nnodes; i=i+2) {
 		fprintf(file, "%lf %lf %d \n", inst->xcoord[inst->choosen_edge[i]], inst->ycoord[inst->choosen_edge[i]], inst->choosen_edge[i]+1); //Write x_i to a temporary file
 		fprintf(file, "%lf %lf %d \n", inst->xcoord[inst->choosen_edge[i+1]], inst->ycoord[inst->choosen_edge[i+1]], inst->choosen_edge[i+1]+1); //Write x_i to a temporary file
