@@ -30,19 +30,19 @@ double dist(int i, int j, instance *inst){
 
 
 
-/*------------------------------SOLVE THE MODEL--------------------------------------*/
+/*------------------------------------SOLVE THE MODEL--------------------------------------------------------------*/
 int TSPopt(instance *inst)
 {
 	
 	int error;
-	CPXENVptr env = CPXopenCPLEX(&error); //create the environment(env)
-	CPXLPptr lp = CPXcreateprob(env, &error, "TSP"); //create the structure for our model(lp)
-	build_model(inst, env, lp); //populate the model
-	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n"); //CPXmipopt to solve the model
+	CPXENVptr env = CPXopenCPLEX(&error);												//create the environment(env)
+	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");									//create the structure for our model(lp)
+	build_model(inst, env, lp);															//populate the model
+	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");					//CPXmipopt to solve the model
 
 	int ncols = CPXgetnumcols(env, lp);
 	
-	inst->best_sol= (double *)calloc(ncols, sizeof(double)); //best objective solution
+	inst->best_sol= (double *)calloc(ncols, sizeof(double));							//best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
 	
 	if(VERBOSE>=200){
@@ -50,7 +50,7 @@ int TSPopt(instance *inst)
 			printf("Best %f\n", inst->best_sol[i]);
 		}
 	}
-	int count = 0;
+	int count = 0;																		//CUNTER SELECTED NODES
 	int n = 0;
 	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
@@ -60,11 +60,11 @@ int TSPopt(instance *inst)
 				if(VERBOSE>=100){
 					printf("Il nodo (%d,%d) e' selezionato\n", i+1, j+1);
 				}
-				//Aggiungo i nodi a due a due, cosi so che ad ogni coppia corrisponde un arco
-				inst->choosen_edge[n] = i;	//Uso un vettore lungo 2*nnodes per salvare i nodi corrispondenti agli archi
-				inst->choosen_edge[n+1] = j; //scelti. Cosi aggiorno il file per il plot una sola volta e lo sovrascrivo.
+				/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
+				inst->choosen_edge[n] = i;
+				inst->choosen_edge[n+1] = j;
 				n += 2;
-				//add_edge_to_plot(i, j, inst);//add in a file selected edges
+
 				count++;
 			}
 		}
@@ -73,25 +73,28 @@ int TSPopt(instance *inst)
 	if (VERBOSE >= 100) {
 		printf("Selected nodes: %d \n", count);
 	}
-	/*-------------------------------------------------------------------------------*/
+	
 
-	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIROENMENT-----------*/
+	/*----------------------CLEAN AND CLOSE THE CPLEX ENVIROENMENT-------------------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
 	return 0;
 }
+/*-------------------------------------------------------------------------------------------------------------*/
+
+
 
 /*------------------------------BUILD CPLEX MODEL------------------------------------*/
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
-	double lb = 0.0; //lower bound
-	double ub = 1.0; //upper bound
-	char binary = 'B'; //binary variable (0 OR 1)
-	//char continuous = 'C';
+	double lb = 0.0;																	//lower bound
+	double ub = 1.0;																	//upper bound
+	char binary = 'B';																	//binary variable (0 OR 1)
+																						//char continuous = 'C';
 
-	//Definisco cname per scrivere il modello in modo più chiaro
-	char **cname = (char **)calloc(1, sizeof(char *));		// (char **) required by cplex...
-	cname[0] = (char *)calloc(100, sizeof(char));
+	
+	char **cname = (char **)calloc(1, sizeof(char *));									// (char **) required by cplex...
+	cname[0] = (char *)calloc(100, sizeof(char));										
 
 	/*-------------------------DEFINE VARIABLES ON THE MODEL----------------------*/
 	for (int i = 0; i < inst->nnodes; i++)
@@ -99,45 +102,48 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int j = i+1; j < inst->nnodes; j++)
 		{
 			double obj = dist(i, j, inst);
-			sprintf(cname[0], "x(%d,%d)", i + 1, j + 1);//print variables on cplex 
+			sprintf(cname[0], "x(%d,%d)", i + 1, j + 1);								//PRINT VARIABLES IN CPLEX IN .lp FILE 
 			
 			/*--------------------PRINT DISTANCE d(i,j)-------------------*/
 			if (VERBOSE >= 500) {
 				printf("Distance d(%d,%d): %f \n",i+1,j+1, dist(i, j,inst));
 			}
 
-			//Metodo per inserire colonna: env=environment, lp=problema, obj=funzione obiettivo, 
-			// lb=lower bound, ub=upper bound, binary=tipo della variabile, cname=nome della colonna
+			 
+			/*----------------------INSERT VARIABLE IN CPLEX--------------*/
 			if (CPXnewcols(env, lp, 1, &obj, &lb, &ub, &binary, cname)) print_error(" wrong CPXnewcols on x var.s");
-			//confronto se la posizione della colonna aggiunta sia uguale a quella della xpos
-			//printf("La colonna con i=%d e j=%d e' in posizione %d e xpos e' %d\n", i, j, CPXgetnumcols(env, lp), xpos(i,j,inst));
+			
+			/*--------------------CHECK VARIABLE POSITION-----------------*/ 
 			if (CPXgetnumcols(env, lp) - 1 != xpos(i, j, inst)) print_error(" wrong position for x var.s");
-
+			if (VERBOSE >= 500)
+			{
+				printf("The column with i=%d e j=%d is in position %d and xpos is %d\n", i, j, CPXgetnumcols(env, lp), xpos(i, j, inst));
+			}
 		}
 	}
 
 
 	/*--------------------------------ADD CONSTRAINTS----------------------------*/
-	for (int h = 0; h < inst->nnodes; h++)  // degree ciclo esterno per ogni vincolo che voglio aggiungere per nodo h
+	for (int h = 0; h < inst->nnodes; h++)
 	{
-		int lastrow = CPXgetnumrows(env, lp);	//chiedo a cplex ultima riga cambiata chiedendo numero di righe
+		int lastrow = CPXgetnumrows(env, lp);										//LAST ROW NUMBER(to insert the new constraint)
 		if (VERBOSE >= 200) {
 			printf("lastrow %d\n", lastrow);
 		}
-		double maxdeg = 2.0; 	 	//NOI vogliamo 2 uno entrante e uno uscente
-		char sense = 'E'; 			//// E equazione
-		sprintf(cname[0], "degree(%d)", h + 1);   // DO un nome NOI degree 
-		if (CPXnewrows(env, lp, 1, &maxdeg, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");  //Nuova riga vuota con coeff diversi da 0 e con informazioni nella posizione last row 																posizione last row
-		for (int i = 0; i < inst->nnodes; i++)		//cambio coefficienti non 0 mettendoli a 1 NOI se i=h salto istruzione, se i!=h faccio chgcoef change coeff a 1
-									// non importa se i>h perché xpos fa inversione
+		double maxdeg = 2.0; 	 													//DEGREE OF EVERY NODE
+		char sense = 'E'; 															// E = EQUATION
+		sprintf(cname[0], "degree(%d)", h + 1);										// NAME DEGREE CONSTRAINT INSIDE THE MODEL 
+		/*-----------------------------NEW CONSTRAINT ROW------------------------*/
+		if (CPXnewrows(env, lp, 1, &maxdeg, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]"); 
+		for (int i = 0; i < inst->nnodes; i++)		
 		{
-			if (i == h)
+			if (i == h)																// TO SKIP x(i,i) COEFFICIENTS
 				continue;
 			else
-				/*-------------SET TO 1 THE VARIABLES COEFFICIENT IN THE EQUATION----------------------------*/
+				/*-------SET TO 1 THE VARIABLES COEFFICIENT IN THE EQUATION------*/
 				if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
-
-	CPXwriteprob(env, lp, "model.lp", NULL); //write the cplex model in file model.lp
+	/*-------------------write the cplex model in file model.lp------------------*/
+	CPXwriteprob(env, lp, "model.lp", NULL);
 }

@@ -42,6 +42,7 @@ void read_input(instance *inst) {
 		{
 			token1 = strtok(NULL, " :");
 			strcpy(inst->input_file_name, token1);
+			continue;
 		}
 
 		if (strncmp(par_name, "DIMENSION", 9) == 0)
