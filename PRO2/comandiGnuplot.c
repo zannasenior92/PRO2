@@ -2,7 +2,7 @@
 
 /*-------------------------------GNUPLOT PLOT-------------------------------------------*/
 void plot_gnuplot(instance *inst) {
-	//char file_name = inst->input_file_name;
+	char file_name = inst->input_file_name;
 	char * commandsForGnuplot[] = {
 
 		/*-------------------------PLOTTING COMMANDS TO PRINT NODES---------------------*/

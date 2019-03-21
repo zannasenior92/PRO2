@@ -27,6 +27,8 @@ int main(int argc, char **argv) {
 	printf("Il file di input e': %s\n", inst.input_file);
 	read_input(&inst);//use the name of the variale related to the instance to access on the field of the instance
 
+	printf("Input usato: %s\n", inst.input_file_name);
+
 	if(VERBOSE>=200){
 		for (int i = 0; i < inst.nnodes; i++) {
 			printf("Capitale %d coord x:%.0f coord y:%.0f\n", i + 1, inst.xcoord[i], inst.ycoord[i]);

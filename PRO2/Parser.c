@@ -38,12 +38,12 @@ void read_input(instance *inst) {
 			printf("par_name= %s \n", par_name);
 		}
 		
-		/*if (strncmp(par_name, "NAME", 4) == 0)
+		if (strncmp(par_name, "NAME", 4) == 0)
 		{
-			token1 = strtok(NULL, " :");
-			inst->input_file_name = token1;
+			token1 = strtok(NULL, " :");			
+			strcpy(inst->input_file_name, token1);
 		}
-		*/
+		
 		if (strncmp(par_name, "DIMENSION", 9) == 0)
 		{
 			token1 = strtok(NULL, " :");									//NULL gives the following word
