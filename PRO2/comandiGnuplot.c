@@ -2,8 +2,8 @@
 #include <string.h>
 /*-------------------------------GNUPLOT PLOT-------------------------------------------*/
 void plot_gnuplot(instance *inst) {
-							//NAME FILE
-	char title[100];
+							
+	char title[100];											//NAME FILE
 	strcpy(title, "set title \"Punti TSP ");
 	strcat(title, inst->input_file_name);
 	strcat(title, "\"");
