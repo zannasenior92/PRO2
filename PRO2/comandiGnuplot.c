@@ -52,9 +52,8 @@ void plot_gnuplot(instance *inst) {
 
 	
 	/*---------------------------PRINTING POINTS IN FILE--------------------------------*/
-	FILE * temp = fopen("coordinateAtt48.txt", "w"); /*Opens an interface that one can use to send commands as if they were typing into the
-	  gnuplot command line.  
-	 */
+	FILE * temp = fopen("coordinateAtt48.txt", "w"); 
+
 	for (int i = 0; i < inst->nnodes; i++)
 	{
 		fprintf(temp, "%lf %lf %d \n", inst->xcoord[i], inst->ycoord[i], i+1);  //WRITE DATA TO A TEMPORARY FILE
