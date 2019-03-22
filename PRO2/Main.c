@@ -49,9 +49,11 @@ int main(int argc, char **argv) {
 	free_instance(&inst);													//FREE MEMORY OCCUPIED BY instance TSP.h
 	
 	
-	end_t = clock();															//FINAL TIME
+	end_t = clock();														//FINAL TIME
 	total_time = ((double)(end_t - start_t)) / CLOCKS_PER_SEC;
-	if (VERBOSE >= 200)
+
+	/*-------------------------STAMP ELAPSED TIME-------------------------*/
+	if (VERBOSE >= 1)
 	{
 		printf("The program time is: %f (s)", total_time);
 	}

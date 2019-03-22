@@ -104,7 +104,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	char **cname = (char **)calloc(1, sizeof(char *));									// (char **) required by cplex...
 	cname[0] = (char *)calloc(100, sizeof(char));
 
-	/*-------------------------DEFINE VARIABLES ON THE MODEL----------------------*/
+	/*-------------------------DEFINE x -VARIABLES ON THE MODEL----------------------*/
 	for (int i = 0; i < inst->nnodes; i++)
 	{
 		for (int j = 0; j < inst->nnodes; j++)
@@ -130,10 +130,13 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			}
 		}
 	}
+	inst->last_x_index = CPXgetnumcols(env, lp) - 1;									//LAST x INDEX(INDEXES START FROM 0)
+	if (VERBOSE >= 1)
+	{
+		printf("Last x index in CPLEX is: %d \n", inst->last_x_index);
+	}
 
-	/*------------------------------------ADD CONSTRAINTS-----------------------------------------*/
-
-	/*--------ADD THE y VARIABLES- yij= FLOW IN ARC (i,j) i!=j-----------*/
+	/*--------DEFINE y VARIABLES  yij= FLOW IN ARC (i,j) i!=j------------------------*/
 	for (int i = 0; i < inst->nnodes; i++)
 	{
 		for (int j = 0; j < inst->nnodes; j++) {
@@ -143,8 +146,14 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			double ub = (i == j) ? 0.0 : inst->nnodes-1;
 			
 			/*--------------------INSERT VARIABLE IN CPLEX----------------*/
-			if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on y var.s");
-
+			if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on y(%d,%d) var.s",i,j);
+			/*--------------------CHECK VARIABLE POSITION-----------------*/
+			if (CPXgetnumcols(env, lp) - 1 != ypos(i, j, inst))	print_error(" wrong position for y var.s");
+				
+			if (VERBOSE >= 200)
+			{
+				printf("The column with i=%d e j=%d is in position %d and xpos is %d\n", i, j, CPXgetnumcols(env, lp), xpos(i, j, inst));
+			}
 		}
 	}
 
