@@ -258,7 +258,6 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			value[n] = -1.0;
 			n++;
 		}
-		printf("n=%d\n", n);
 		if (CPXaddlazyconstraints(env, lp, 1, (2 * inst->nnodes - 2), &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 		free(index);
 		free(value);
