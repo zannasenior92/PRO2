@@ -98,7 +98,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0;																	//lower bound
 	char binary = 'B';																	//binary variable (0 OR 1)
-	char integer = 'I';
+	char integer = 'I';																	//integer variable
 
 	/*-------------------------TO WRITE WELL THE MODEL-------------------------------*/
 	char **cname = (char **)calloc(1, sizeof(char *));									// (char **) required by cplex...
