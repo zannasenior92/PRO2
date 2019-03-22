@@ -12,7 +12,7 @@ int xpos(int i, int j, instance *inst) {
 	return i * inst->nnodes + j;
 }
 int ypos(int i, int j, instance *inst) {
-	return inst->nnodes*inst->nnodes + i * inst->nnodes + j;
+	return (inst->last_x_index+1) + i * inst->nnodes + j;
 }
 
 
@@ -133,7 +133,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	inst->last_x_index = CPXgetnumcols(env, lp) - 1;									//LAST x INDEX(INDEXES START FROM 0)
 	if (VERBOSE >= 1)
 	{
-		printf("Last x index in CPLEX is: %d \n", inst->last_x_index);
+		printf("Last x index in CPLEX is: %d (Remember indexes start from 0)\n", inst->last_x_index);
 	}
 
 	/*--------DEFINE y VARIABLES  yij= FLOW IN ARC (i,j) i!=j------------------------*/
