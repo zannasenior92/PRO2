@@ -11,8 +11,8 @@ void add_edge_to_file(instance *inst);
 int xpos(int i, int j, instance *inst) {
 	return i * inst->nnodes + j;
 }
-int upos(int i, instance *inst) {
-	return inst->nnodes*inst->nnodes + i;
+int ypos(int i, int j, instance *inst) {
+	return inst->nnodes*inst->nnodes + i * inst->nnodes + j;
 }
 
 
@@ -133,17 +133,19 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	/*------------------------------------ADD CONSTRAINTS-----------------------------------------*/
 
-	/*--------ADD THE u VARIABLES- ui=i POSITION IN THE CIRCUIT-----------*/
+	/*--------ADD THE y VARIABLES- yij= FLOW IN ARC (i,j) i!=j-----------*/
 	for (int i = 0; i < inst->nnodes; i++)
 	{
-		double lbu = (i == 0) ? 1.0 : 2.0;												//LOWER BOUND
-		double obj = 0;
-		sprintf(cname[0], "u(%d)", i + 1);												//PRINT VARIABLES IN CPLEX IN .lp FILE 
-		double ub = (i == 0) ? 1.0 : inst->nnodes;
-		//double ub = inst->nnodes;
+		for (int j = 0; j < inst->nnodes; j++) {
+			double lbu = 0.0;									//LOWER BOUND
+			double obj = 0;
+			sprintf(cname[0], "y(%d,%d)", i + 1, j + 1);		//PRINT VARIABLES IN CPLEX IN .lp FILE 
+			double ub = (i == j) ? 0.0 : inst->nnodes-1;
+			
+			/*--------------------INSERT VARIABLE IN CPLEX----------------*/
+			if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on y var.s");
 
-		/*--------------------INSERT VARIABLE IN CPLEX----------------*/
-		if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on u var.s");
+		}
 	}
 
 
@@ -190,83 +192,78 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (CPXchgcoef(env, lp, lastrow, xpos(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
-
-	/*----------------------------ADD VARIABLES FOR LAZY CONSTRAINTS--------------*/
+	
+	/*----------------------------ADD LAZY CONSTRAINTS--------------*/
+	/*--------------------------yij<=(n-1)*xij --------------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
-		/*--------------y_ij + y_ji <= 1 for all i<j-----------------*/
-
 		int izero = 0;
-		int *index = (int *)malloc(2 * sizeof(int));
-		double *value = (double *)malloc(2 * sizeof(double));
-		double rhs = 1.0;
+		int *index = (int *)malloc(2* sizeof(int));
+		double *value = (double *)malloc(2* sizeof(double));
 		char sense = 'L';
-
-
-		for (int j = i + 1; j < inst->nnodes; j++) {
+		double rhs = 0;
+		for (int j = 0; j < inst->nnodes; j++) {
 
 			if (i == j) continue;
-			index[0] = xpos(i, j, inst);										//VARIABLE'S  INDEX
+			index[0] = ypos(i, j, inst);										//VARIABLE'S  INDEX
 			value[0] = 1.0;														//VARIABLE'S VALUE  
-			index[1] = xpos(j, i, inst);
-			value[1] = 1.0;
-			sprintf(cname[0], "link(%d,%d)", i + 1, j + 1);
-
+			index[1] = xpos(i, j, inst);										//VARIABLE'S  INDEX
+			value[1] = -(inst->nnodes-1);
+			sprintf(cname[0], "y(%d,%d)", i + 1, j + 1);
 
 			if (CPXaddlazyconstraints(env, lp, 1, 2, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 
-			/*STATICO INSERT
-			if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [l3]");
-			if (CPXchgcoef(env, lp, lastrow, xpos(i, j, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
-			if (CPXchgcoef(env, lp, lastrow, xpos(j, i, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
-			*/
 		}
 		free(index);
 		free(value);
 	}
+	
 
-	int izero = 0;
-	int *index = (int *)malloc(1 * sizeof(int));
-	double *value = (double *)malloc(1 * sizeof(double));
-	double rhs = 1.0;
+	/*-----------------------------CONSTRAINTS ON y VARIABLES-----------------------*/
+	/*--------------------------y1j=n-1  j!=1----------------*/
 	char sense = 'E';
-	index[0] = upos(0, inst);													//INSERT u1=1 (indexes start from 0)
-	value[0] = 1.0;
-	sprintf(cname[0], "u1(1)");
-	if (CPXaddlazyconstraints(env, lp, 1, 1, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
+	int izero = 0;
+	int *index = (int *)malloc((inst->nnodes-1)*sizeof(int));
+	double *value = (double *)malloc((inst->nnodes - 1) *sizeof(double));
+	double rhs = inst->nnodes - 1;
+	sprintf(cname[0], "y1j(1,j)");
 
+	for (int j = 1; j < inst->nnodes; j++) {
 
-	/*-----------------------------CONSTRAINTS ON u VARIABLES-----------------------*/
+		index[j-1] = ypos(0,j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+		value[j-1] = 1.0;	
+	}
+	
+	if (CPXaddlazyconstraints(env, lp, 1, inst->nnodes-1, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
+	free(index);
+	free(value);
 
-	/*------------------------ui-uj+M*yij<=M-1--------------------- */
-	for (int i = 1; i < inst->nnodes; i++) {
-
-		char sense = 'L';
+	/*--------------------------somme(yij)-somme(yjk)=1  j!=1----------------*/
+	for (int j = 1; j < inst->nnodes; j++) {
+		char sense = 'E';
 		int izero = 0;
-		int *index = (int *)malloc(3 * sizeof(int));
-		double *value = (double *)malloc(3 * sizeof(double));
-
-		for (int j = 1; j < inst->nnodes; j++) {
+		int *index = (int *)malloc((2*inst->nnodes - 2) * sizeof(int));
+		double *value = (double *)malloc((2*inst->nnodes - 2) * sizeof(double));
+		double rhs = 1;
+		sprintf(cname[0], "yij(i,%d)_yjk(%d,k)",j+1,j+1);
+		int n = 0;
+		for (int i = 0; i < inst->nnodes; i++) {
 			if (i == j) continue;
-			double big_M = (double)inst->nnodes - 1;
-			double rhs = big_M - 1;
-
-			sprintf(cname[0], "uij(%d,%d)", i + 1, j + 1);
-			index[0] = upos(i, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
-			value[0] = 1.0;														//SET TO 1 VARIABLE'S VALUE  
-			index[1] = (upos(j, inst));
-			value[1] = -1.0;
-			index[2] = xpos(i, j, inst);
-			value[2] = big_M;
-			//inst->u[i] - inst->u[i] + big_M * xpos(i, j, inst);
-			if (CPXaddlazyconstraints(env, lp, 1, 3, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
-
+			index[n] = ypos(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+			value[n] = 1.0;
+			n++;
 		}
+		for (int k = 0; k < inst->nnodes; k++) {
+			if (k == j) continue;
+			index[n] = ypos( j, k, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+			value[n] = -1.0;
+			n++;
+		}
+		printf("n=%d\n", n);
+		if (CPXaddlazyconstraints(env, lp, 1, (2 * inst->nnodes - 2), &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 		free(index);
 		free(value);
+
 	}
-
-
-
 	/*-------------------write the cplex model in file model.lp------------------*/
-	CPXwriteprob(env, lp, "modelMTZ.lp", NULL);
+	CPXwriteprob(env, lp, "modelFlow1.lp", NULL);
 }
