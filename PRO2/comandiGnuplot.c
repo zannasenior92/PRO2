@@ -2,16 +2,16 @@
 #include <string.h>
 /*-------------------------------GNUPLOT PLOT-------------------------------------------*/
 void plot_gnuplot(instance *inst) {
-							//NAME FILE
-	char title[100];
+
+	char title[100];											//NAME FILE
 	strcpy(title, "set title \"Punti TSP ");
 	strcat(title, inst->input_file_name);
 	strcat(title, "\"");
-	
+
 	char * commandsForGnuplot[] = {
 
 		/*-------------------------PLOTTING COMMANDS TO PRINT NODES---------------------*/
-		
+
 		"set terminal windows",
 		title,													//set title from input file
 		"set output 'nodes.eps'",
@@ -41,36 +41,33 @@ void plot_gnuplot(instance *inst) {
 		"exit"
 	};
 	/*----------------------------------------------------------------------------------*/
-	//commandsForGnuplot[1] = title;
+
 	/*--------------------NUMBER OF GNUPLOT COMMANDS------------------------------------*/
 	int n_commands = sizeof(commandsForGnuplot) / sizeof(commandsForGnuplot[0]);
-	if (VERBOSE>200)
+	if (VERBOSE > 200)
 	{
 		printf("Numero comandi gnuplot: %d \n", n_commands);
 	}
 	/*----------------------------------------------------------------------------------*/
 
-	
+
 	/*---------------------------PRINTING POINTS IN FILE--------------------------------*/
 	FILE * temp = fopen("coordinateAtt48.txt", "w");
-	/*Opens an interface that one can use to send commands as if they were typing into the
-	  gnuplot command line.  "The -persistent" keeps the plot open even after your
-	  C program terminates.
-	 */
+
 	for (int i = 0; i < inst->nnodes; i++)
 	{
-		fprintf(temp, "%lf %lf %d \n", inst->xcoord[i], inst->ycoord[i], i+1); //Write the data to a temporary file
+		fprintf(temp, "%lf %lf %d \n", inst->xcoord[i], inst->ycoord[i], i + 1);  //WRITE DATA TO A TEMPORARY FILE
 	}
 	fclose(temp);
 	/*----------------------------------------------------------------------------------*/
-	
-	
+
+
 	/*----------------USING A PIPE FOR GNUPLOT TO PRINT POINTS--------------------------*/
-	FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe -persistent", "w");
+	FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe -persistent", "w");	//"-persistent" KEEPS THE PLOT OPEN EVEN AFTER YOUR C PROGRAM QUIT
 
 	for (int i = 0; i < n_commands; i++)
 	{
-		fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]); //Send commands to gnuplot one by one.
+		fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]);					//Send commands to gnuplot one by one.
 	}
 	_pclose(gnuplotPipe);
 }
@@ -78,7 +75,7 @@ void plot_gnuplot(instance *inst) {
 
 
 
-/*---------------------------------FILE WITH NODES TO PLOT------------------------------*/ 
+/*---------------------------------FILE WITH NODES TO PLOT------------------------------*/
 void add_edge_to_file(instance *inst) {
 	FILE * file = fopen("edge_to_plotMTZ.txt", "w");
 	for (int i = 0; i < 2 * inst->nnodes; i = i + 2) {
