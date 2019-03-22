@@ -131,7 +131,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		}
 	}
 	inst->last_x_index = CPXgetnumcols(env, lp) - 1;									//LAST x INDEX(INDEXES START FROM 0)
-	if (VERBOSE >= 1)
+	if (VERBOSE >= 200)
 	{
 		printf("Last x index in CPLEX is: %d (Remember indexes start from 0)\n", inst->last_x_index);
 	}
@@ -152,7 +152,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 				
 			if (VERBOSE >= 200)
 			{
-				printf("The column with i=%d e j=%d is in position %d and xpos is %d\n", i, j, CPXgetnumcols(env, lp), xpos(i, j, inst));
+				printf("The column with i=%d e j=%d is in position %d and ypos is %d\n", i, j, CPXgetnumcols(env, lp), ypos(i, j, inst));
 			}
 		}
 	}
@@ -228,12 +228,13 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	
 
 	/*-----------------------------CONSTRAINTS ON y VARIABLES-----------------------*/
-	/*--------------------------y1j=n-1  j!=1----------------*/
+
+	/*------------------------------SUM_j y1j = n-1    j!=1-------------------------*/
 	char sense = 'E';
 	int izero = 0;
 	int *index = (int *)malloc((inst->nnodes-1)*sizeof(int));
 	double *value = (double *)malloc((inst->nnodes - 1) *sizeof(double));
-	double rhs = inst->nnodes - 1;
+	double rhs = inst->nnodes - 1;												//(n-1)
 	sprintf(cname[0], "y1j(1,j)");
 
 	for (int j = 1; j < inst->nnodes; j++) {
@@ -246,7 +247,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	free(index);
 	free(value);
 
-	/*--------------------------somme(yij)-somme(yjk)=1  j!=1----------------*/
+	/*--------------------------SUM_j(yij)-SUM_k(yjk) = 1    j!=1-------------------*/
 	for (int j = 1; j < inst->nnodes; j++) {
 		char sense = 'E';
 		int izero = 0;
@@ -254,20 +255,25 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		double *value = (double *)malloc((2*inst->nnodes - 2) * sizeof(double));
 		double rhs = 1;
 		sprintf(cname[0], "yij(i,%d)_yjk(%d,k)",j+1,j+1);
-		int n = 0;
-		for (int i = 0; i < inst->nnodes; i++) {
+
+		/*----LAZY INSERTION FUNCTION NEEDS ARRAY OF INDEXES AND ARRAY OF RELATED VALUES------*/
+		int lazy_index = 0;
+		for (int i = 0; i < inst->nnodes; i++) {											//FIRST SUM
 			if (i == j) continue;
-			index[n] = ypos(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
-			value[n] = 1.0;
-			n++;
+			index[lazy_index] = ypos(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+			value[lazy_index] = 1.0;
+			lazy_index++;
 		}
-		for (int k = 0; k < inst->nnodes; k++) {
+		for (int k = 0; k < inst->nnodes; k++) {											//SECOND SUM
 			if (k == j) continue;
-			index[n] = ypos( j, k, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
-			value[n] = -1.0;
-			n++;
+			index[lazy_index] = ypos( j, k, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+			value[lazy_index] = -1.0;
+			lazy_index++;
 		}
-		//printf("n=%d\n", n);
+		if (VERBOSE >= 1 & (j == inst->nnodes - 1)) 
+		{
+			printf("Last number of lazy_index: %d \n", lazy_index);
+		}
 		if (CPXaddlazyconstraints(env, lp, 1, (2 * inst->nnodes - 2), &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 		free(index);
 		free(value);
