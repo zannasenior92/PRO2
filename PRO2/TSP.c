@@ -131,6 +131,13 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		}
 	}
 
+	inst->last_x_index = CPXgetnumcols(env, lp) - 1;									//LAST x INDEX(INDEXES START FROM 0)
+	if (VERBOSE >= 500)
+	{
+		printf("Last x index in CPLEX is: %d \n", inst->last_x_index);
+	}
+	
+
 	/*------------------------------------ADD CONSTRAINTS-----------------------------------------*/
 
 	/*--------ADD THE u VARIABLES- ui=i POSITION IN THE CIRCUIT-----------*/

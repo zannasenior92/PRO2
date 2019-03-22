@@ -6,7 +6,7 @@
 void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
 void plot_gnuplot(instance *inst);
-//void plot_edge(instance *inst);
+int xpos(int i, int j, instance *inst);
 int TSPopt(instance *inst);
 double dist(int i, int j, instance *inst);
 void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(NULL); exit(1); } 
@@ -43,7 +43,6 @@ int main(int argc, char **argv) {
 	if (TSPopt(&inst)) print_error(" error within TSPopt()");
 	plot_gnuplot(&inst);													//PLOT COORDINATES IN GNUPLOT WINDOW
 	free_instance(&inst);													//FREE MEMORY OCCUPIED BY instance TSP.h
-	
 	return 0;
 }
 
