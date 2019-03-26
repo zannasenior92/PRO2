@@ -52,7 +52,10 @@ int TSPopt(instance *inst)
 		}
 	}
 	printf("Nodi selezionati: %d\n", count);
-	CPXfreeprob(env, &lp);
+	double *opt_val;			//salvo qui la soluzione ottima
+	CPXgetobjval(env, lp, &opt_val);//soluzione obiettivo ottima trovata
+	CPXfreeprob(env, &lp);									
+	printf("\n Object function optimal value is: %f\n", opt_val);
 	CPXcloseCPLEX(&env);
 	return 0;
 }
