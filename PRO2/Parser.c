@@ -43,7 +43,14 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		printf("Insert name file used(Specify the file format es   .dat): ");
 		strcpy(name_file, "C:\\Users\\");	
 		strcat(name_file, user);
-		strcat(name_file, "\\source\\repos\\PRO2\\PRO2\\");
+		if (strncmp(user, "marco",5)==0) 
+		{
+			strcat(name_file, "\\Documents\\RO2\\");
+		}
+		else
+		{
+			strcat(name_file, "\\source\\repos\\PRO2\\PRO2\\");
+		}
 		strcat(name_file, gets(in_file));
 		printf("\n");
 		printf("Input file selected: %s \n\n", name_file);
