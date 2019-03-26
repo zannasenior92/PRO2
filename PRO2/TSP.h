@@ -26,6 +26,7 @@ typedef struct {
 	char input_file[1000];
 
 
+
 	//----------------------GLOBAL DATA-------------------------
 	double *best_sol;						// best sol. available
 	int *choosen_edge;						// Nodi scelti 

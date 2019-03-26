@@ -1,15 +1,58 @@
 /*-----------------------------------PARSER FUNCTION------------------------------------*/
 #include "TSP.h"
-
+#include <stdio.h>
 
 /*----------------------------------COMMAND LINE PARSING--------------------------------*/
 void parse_command_line(int argc, char** argv, instance *inst) {
 
+	/*-----------------------------CHECK USER INPUT-------------------------------------*/
+	printf("User?(Marco/Luca): ");
+	char user[10];
+	strcpy(user, gets(user));
+	while ((strncmp(user, "Luca", 3) != 0) && ((strncmp(user, "Marco", 2) != 0)))		//CHECK INPUT
+	{
+		printf("INPUT ERROR! User(Marco/Luca)?: ");
+		strcpy(user, gets(user));
+	}
 
+	/*-----------------------INPUT LINE SHELL(yes/no)-----------------------------------*/
+	printf("Input method from shell(yes/no)?: ");
+	char decision[5];																		
+	strcpy(decision, gets(decision));
 
-	for (int i = 0; i < argc; i++) {
-		if (strcmp(argv[i], "-input") == 0) { strcpy(inst->input_file, argv[++i]); continue; }
-		if (strcmp(argv[i], "-timelimit") == 0) { inst->timelimit = atoi(argv[++i]); continue; }
+	while ((strncmp(decision, "yes",3)!=0) && ((strncmp(decision, "no",2)!=0)))				//CHECK INPUT
+	{
+		printf("INPUT ERROR! Input method from shell(yes/no)?: ");
+		strcpy(decision, gets(decision));
+	}
+	
+	/*---------------------------------READ INPUT FROM ARGV------------------------------*/
+	if (strncmp(decision, "no",2)==0)
+	{
+		for (int i = 0; i < argc; i++) {
+			if (strcmp(argv[i], "-input") == 0) { strcpy(inst->input_file, argv[++i]); continue; }
+			if (strcmp(argv[i], "-timelimit") == 0) { inst->timelimit = atoi(argv[++i]); continue; }
+		}
+	}
+	
+	/*----------------------------READ THE INPUT FILE FROM SHELL-------------------------*/
+	else
+	{
+		char name_file[100];
+		char in_file[30];
+		printf("Insert name file used(Specify the file format es   .dat): ");
+		strcpy(name_file, "C:\\Users\\");	
+		strcat(name_file, user);
+		strcat(name_file, "\\source\\repos\\PRO2\\PRO2\\");
+		strcat(name_file, gets(in_file));
+		printf("\n");
+		printf("Input file selected: %s \n\n", name_file);
+		strcpy(inst->input_file, name_file);
+
+		if (VERBOSE >= 200)//PRINT FILE PATH 
+		{
+			printf(name_file);
+		}
 	}
 }
 

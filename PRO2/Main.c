@@ -1,5 +1,6 @@
 #include "TSP.h"
 #include <ilcplex/cplex.h>
+#include <stdio.h>
 #pragma warning(disable : 4996)
 
 /*---------------------------DEFINITION OF METHODS---------------------------------------*/
@@ -32,7 +33,6 @@ int main(int argc, char **argv) {
 	instance inst; //we create the variable inst of type instance
 
 	parse_command_line(argc, argv, &inst);											//keep the arguments of the command line
-	printf("Il file di input e': %s\n", inst.input_file);
 	read_input(&inst);																//READ VARIABLES FROM INPUT AND SAVE INTO inst
 
 	if(VERBOSE>=200){
