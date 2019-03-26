@@ -87,6 +87,10 @@ int TSPopt(instance *inst)
 	}
 	/*-------------------------------------------------------------------------------*/
 
+	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
+	double *opt_val = 0;																//VALUE OPTIMAL SOL
+	CPXgetobjval(env, lp, &opt_val);													//OPTIMAL SOLUTION FOUND
+	printf("\n Object function optimal value is: %f\n", opt_val);
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
