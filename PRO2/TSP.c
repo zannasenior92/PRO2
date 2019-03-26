@@ -34,7 +34,30 @@ double dist(int i, int j, instance *inst){
 		else
 			return tij;
 	}
-	else return printf("Something go wrong in dist function");
+	if (inst->dist_type == 2) {
+		double PI= 3.141592;
+		double deg = (int)(inst->xcoord[i]+0.5);
+		double min = inst->xcoord[i] - deg;
+		double lati = PI * (deg + 5.0*min / 3.0) / 180.0;
+		deg=(int)(inst->ycoord[i] + 0.5);
+		min = inst->ycoord[i] - deg;
+		double longi= PI * (deg + 5.0*min / 3.0) / 180.0;
+
+		deg = (int)(inst->xcoord[j] + 0.5);
+		min = inst->xcoord[j] - deg;
+		double latj = PI * (deg + 5.0*min / 3.0) / 180.0;
+		deg = (int)(inst->ycoord[j] + 0.5);
+		min = inst->ycoord[j] - deg;
+		double longj = PI * (deg + 5.0*min / 3.0) / 180.0;
+		
+		double RRR = 6378.388;
+		double q1 = cos(longi - longj);
+		double q2 = cos(lati - latj);
+		double q3 = cos(lati + latj);
+		int dij = (int)(RRR*acos(0.5*((1.0 + q1)*q2 - (1.0 - q1)*q3)) + 1.0);
+		return dij;
+	}
+	else print_error("Something go wrong in dist function");
 	
 }
 
