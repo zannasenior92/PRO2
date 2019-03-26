@@ -13,7 +13,17 @@ void add_edge_to_file(instance *inst);
 
 /*------------------POSITION OF VARIABLE INSIDE THE MODEL----------------------------*/
 int xpos(int i, int j, instance *inst) {
+	if (i > j) return xpos(j, i, inst);
+	return i * inst->nnodes + j - ((i + 1)*(i + 2) / 2);
+}
+int xpos_compact(int i, int j, instance *inst) {
 	return i * inst->nnodes + j;
+}
+int ypos(int i, int j, instance *inst) {
+	return (inst->last_x_index + 1) + i * inst->nnodes + j;
+}
+int zpos(int i, int j, instance *inst) {
+	return ((xpos(inst->nnodes, inst->nnodes, inst) + (i * inst->nnodes + j)) + 1);
 }
 int upos(int i, instance *inst) {
 	return inst->nnodes*inst->nnodes + i;
