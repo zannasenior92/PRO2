@@ -79,11 +79,11 @@ int TSPopt(instance *inst)
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
-	if (inst->model_type == 0)	build_model(inst, env, lp);
-	if (inst->model_type == 1)	build_modelFlow1(inst, env, lp);
-	if (inst->model_type == 2)	build_modelMTZ(inst, env, lp);
-	if (inst->model_type == 3)	build_modelFischetti(inst, env, lp);
-
+	if (strcmp(inst->model_type,"flow1") == 0)	build_modelFlow1(inst, env, lp);
+	if (strcmp(inst->model_type, "mtz") == 0)	build_modelMTZ(inst, env, lp);
+	if (strcmp(inst->model_type, "fischetti") == 0)	build_modelFischetti(inst, env, lp);
+	//if(sizeof(inst->model_type)==0) build_model(inst, env, lp);
+	
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 
 	int ncols = CPXgetnumcols(env, lp);
