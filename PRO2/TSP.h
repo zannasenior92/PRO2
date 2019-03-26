@@ -19,6 +19,8 @@ typedef struct {
 	double *xcoord;
 	double *ycoord;
 	double timelimit;
+	int dist_type;
+	char input_file_name[100];
 
 
 	//-----------------------PARAMETERS-----------------------
@@ -27,12 +29,11 @@ typedef struct {
 
 	//----------------------GLOBAL DATA-------------------------
 	double *best_sol;						// best sol. available
-	double *best_lb;						// best lower bound available 
+	int *choosen_edge;						// archi scelti 
+	int *u;
+	double best_obj_val;
+	int last_x_index;
 
-	//---------------------MODEL--------------------------------
-	int xstart;
-
-
-} instance; //"instance" sarebbe il nome che diamo ad una istanza della nostra struttura
+} instance;														//NAME OF THE INSTANCE
 
 #endif   /* TSP_H_ */
