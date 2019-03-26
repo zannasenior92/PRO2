@@ -723,3 +723,4 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	CPXwriteprob(env, lp, "modelFischetti.lp", NULL);
 }
 
+
