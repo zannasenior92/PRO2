@@ -32,6 +32,7 @@ typedef struct {
 	int *choosen_edge;						// archi scelti 
 	int *u;
 	double best_obj_val;
+	int last_x_index;
 
 } instance;														//NAME OF THE INSTANCE
 

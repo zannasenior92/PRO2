@@ -1,4 +1,5 @@
 #include "TSP.h"
+#include <time.h>													//TO MESURE PROGRAM TIME
 #include <ilcplex/cplex.h>
 #pragma warning(disable : 4996)
 
@@ -6,7 +7,6 @@
 void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
 void plot_gnuplot(instance *inst);
-//void plot_edge(instance *inst);
 int TSPopt(instance *inst);
 double dist(int i, int j, instance *inst);
 void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(NULL); exit(1); } 
@@ -20,6 +20,10 @@ void free_instance(instance *inst) {
 /*----------------------------------------MAIN-------------------------------------------*/
 int main(int argc, char **argv) {
 	
+	double total_time;														
+	clock_t start_t, end_t;													//START TIME
+	start_t = clock();
+
 	instance inst;															//CREATE VARIABLE inst OF TYPE instance
 
 	
@@ -44,6 +48,16 @@ int main(int argc, char **argv) {
 	plot_gnuplot(&inst);													//PLOT COORDINATES IN GNUPLOT WINDOW
 	free_instance(&inst);													//FREE MEMORY OCCUPIED BY instance TSP.h
 	
+	
+	end_t = clock();														//FINAL TIME
+	total_time = ((double)(end_t - start_t)) / CLOCKS_PER_SEC;
+
+	/*-------------------------STAMP ELAPSED TIME-------------------------*/
+	if (VERBOSE >= 1)
+	{
+		printf("The program time is: %f (s)", total_time);
+	}
+
 	return 0;
 }
 
