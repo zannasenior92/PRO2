@@ -131,6 +131,7 @@ int TSPopt(instance *inst)
 	return 0;
 }
 
+/*DEFAULT MODEL*/
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0;																	//lower bound
@@ -194,7 +195,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	CPXwriteprob(env, lp, "model.lp", NULL);
 }
 
-/*------------------------------BUILD CPLEX MODEL------------------------------------*/
+/*MTZ MODEL*/
 void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0;																	//lower bound
@@ -223,11 +224,11 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			/*----------------------INSERT VARIABLE IN CPLEX--------------*/
 			if (CPXnewcols(env, lp, 1, &obj, &lb, &ub, &binary, cname)) print_error(" wrong CPXnewcols on x var.s");
 			/*--------------------CHECK VARIABLE POSITION-----------------*/
-			if (CPXgetnumcols(env, lp) - 1 != xpos(i, j, inst)) print_error(" wrong position for x var.s");
+			if (CPXgetnumcols(env, lp) - 1 != xpos_compact(i, j, inst)) print_error(" wrong position for x var.s");
 
 			if (VERBOSE >= 500)
 			{
-				printf("The column with i=%d e j=%d is in position %d and xpos is %d\n", i, j, CPXgetnumcols(env, lp), xpos(i, j, inst));
+				printf("The column with i=%d e j=%d is in position %d and xpos is %d\n", i, j, CPXgetnumcols(env, lp), xpos_compact(i, j, inst));
 			}
 		}
 	}
@@ -237,7 +238,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	{
 		printf("Last x index in CPLEX is: %d \n", inst->last_x_index);
 	}
-	
+
 
 	/*------------------------------------ADD CONSTRAINTS-----------------------------------------*/
 
@@ -274,7 +275,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int i = 0; i < inst->nnodes; i++)
 		{
 			if (i == h) continue;
-			if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x2]");
+			if (CPXchgcoef(env, lp, lastrow, xpos_compact(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x2]");
 		}
 	}
 
@@ -295,7 +296,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int i = 0; i < inst->nnodes; i++)
 		{
 			if (i == h) continue;
-			if (CPXchgcoef(env, lp, lastrow, xpos(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
+			if (CPXchgcoef(env, lp, lastrow, xpos_compact(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
 
@@ -313,20 +314,14 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int j = i + 1; j < inst->nnodes; j++) {
 
 			if (i == j) continue;
-			index[0] = xpos(i, j, inst);										//VARIABLE'S  INDEX
+			index[0] = xpos_compact(i, j, inst);										//VARIABLE'S  INDEX
 			value[0] = 1.0;														//VARIABLE'S VALUE  
-			index[1] = xpos(j, i, inst);
+			index[1] = xpos_compact(j, i, inst);
 			value[1] = 1.0;
 			sprintf(cname[0], "link(%d,%d)", i + 1, j + 1);
 
 
 			if (CPXaddlazyconstraints(env, lp, 1, 2, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
-
-			/*STATICO INSERT
-			if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [l3]");
-			if (CPXchgcoef(env, lp, lastrow, xpos(i, j, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
-			if (CPXchgcoef(env, lp, lastrow, xpos(j, i, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
-			*/
 		}
 		free(index);
 		free(value);
@@ -363,9 +358,8 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			value[0] = 1.0;														//SET TO 1 VARIABLE'S VALUE  
 			index[1] = (upos(j, inst));
 			value[1] = -1.0;
-			index[2] = xpos(i, j, inst);
+			index[2] = xpos_compact(i, j, inst);
 			value[2] = big_M;
-			//inst->u[i] - inst->u[i] + big_M * xpos(i, j, inst);
 			if (CPXaddlazyconstraints(env, lp, 1, 3, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 
 		}
@@ -377,6 +371,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	CPXwriteprob(env, lp, "modelMTZ.lp", NULL);
 }
 
+/*FLOW1 MODEL*/
 void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0;																	//lower bound
@@ -405,11 +400,11 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			/*----------------------INSERT VARIABLE IN CPLEX--------------*/
 			if (CPXnewcols(env, lp, 1, &obj, &lb, &ub, &binary, cname)) print_error(" wrong CPXnewcols on x var.s");
 			/*--------------------CHECK VARIABLE POSITION-----------------*/
-			if (CPXgetnumcols(env, lp) - 1 != xpos(i, j, inst)) print_error(" wrong position for x var.s");
+			if (CPXgetnumcols(env, lp) - 1 != xpos_compact(i, j, inst)) print_error(" wrong position for x var.s");
 
 			if (VERBOSE >= 500)
 			{
-				printf("The column with i=%d e j=%d is in position %d and xpos is %d\n", i, j, CPXgetnumcols(env, lp), xpos(i, j, inst));
+				printf("The column with i=%d e j=%d is in position %d and xpos is %d\n", i, j, CPXgetnumcols(env, lp), xpos_compact(i, j, inst));
 			}
 		}
 	}
@@ -460,7 +455,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int i = 0; i < inst->nnodes; i++)
 		{
 			if (i == h) continue;
-			if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x2]");
+			if (CPXchgcoef(env, lp, lastrow, xpos_compact(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x2]");
 		}
 	}
 
@@ -481,7 +476,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int i = 0; i < inst->nnodes; i++)
 		{
 			if (i == h) continue;
-			if (CPXchgcoef(env, lp, lastrow, xpos(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
+			if (CPXchgcoef(env, lp, lastrow, xpos_compact(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
 
@@ -498,7 +493,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (i == j) continue;
 			index[0] = ypos(i, j, inst);										//VARIABLE'S  INDEX
 			value[0] = 1.0;														//VARIABLE'S VALUE  
-			index[1] = xpos(i, j, inst);										//VARIABLE'S  INDEX
+			index[1] = xpos_compact(i, j, inst);										//VARIABLE'S  INDEX
 			value[1] = -(inst->nnodes - 1);
 			sprintf(cname[0], "y(%d,%d)", i + 1, j + 1);
 
@@ -565,6 +560,8 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	/*-------------------write the cplex model in file modelFlow1.lp------------------*/
 	CPXwriteprob(env, lp, "modelFlow1.lp", NULL);
 }
+
+/*FISCHETTI MODEL*/
 void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0; //lower bound
@@ -709,3 +706,4 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	CPXwriteprob(env, lp, "modelFischetti.lp", NULL);
 }
+
