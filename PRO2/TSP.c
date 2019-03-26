@@ -35,21 +35,21 @@ double dist(int i, int j, instance *inst){
 			return tij;
 	}
 	if (inst->dist_type == 2) {
-		double PI= 3.141592;
-		double deg = (int)(inst->xcoord[i]+0.5);
+		double PI = 3.141592;
+		double deg = (int)(inst->xcoord[i]);
 		double min = inst->xcoord[i] - deg;
 		double lati = PI * (deg + 5.0*min / 3.0) / 180.0;
-		deg=(int)(inst->ycoord[i] + 0.5);
+		deg = (int)(inst->ycoord[i] + 0.5);
 		min = inst->ycoord[i] - deg;
-		double longi= PI * (deg + 5.0*min / 3.0) / 180.0;
+		double longi = PI * (deg + 5.0*min / 3.0) / 180.0;
 
-		deg = (int)(inst->xcoord[j] + 0.5);
+		deg = (int)(inst->xcoord[j]);
 		min = inst->xcoord[j] - deg;
 		double latj = PI * (deg + 5.0*min / 3.0) / 180.0;
 		deg = (int)(inst->ycoord[j] + 0.5);
 		min = inst->ycoord[j] - deg;
 		double longj = PI * (deg + 5.0*min / 3.0) / 180.0;
-		
+
 		double RRR = 6378.388;
 		double q1 = cos(longi - longj);
 		double q2 = cos(lati - latj);
