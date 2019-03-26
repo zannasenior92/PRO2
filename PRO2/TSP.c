@@ -4,7 +4,7 @@
 
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
-void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp);
 void add_edge_to_file(instance *inst);
 
 /*------------------POSITION OF VARIABLE INSIDE THE MODEL----------------------------*/
@@ -72,7 +72,7 @@ int TSPopt(instance *inst)
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
-	build_model(inst, env, lp);												//populate the model
+	build_modelMTZ(inst, env, lp);												//populate the model
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 
 	int ncols = CPXgetnumcols(env, lp);
@@ -121,7 +121,7 @@ int TSPopt(instance *inst)
 }
 
 /*------------------------------BUILD CPLEX MODEL------------------------------------*/
-void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
+void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0;																	//lower bound
 	char binary = 'B';																	//binary variable (0 OR 1)
