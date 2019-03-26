@@ -4,7 +4,7 @@
 
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
-void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp);
 void add_edge_to_file(instance *inst);
 
 
@@ -69,7 +69,7 @@ int TSPopt(instance *inst)
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error); //create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP"); //create the structure for our model(lp)
-	build_model(inst, env, lp); //populate the model
+	build_modelFischetti(inst, env, lp); //populate the model
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n"); //CPXmipopt to solve the model
 
 	int ncols = CPXgetnumcols(env, lp);
@@ -117,7 +117,7 @@ int TSPopt(instance *inst)
 }
 
 /*------------------------------BUILD CPLEX MODEL------------------------------------*/
-void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
+void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0; //lower bound
 	double ub = 1.0; //upper bound
@@ -140,12 +140,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (VERBOSE >= 500) {
 				printf("Distance d(%d,%d): %f \n",i+1,j+1, dist(i, j,inst));
 			}
-
-			//Metodo per inserire colonna: env=environment, lp=problema, obj=funzione obiettivo, 
-			// lb=lower bound, ub=upper bound, binary=tipo della variabile, cname=nome della colonna
 			if (CPXnewcols(env, lp, 1, &obj, &lb, &ub, &binary, cname)) print_error(" wrong CPXnewcols on x var.s");
-			//confronto se la posizione della colonna aggiunta sia uguale a quella della xpos
-			//printf("La colonna con i=%d e j=%d e' in posizione %d e xpos e' %d\n", i, j, CPXgetnumcols(env, lp), xpos(i,j,inst));
 			if (CPXgetnumcols(env, lp) - 1 != xpos(i, j, inst)) print_error(" wrong position for x var.s");
 
 		}
@@ -217,7 +212,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	/*-------------ogni posizione deve avere un vertice---*/
 	for (int h = 0; h < inst->nnodes; h++)
 	{
-		int lastrow = CPXgetnumrows(env, lp);	//chiedo a cplex ultima riga cambiata chiedendo numero di righe
+		int lastrow = CPXgetnumrows(env, lp);	
 		double rhs = 1.0;
 		char sense = 'E';
 		sprintf(cname[0], "somme_z(v,(%d))", h + 1);
@@ -264,5 +259,5 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		}
 	}
 
-	CPXwriteprob(env, lp, "model_pers.lp", NULL); //write the cplex model in file model.lp
+	CPXwriteprob(env, lp, "modelFischetti.lp", NULL); 
 }
