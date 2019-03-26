@@ -76,11 +76,12 @@ double dist(int i, int j, instance *inst){
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
 {
+	int compact = 0;
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
-	if (strcmp(inst->model_type,"flow1") == 0)	build_modelFlow1(inst, env, lp);
-	if (strcmp(inst->model_type, "mtz") == 0)	build_modelMTZ(inst, env, lp);
+	if (strcmp(inst->model_type, "flow1") == 0) { build_modelFlow1(inst, env, lp); compact = 1; }
+	if (strcmp(inst->model_type, "mtz") == 0) { build_modelMTZ(inst, env, lp); compact = 1; }
 	if (strcmp(inst->model_type, "fischetti") == 0)	build_modelFischetti(inst, env, lp);
 	//if(sizeof(inst->model_type)==0) build_model(inst, env, lp);
 	
@@ -102,16 +103,31 @@ int TSPopt(instance *inst)
 	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		for (int j = 0; j < inst->nnodes; j++) {
-			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
+			if(compact==1){
+				if (inst->best_sol[xpos_compact(i, j, inst)] > 0.5) {
 
-				if (VERBOSE >= 1) {
-					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
+					if (VERBOSE >= 1) {
+						printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
+					}
+					/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
+					inst->choosen_edge[n] = i;
+					inst->choosen_edge[n + 1] = j;
+					n += 2;
+					count++;
 				}
-				/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
-				inst->choosen_edge[n] = i;
-				inst->choosen_edge[n + 1] = j;
-				n += 2;
-				count++;
+			}
+			else {
+				if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
+
+					if (VERBOSE >= 1) {
+						printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
+					}
+					/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
+					inst->choosen_edge[n] = i;
+					inst->choosen_edge[n + 1] = j;
+					n += 2;
+					count++;
+				}
 			}
 		}
 	}
@@ -356,7 +372,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			sprintf(cname[0], "uij(%d,%d)", i + 1, j + 1);
 			index[0] = upos(i, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 			value[0] = 1.0;														//SET TO 1 VARIABLE'S VALUE  
-			index[1] = (upos(j, inst));
+			index[1] = upos(j, inst);
 			value[1] = -1.0;
 			index[2] = xpos_compact(i, j, inst);
 			value[2] = big_M;
