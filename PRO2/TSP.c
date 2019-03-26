@@ -4,7 +4,7 @@
 
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
-void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp);
 void add_edge_to_file(instance *inst);
 
 /*------------------POSITION OF VARIABLE INSIDE THE MODEL----------------------------*/
