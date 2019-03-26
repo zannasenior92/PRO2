@@ -9,7 +9,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 	printf("User?(marco/Luca): ");
 	char user[10];
 	strcpy(user, gets(user));
-	while ((strncmp(user, "Luca", 3) != 0) && ((strncmp(user, "marco", 2) != 0)))		//CHECK INPUT
+	while ((strncmp(user, "Luca", 4) != 0) && ((strncmp(user, "marco", 5) != 0)))		//CHECK INPUT
 	{
 		printf("INPUT ERROR! User(marco/Luca)?: ");
 		strcpy(user, gets(user));
