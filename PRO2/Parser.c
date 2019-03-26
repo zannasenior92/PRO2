@@ -112,6 +112,21 @@ void read_input(instance *inst) {
 
 			continue;
 		}
+		/*---------------SELECT THE RIGHT TYPE DISTANCE--------------------*/
+		if (strncmp(par_name, "EDGE_WEIGHT_TYPE", 16) == 0)
+		{
+			token1 = strtok(NULL, " :");
+			if (strncmp(token1, "EUC_2D", 6) == 0) {						//0 = EUCLIDEAN DISTANCE
+				inst->dist_type = 0;
+			}
+			if (strncmp(token1, "ATT", 3) == 0) {							//1 = ATT DISTANCE
+				inst->dist_type = 1;
+			}
+			if (strncmp(token1, "GEO", 3) == 0) {							//2 = GEO DISTANCE
+				inst->dist_type = 2;
+			}
+			continue;
+		}
 		if (strncmp(par_name, "NODE_COORD_SECTION", 18) == 0)
 		{
 			if (inst->nnodes <= 0) { printf(" DIMENSION section should appear before NODE_COORD_SECTION section"); exit(1); }
