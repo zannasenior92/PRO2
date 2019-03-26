@@ -16,6 +16,7 @@ int xpos(int i, int j, instance *inst) {
 	if (i > j) return xpos(j, i, inst);
 	return i * inst->nnodes + j - ((i + 1)*(i + 2) / 2);
 }
+
 int xpos_compact(int i, int j, instance *inst) {
 	return i * inst->nnodes + j;
 }
