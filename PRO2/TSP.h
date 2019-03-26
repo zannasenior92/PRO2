@@ -32,7 +32,9 @@ typedef struct {
 	int *choosen_edge;						// archi scelti 
 	int *u;
 	double best_obj_val;
-	int last_x_index;
+	/*-----------------LAST VARIABLE CPLEX INDEX--------------------*/
+	int last_x_index;											//LATS INDEX OF x VARIABLES (LAST COLUMN IN CPLEX)
+	
 
 } instance;														//NAME OF THE INSTANCE
 
