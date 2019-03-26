@@ -35,7 +35,29 @@ double dist(int i, int j, instance *inst) {
 		else
 			return tij;
 	}
+	if (inst->dist_type == 2) {
+		double PI = 3.141592;
+		double deg = (int)(inst->xcoord[i]);
+		double min = inst->xcoord[i] - deg;
+		double lati = PI * (deg + 5.0*min / 3.0) / 180.0;
+		deg = (int)(inst->ycoord[i] + 0.5);
+		min = inst->ycoord[i] - deg;
+		double longi = PI * (deg + 5.0*min / 3.0) / 180.0;
 
+		deg = (int)(inst->xcoord[j]);
+		min = inst->xcoord[j] - deg;
+		double latj = PI * (deg + 5.0*min / 3.0) / 180.0;
+		deg = (int)(inst->ycoord[j] + 0.5);
+		min = inst->ycoord[j] - deg;
+		double longj = PI * (deg + 5.0*min / 3.0) / 180.0;
+
+		double RRR = 6378.388;
+		double q1 = cos(longi - longj);
+		double q2 = cos(lati - latj);
+		double q3 = cos(lati + latj);
+		int dij = (int)(RRR*acos(0.5*((1.0 + q1)*q2 - (1.0 - q1)*q3)) + 1.0);
+		return dij;
+	}
 }
 
 
@@ -131,6 +153,9 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	/*----------------INSERISCO LE Z: zvh=1 se vertice v si trova in posizione h*/
 	for (int i = 0; i < inst->nnodes; i++)
 	{
+		double lb = 0.0; //lower bound
+		double ub = 1.0; //upper bound
+		char binary = 'B'; //binary variable (0 OR 1)
 		for (int j = 0; j < inst->nnodes; j++)
 		{
 			double obj =0;
@@ -207,18 +232,17 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	
 	for (int i = 1; i < inst->nnodes; i++) {
 		for (int j = 1; j < inst->nnodes; j++) {
-			for (int h = 1; h < inst->nnodes; h++) {
+			if (i == j) continue;
+			for (int h = 2; h < inst->nnodes; h++) {
 				int n = 0;
-				if (i == j) continue;
 				char sense = 'L';
 				int izero = 0;
 				int *index = (int *)malloc((inst->nnodes) * sizeof(int));
 				double *value = (double *)malloc((inst->nnodes) * sizeof(double));
 				double rhs = 2;
 				
-				sprintf(cname[0], "h%d_x(%d,%d)",h, i + 1, j + 1);
-				for (int t = 1; t < h; t++) {
-					if (i == t) continue;
+				sprintf(cname[0], "h%d_x(%d,%d)",h+1, i + 1, j + 1);
+				for (int t = 0; t < h; t++) {
 					index[n] = zpos(i, t, inst);
 					value[n] = 1.0;
 					n++;
@@ -228,18 +252,17 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 				value[n] = 1.0;
 				n++;
 				for (int t = h+1; t < inst->nnodes; t++) {
-					if (j == t) continue;
 					index[n] = zpos(j, t, inst);
 					value[n] = 1.0;
 					n++;
 				}
 				if (CPXaddlazyconstraints(env, lp, 1, n, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
-				//free(index);
-				//free(value);
+				free(index);
+				free(value);
 			}
 			
 		}
 	}
 
-	CPXwriteprob(env, lp, "model_pers1.lp", NULL); //write the cplex model in file model.lp
+	CPXwriteprob(env, lp, "model_pers.lp", NULL); //write the cplex model in file model.lp
 }
