@@ -1,5 +1,6 @@
 #include "TSP.h"
 #include <ilcplex/cplex.h>
+#include <time.h>
 #pragma warning(disable : 4996)
 
 /*---------------------------DEFINITION OF METHODS---------------------------------------*/
@@ -20,6 +21,9 @@ void free_instance(instance *inst) {
 /*----------------------------------------MAIN-------------------------------------------*/
 int main(int argc, char **argv) {
 	
+	double total_time;
+	clock_t start_t, end_t;													//START TIME
+	start_t = clock();
 	instance inst;															//CREATE VARIABLE inst OF TYPE instance
 
 	
@@ -43,6 +47,17 @@ int main(int argc, char **argv) {
 	if (TSPopt(&inst)) print_error(" error within TSPopt()");
 	plot_gnuplot(&inst);													//PLOT COORDINATES IN GNUPLOT WINDOW
 	free_instance(&inst);													//FREE MEMORY OCCUPIED BY instance TSP.h
+	
+
+	end_t = clock();														//FINAL TIME
+	total_time = ((double)(end_t - start_t)) / CLOCKS_PER_SEC;
+
+	/*-------------------------STAMP ELAPSED TIME-------------------------*/
+	if (VERBOSE >= 1)
+	{
+		printf("The program time is: %f (s)", total_time);
+	}
+
 	return 0;
 }
 
@@ -52,3 +67,5 @@ int main(int argc, char **argv) {
 
 
 /*--------------------------------------------------------*/
+
+	
