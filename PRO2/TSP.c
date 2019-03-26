@@ -5,6 +5,9 @@
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp);
+
 void add_edge_to_file(instance *inst);
 
 /*------------------POSITION OF VARIABLE INSIDE THE MODEL----------------------------*/
@@ -14,8 +17,6 @@ int xpos(int i, int j, instance *inst) {
 int upos(int i, instance *inst) {
 	return inst->nnodes*inst->nnodes + i;
 }
-
-
 
 /*-------------------------DISTANCE BETWEEN TWO POINTS-------------------------------*/
 double dist(int i, int j, instance *inst){
@@ -56,19 +57,14 @@ double dist(int i, int j, instance *inst){
 		double q2 = cos(lati - latj);
 		double q3 = cos(lati + latj);
 		int dij = (int)(RRR*acos(0.5*((1.0 + q1)*q2 - (1.0 - q1)*q3)) + 1.0);
-		printf("Dist(%d,%d)=%d\n", i, j, dij);
 		return dij;
 		}
 		else print_error("Something go wrong in distance");
 }
 
-
-
-
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
 {
-	
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
