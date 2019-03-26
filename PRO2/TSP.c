@@ -122,7 +122,7 @@ int TSPopt(instance *inst)
 	}
 	else {
 		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = 0; j < inst->nnodes; j++) {
+			for (int j = i+1; j < inst->nnodes; j++) {
 				if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
 
 					if (VERBOSE >= 1) {
