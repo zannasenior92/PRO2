@@ -52,7 +52,9 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		{
 			strcat(name_file, "\\source\\repos\\PRO2\\PRO2\\");
 		}
-		strcat(name_file, fgets(in_file,30,stdin));
+		fgets(in_file, 30, stdin);
+		in_file[strlen(in_file) - 1] = '\0';
+		strcat(name_file, in_file);
 		printf("\n");
 		printf("Input file selected: %s \n\n", name_file);
 		strcpy(inst->input_file, name_file);
