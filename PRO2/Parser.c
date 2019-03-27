@@ -38,26 +38,27 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 	/*----------------------------READ THE INPUT FILE FROM SHELL-------------------------*/
 	else
 	{
-		char name_file[100];
-		char in_file[30];
+		char name_file[100];															//PATH STRING
+		char in_file[30];																//FILE NAME
 		printf("Insert name file used(Specify the file format es   .dat): ");
 		strcpy(name_file, "C:\\Users\\");	
-		strcat(name_file, user);
-		name_file[strlen(name_file) - 1] = '\0';
-		if (strncmp(user, "marco",5)==0) 
+		strcat(name_file, user);														//ADD USER STRING
+		name_file[strlen(name_file) - 1] = '\0';										//UNCONSIDER \n
+
+		if (strncmp(user, "marco",5)==0)
 		{
-			strcat(name_file, "\\Documents\\RO2\\");
+			strcat(name_file, "\\Documents\\RO2\\");									//MARCO'S PATH
 		}
 		else
 		{
-			strcat(name_file, "\\source\\repos\\PRO2\\PRO2\\");
+			strcat(name_file, "\\source\\repos\\PRO2\\PRO2\\");							//LUCA'S PATH
 		}
-		fgets(in_file, 30, stdin);
-		in_file[strlen(in_file) - 1] = '\0';
-		strcat(name_file, in_file);
+		fgets(in_file, 30, stdin);														//GET FILE NAME
+		in_file[strlen(in_file) - 1] = '\0';											//UNCONSIDER \n
+		strcat(name_file, in_file);														//ADD NAME FILE TO THE PATH STRING
 		printf("\n");
 		printf("Input file selected: %s \n\n", name_file);
-		strcpy(inst->input_file, name_file);
+		strcpy(inst->input_file, name_file);											//SAVE PATH
 		
 	}
 }
