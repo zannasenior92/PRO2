@@ -222,7 +222,7 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	}
 	
 	for (int i = 0; i < inst->nnodes; i++) {
-		printf("Componente %d\n", inst->comp[i]);
+		//printf("Componente %d\n", inst->comp[i]);
 		inst->mycomp[inst->comp[i]] = 1;
 		
 	}
@@ -230,7 +230,7 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	int n = 0;
 	for (int i = 0; i < inst->nnodes; i++) {
 		if (inst->mycomp[i]!=0) {
-			printf("inst->mycomp[%d]=%d\n", i, inst->mycomp[i]);
+			//printf("inst->mycomp[%d]=%d\n", i, inst->mycomp[i]);
 			n++;
 		}
 
