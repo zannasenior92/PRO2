@@ -9,6 +9,8 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp);
 void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp);
 void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp);
 void add_edge_to_file(instance *inst);
+int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
+void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
 
 /*METODO CHE CONTROLLA IL TIPO DI MODELLO E COSTRUISCE QUELLO RELATIVO*/
 void select_and_build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
@@ -104,8 +106,25 @@ int TSPopt(instance *inst)
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
 	
-	select_and_build_model(inst, env, lp);
-	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
+	build_model(inst, env, lp);
+	
+	/*METODO LOOP*/
+	int done = 0;
+	while (!done) {
+		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
+		int ncols = CPXgetnumcols(env, lp);
+		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
+		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
+		if (kruskal_sst(env, lp, inst) == 1) {
+			done = 1;
+		}
+		
+		else {
+			add_SEC(env,lp,inst);
+		}
+
+	}
+
 
 	int ncols = CPXgetnumcols(env, lp);
 	printf("numero colonne %d\n", ncols);
@@ -171,5 +190,64 @@ int TSPopt(instance *inst)
 	return 0;
 }
 
+int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
+	int c1, c2 = 0;
+	int n_connected_comp = inst->nnodes;
+	/*INIZIALIZZAZIONE*/
+	for (int i = 0; i < inst->nnodes; i++) {
+		inst->comp[i] = i;
+	}
+	/*UNIONE COMPONENTI CONNESSE*/
+	for (int i = 0; i < inst->nnodes; i++) {
+		for (int j = i + 1; j < inst->nnodes; j++) {
+			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
+				if (inst->comp[i] != inst->comp[j]) {
+					c1 = inst->comp[i];
+					c2 = inst->comp[j];
+				}
+				for (int v = 0; v < inst->nnodes; v++) {
+					if (inst->comp[v] == c2)
+						inst->comp[v] = c1;
+				}
+				n_connected_comp--;
+			}
 
+		}
+	}
+	if(VERBOSE>=200){
+		for (int i = 0; i < inst->nnodes; i++) {
+			printf("Componente %d\n", inst->comp[i]);
+		}
+	}
+	printf("Componenti connesse %d\n", n_connected_comp);
+	return n_connected_comp;
+}
+
+void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
+	int nnz = 0;
+	double rhs = -1.0;
+	char sense = 'L';
+	int mycomp = 0;
+	int ncols = CPXgetnumcols(env, lp);
+	int *index = (int *)malloc( ncols* sizeof(int));
+	double *value = (double *)malloc(ncols * sizeof(double));
+	int matbeg = 0;
+	char **cname = (char **)calloc(1, sizeof(char *));									// (char **) required by cplex...
+	cname[0] = (char *)calloc(100, sizeof(char));
+	for (int i = 0; i < inst->nnodes; i++) {
+		if (inst->comp[i] != mycomp) continue;
+		rhs++;
+		sprintf(cname[0], "SEC(%d)", i);
+
+		for (int j = i + 1; j < inst->nnodes; j++) {
+			if (inst->comp[j] == mycomp) {
+				index[nnz] = xpos(i, j, inst);
+				value[nnz] = 1;
+				nnz++;
+			}
+		}
+	}
+	if (CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &matbeg, index, value, NULL, cname)) print_error("wrong CPXaddrow");
+
+}
 
