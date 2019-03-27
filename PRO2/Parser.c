@@ -116,6 +116,9 @@ void read_input(instance *inst) {
 			if (strncmp(token1, "ATT", 3) == 0) {							//1 = ATT DISTANCE
 				inst->dist_type = 1;
 			}
+			if (strncmp(token1, "GEO", 3) == 0) {							//1 = ATT DISTANCE
+				inst->dist_type = 2;
+			}
 
 			continue;
 		}
