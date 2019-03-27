@@ -15,7 +15,18 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 				MTZ=2
 				FISCHETTI=3
 				*/
-			strcpy(inst->model_type, argv[++i]); continue;
+			if ((strcmp(argv[++i], "flow1") == 0)) {
+				inst->model_type = 1;
+				continue;
+			}
+			if (strcmp(argv[++i], "mtz") == 0) {
+				inst->model_type = 2;
+				continue;
+			}
+			if (strcmp(argv[++i], "fischetti") == 0) {
+				inst->model_type = 3;
+				continue;
+			}
 		}
 		if (strcmp(argv[i], "-timelimit") == 0) { inst->timelimit = atoi(argv[++i]); continue; }
 	}

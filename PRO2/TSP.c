@@ -5,18 +5,38 @@
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
-void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp);
 void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp);
 void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp);
-
 void add_edge_to_file(instance *inst);
+/*METODO CHE CONTROLLA IL TIPO DI MODELLO E COSTRUISCE QUELLO RELATIVO*/
+void select_and_build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
+	if (inst->model_type == 0){
+		printf("Modello TSP normale\n");
+		build_model(inst, env, lp);
+	}
+	if (inst->model_type == 1) {
+		printf("Modello Flow1\n");
+		inst->compact = 1;
+		build_modelFlow1(inst, env, lp);
+	}
+	if (inst->model_type == 2) {
+		printf("Modello MTZ\n");
+		inst->compact = 1;
+		build_modelMTZ(inst, env, lp);
+	}
+	if (inst->model_type == 3) {
+		printf("Modello Fischetti\n");
+		build_modelFischetti(inst, env, lp);
+	}
+
+}
 
 /*------------------POSITION OF VARIABLE INSIDE THE MODEL----------------------------*/
 int xpos(int i, int j, instance *inst) {
 	if (i > j) return xpos(j, i, inst);
 	return i * inst->nnodes + j - ((i + 1)*(i + 2) / 2);
 }
-
 int xpos_compact(int i, int j, instance *inst) {
 	return i * inst->nnodes + j;
 }
@@ -77,16 +97,13 @@ double dist(int i, int j, instance *inst){
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
 {
-	int compact = 0;
+	
+	inst->compact = 0;
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
-	if (strcmp(inst->model_type, "default") == 0) build_model(inst, env, lp); 
-	if (strcmp(inst->model_type, "flow1") == 0) { build_modelFlow1(inst, env, lp); compact = 1; }
-	if (strcmp(inst->model_type, "mtz") == 0) { build_modelMTZ(inst, env, lp); compact = 1; }
-	if (strcmp(inst->model_type, "fischetti") == 0)	build_modelFischetti(inst, env, lp);
-	//if(sizeof(inst->model_type)==0) build_model(inst, env, lp);
 	
+	select_and_build_model(inst, env, lp);
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 
 	int ncols = CPXgetnumcols(env, lp);
@@ -103,7 +120,7 @@ int TSPopt(instance *inst)
 	int count = 0;
 	int n = 0;
 	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
-	if (compact == 1) {
+	if (inst->compact == 1) {
 		for (int i = 0; i < inst->nnodes; i++) {
 			for (int j = 0; j < inst->nnodes; j++) {
 					if (inst->best_sol[xpos_compact(i, j, inst)] > 0.5) {
