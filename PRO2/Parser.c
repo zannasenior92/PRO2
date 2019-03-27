@@ -8,22 +8,22 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 	/*-----------------------------CHECK USER INPUT-------------------------------------*/
 	printf("User?(marco/Luca): ");
 	char user[10];
-	strcpy(user, gets(user));
+	strcpy(user, fgets(user,10,stdin));
 	while ((strncmp(user, "Luca", 4) != 0) && ((strncmp(user, "marco", 5) != 0)))		//CHECK INPUT
 	{
 		printf("INPUT ERROR! User(marco/Luca)?: ");
-		strcpy(user, gets(user));
+		strcpy(user, fgets(user, 10, stdin));
 	}
 
 	/*-----------------------INPUT LINE SHELL(yes/no)-----------------------------------*/
 	printf("Input method from shell(yes/no)?: ");
 	char decision[5];																		
-	strcpy(decision, gets(decision));
+	strcpy(decision, fgets(decision,5,stdin));
 
 	while ((strncmp(decision, "yes",3)!=0) && ((strncmp(decision, "no",2)!=0)))				//CHECK INPUT
 	{
 		printf("INPUT ERROR! Input method from shell(yes/no)?: ");
-		strcpy(decision, gets(decision));
+		strcpy(decision, fgets(decision, 5, stdin));
 	}
 	
 	/*---------------------------------READ INPUT FROM ARGV------------------------------*/
@@ -51,15 +51,12 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		{
 			strcat(name_file, "\\source\\repos\\PRO2\\PRO2\\");
 		}
-		strcat(name_file, gets(in_file));
+		strcat(name_file, fgets(in_file,30,stdin));
+		name_file[strlen(name_file) - 1] = '\0';
 		printf("\n");
 		printf("Input file selected: %s \n\n", name_file);
 		strcpy(inst->input_file, name_file);
-
-		if (VERBOSE >= 200)//PRINT FILE PATH 
-		{
-			printf(name_file);
-		}
+		
 	}
 }
 
