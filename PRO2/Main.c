@@ -23,7 +23,6 @@ int main(int argc, char **argv) {
 	instance inst;															//CREATE VARIABLE inst OF TYPE instance
 	inst.model_type = 0;
 	parse_command_line(argc, argv, &inst);									//keep the arguments of the command line
-	printf("Il file di input e': %s\n", inst.input_file);
 	read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
 
 	printf("Input usato: %s\n", inst.input_file_name);
