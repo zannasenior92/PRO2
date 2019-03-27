@@ -121,10 +121,12 @@ int TSPopt(instance *inst)
 		
 		else {
 			add_SEC(env,lp,inst);
+			printf("Aggiunti vincoli\n");
 		}
 
 	}
 
+	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 
 	int ncols = CPXgetnumcols(env, lp);
 	printf("numero colonne %d\n", ncols);
@@ -192,7 +194,8 @@ int TSPopt(instance *inst)
 
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	int c1, c2 = 0;
-	int n_connected_comp = inst->nnodes;
+	int n_connected_comp = 1;
+	int max = 0;
 	/*INIZIALIZZAZIONE*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		inst->comp[i] = i;
@@ -209,15 +212,18 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 					if (inst->comp[v] == c2)
 						inst->comp[v] = c1;
 				}
-				n_connected_comp--;
+				
 			}
 
 		}
 	}
-	if(VERBOSE>=200){
-		for (int i = 0; i < inst->nnodes; i++) {
-			printf("Componente %d\n", inst->comp[i]);
+	for (int i = 0; i < inst->nnodes; i++) {
+		printf("Componente %d\n", inst->comp[i]);
+		if (inst->comp[i] > max){
+			n_connected_comp++;
+			max = inst->comp[i];
 		}
+		
 	}
 	printf("Componenti connesse %d\n", n_connected_comp);
 	return n_connected_comp;
@@ -227,27 +233,31 @@ void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	int nnz = 0;
 	double rhs = -1.0;
 	char sense = 'L';
-	int mycomp = 0;
 	int ncols = CPXgetnumcols(env, lp);
 	int *index = (int *)malloc( ncols* sizeof(int));
 	double *value = (double *)malloc(ncols * sizeof(double));
 	int matbeg = 0;
 	char **cname = (char **)calloc(1, sizeof(char *));									// (char **) required by cplex...
 	cname[0] = (char *)calloc(100, sizeof(char));
-	for (int i = 0; i < inst->nnodes; i++) {
-		if (inst->comp[i] != mycomp) continue;
-		rhs++;
-		sprintf(cname[0], "SEC(%d)", i);
+	/*devo prendermi le componenti connesse
+	metto in ordine?
+	le numero?*/
+	for(int h=0; h<ncompconn;h++){
+		for (int i = 0; i < inst->nnodes; i++) {
+			if (inst->comp[i] != mycomp) continue;
+			rhs++;
+			sprintf(cname[0], "SEC(%d)", i);
 
-		for (int j = i + 1; j < inst->nnodes; j++) {
-			if (inst->comp[j] == mycomp) {
-				index[nnz] = xpos(i, j, inst);
-				value[nnz] = 1;
-				nnz++;
+			for (int j = i + 1; j < inst->nnodes; j++) {
+				if (inst->comp[j] == mycomp) {
+					index[nnz] = xpos(i, j, inst);
+					value[nnz] = 1;
+					nnz++;
+				}
 			}
 		}
-	}
-	if (CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &matbeg, index, value, NULL, cname)) print_error("wrong CPXaddrow");
+		if (CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &matbeg, index, value, NULL, cname)) print_error("wrong CPXaddrow");
+		}
 
 }
 
