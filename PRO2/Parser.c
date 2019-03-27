@@ -73,6 +73,7 @@ void read_input(instance *inst) {
 			inst->ycoord = (double *)calloc(inst->nnodes, sizeof(double));
 			inst->choosen_edge= (int *)calloc(inst->nnodes*2, sizeof(int));
 			inst->comp = (int*)calloc(inst->nnodes, sizeof(int));
+
 			continue;
 		}
 		

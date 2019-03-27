@@ -33,7 +33,9 @@ typedef struct {
 	double *best_sol;						// best sol. available
 	int *choosen_edge;						// archi scelti 
 	double best_obj_val;
+	int n_connected_comp;
 	int *comp;		//COMPONENTI CONNESSE
+	int *mycomp;
 	/*-----------------LAST VARIABLE CPLEX INDEX--------------------*/
 	int last_x_index;											//LATS INDEX OF x VARIABLES (LAST COLUMN IN CPLEX)
 	
