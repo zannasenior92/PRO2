@@ -105,8 +105,11 @@ int TSPopt(instance *inst)
 	if (VERBOSE >= 10) {
 		printf("Selected nodes: %d \n", count);
 	}
-	
+	/*-------------------------------------------------------------------------------*/
 
+	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
+	if (CPXgetobjval(env, lp, &inst->best_obj_val)) print_error("no best objective function");	//OPTIMAL SOLUTION FOUND
+	printf("Object function optimal value is: %f\n", inst->best_obj_val);
 	/*----------------------CLEAN AND CLOSE THE CPLEX ENVIROENMENT-------------------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);

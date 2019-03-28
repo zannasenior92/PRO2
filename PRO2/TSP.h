@@ -24,6 +24,7 @@ typedef struct {
 
 	//-----------------------PARAMETERS-----------------------
 	char input_file[1000];
+	double best_obj_val;
 
 
 

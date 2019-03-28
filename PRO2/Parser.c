@@ -51,7 +51,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		}
 		else
 		{
-			strcat(name_file, "\\source\\repos\\PRO2\\PRO2\\");							//LUCA'S PATH
+			strcat(name_file, "\\Documents\\FilesTSP\\");								//LUCA'S PATH
 		}
 		fgets(in_file, 30, stdin);														//GET FILE NAME
 		in_file[strlen(in_file) - 1] = '\0';											//UNCONSIDER \n
@@ -99,29 +99,12 @@ void read_input(instance *inst) {
 		{
 			token1 = strtok(NULL, " :");									//NULL gives the following word
 			inst->nnodes = atoi(token1);									//string argument to integer
-			printf("nnodes %d\n", inst->nnodes);
 			inst->xcoord = (double *)calloc(inst->nnodes, sizeof(double));
 			inst->ycoord = (double *)calloc(inst->nnodes, sizeof(double));
 			inst->choosen_edge = (int *)calloc(inst->nnodes * 2, sizeof(int));
 			continue;
 		}
 
-		/*---------------SELECT THE RIGHT TYPE DISTANCE--------------------*/
-		if (strncmp(par_name, "EDGE_WEIGHT_TYPE", 16) == 0)
-		{
-			token1 = strtok(NULL, " :");
-			if (strncmp(token1, "EUC_2D", 6) == 0) {						//0 = EUCLIDEAN DISTANCE
-				inst->dist_type = 0;
-			}
-			if (strncmp(token1, "ATT", 3) == 0) {							//1 = ATT DISTANCE
-				inst->dist_type = 1;
-			}
-			if (strncmp(token1, "GEO", 3) == 0) {							//1 = ATT DISTANCE
-				inst->dist_type = 2;
-			}
-
-			continue;
-		}
 		/*---------------SELECT THE RIGHT TYPE DISTANCE--------------------*/
 		if (strncmp(par_name, "EDGE_WEIGHT_TYPE", 16) == 0)
 		{
