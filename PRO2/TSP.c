@@ -78,8 +78,6 @@ int TSPopt(instance *inst)
 	printf("numero colonne %d\n", ncols);
 	inst->best_sol= (double *)calloc(ncols, sizeof(double));				//best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
-	if(CPXgetobjval(env, lp, &inst->best_obj_val)) print_error("no best objective function");
-	printf("Best Solution: %.0f\n", inst->best_obj_val);
 	if(VERBOSE>=200){
 		for (int i = 0; i < ncols - 1; i++){
 			printf("Best %f\n", inst->best_sol[i]);
@@ -111,9 +109,8 @@ int TSPopt(instance *inst)
 	/*-------------------------------------------------------------------------------*/
 
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
-	double *opt_val = 0;																//VALUE OPTIMAL SOL
-	CPXgetobjval(env, lp, &opt_val);													//OPTIMAL SOLUTION FOUND
-	printf("\n Object function optimal value is: %f\n", opt_val);
+	if (CPXgetobjval(env, lp, &inst->best_obj_val)) print_error("no best objective function");	//OPTIMAL SOLUTION FOUND
+	printf("Object function optimal value is: %f\n", inst->best_obj_val);
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
