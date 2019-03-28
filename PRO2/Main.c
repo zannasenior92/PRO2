@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
 	inst.model_type = 0;
 	parse_command_line(argc, argv, &inst);									//keep the arguments of the command line
 	read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
-	printf("Input usato: %s\n", inst.input_file_name);
+	printf("Input used: %s\n", inst.input_file_name);
 
 
 	if(VERBOSE>=200){

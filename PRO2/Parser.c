@@ -71,20 +71,24 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		}
 		else
 		{
-			strcat(name_file, "\\source\\repos\\PRO2\\PRO2\\");							//LUCA'S PATH
+			strcat(name_file, "\\Documents\\FilesTSP\\");							//LUCA'S PATH
 		}
 		fgets(in_file, 30, stdin);														//GET FILE NAME
 		in_file[strlen(in_file) - 1] = '\0';											//UNCONSIDER \n
 		strcat(name_file, in_file);														//ADD NAME FILE TO THE PATH STRING
 		printf("\n");
-		printf("Input file selected: %s \n\n", name_file);
+		if (VERBOSE>=100)
+		{
+			printf("Input file selected: %s \n\n", name_file);
+		}
 		strcpy(inst->input_file, name_file);											//SAVE PATH
 		/*-------------------------------------------------------------------------------*/
 
 		/*--------------------------------SELECT MODEL-----------------------------------*/
-		printf("Select resolution model(flow1=1/mtz=2/fisch=3)?: ");
+		printf("Select resolution model( flow1 / mtz / fisch )?: ");
 		char resolution_model[20];
 		strcpy(resolution_model, fgets(resolution_model, 20, stdin));
+		printf("---------------------------------------------------------------------\n");
 
 		while ((strncmp(resolution_model, "flow1", 5) != 0) && ((strncmp(resolution_model, "mtz", 3) != 0)) && ((strncmp(resolution_model, "fisch", 2) != 0)) && ((strncmp(resolution_model, "\n", 2) != 0)))//CHECK INPUT
 		{
