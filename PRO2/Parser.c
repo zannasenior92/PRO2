@@ -51,7 +51,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		}
 		else
 		{
-			strcat(name_file, "\\source\\repos\\PRO2\\PRO2\\");							//LUCA'S PATH
+			strcat(name_file, "\\Documents\\FilesTSP\\");								//LUCA'S PATH
 		}
 		fgets(in_file, 30, stdin);														//GET FILE NAME
 		in_file[strlen(in_file) - 1] = '\0';											//UNCONSIDER \n
