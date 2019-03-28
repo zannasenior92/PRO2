@@ -28,10 +28,8 @@ int main(int argc, char **argv) {
 
 	
 	parse_command_line(argc, argv, &inst);									//keep the arguments of the command line
-	printf("Il file di input e': %s\n", inst.input_file);
 	read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
 
-	printf("Input usato: %s\n", inst.input_file_name);
 
 	if(VERBOSE>=200){
 		for (int i = 0; i < inst.nnodes; i++) {
@@ -53,7 +51,7 @@ int main(int argc, char **argv) {
 	total_time = ((double)(end_t - start_t)) / CLOCKS_PER_SEC;
 
 	/*-------------------------STAMP ELAPSED TIME-------------------------*/
-	if (VERBOSE >= 1)
+	if (VERBOSE >= 100)
 	{
 		printf("The program time is: %f (s)", total_time);
 	}

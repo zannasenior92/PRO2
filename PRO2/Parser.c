@@ -4,7 +4,8 @@
 
 /*----------------------------------COMMAND LINE PARSING--------------------------------*/
 void parse_command_line(int argc, char** argv, instance *inst) {
-	
+
+
 	/*-----------------------------CHECK USER INPUT-------------------------------------*/
 	printf("User?(marco/Luca): ");
 	char user[10];
@@ -51,14 +52,18 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		}
 		else
 		{
-			strcat(name_file, "\\source\\repos\\PRO2\\PRO2\\");							//LUCA'S PATH
+			strcat(name_file, "\\Documents\\FilesTSP\\");								//LUCA'S PATH
 		}
 		fgets(in_file, 30, stdin);														//GET FILE NAME
 		in_file[strlen(in_file) - 1] = '\0';											//UNCONSIDER \n
 		strcat(name_file, in_file);														//ADD NAME FILE TO THE PATH STRING
 		printf("\n");
-		printf("Input file selected: %s \n\n", name_file);
 		strcpy(inst->input_file, name_file);											//SAVE PATH
+		if (VERBOSE >= 100)
+		{
+			printf("Input path selected: %s \n\n", name_file);
+		}
+		printf("Input used: %s\n", in_file);
 
 	}
 }
@@ -67,46 +72,45 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 void read_input(instance *inst) {
 
 	FILE *input = fopen(inst->input_file, "r");
-	if (input == NULL) { printf(" input file not found!"); exit(1); } 
-	inst->nnodes = -1; 
+	if (input == NULL) { printf(" input file not found!"); exit(1); }
+	inst->nnodes = -1;
 
 	char line[180];
 	char *par_name;															//LINE TAKEN BY THE PARSER
 	char *token1;
 	char *token2;
 	int coord_section = 0;													// =1 NODE_COORD_SECTION
-	
+
 	/*------------------------------------READER----------------------------------------*/
 	while (fgets(line, sizeof(line), input) != NULL)
 	{
-		
+
 		if (strlen(line) <= 1) continue;									// SKIP BLANK LINES
 		par_name = strtok(line, " :");										// " :" as delimiter
-		
+
 		if (VERBOSE >= 300)
 		{
 			printf("par_name= %s \n", par_name);
 		}
-		
+
 		if (strncmp(par_name, "NAME", 4) == 0)
 		{
-			token1 = strtok(NULL, " :");			
+			token1 = strtok(NULL, " :");
 			strcpy(inst->input_file_name, token1);
 			continue;
 		}
-		
+
 		if (strncmp(par_name, "DIMENSION", 9) == 0)
 		{
 			token1 = strtok(NULL, " :");									//NULL gives the following word
 			inst->nnodes = atoi(token1);									//string argument to integer
-			printf("nnodes %d\n", inst->nnodes);
 			inst->xcoord = (double *)calloc(inst->nnodes, sizeof(double));
 			inst->ycoord = (double *)calloc(inst->nnodes, sizeof(double));
-			inst->choosen_edge= (int *)calloc(inst->nnodes*2, sizeof(int));
-			inst->u= (int *)calloc(inst->nnodes, sizeof(int));
+			inst->choosen_edge = (int *)calloc(inst->nnodes * 2, sizeof(int));
+			inst->u = (int *)calloc(inst->nnodes, sizeof(int));
 			continue;
 		}
-		
+
 		/*---------------SELECT THE RIGHT TYPE DISTANCE--------------------*/
 		if (strncmp(par_name, "EDGE_WEIGHT_TYPE", 16) == 0)
 		{
