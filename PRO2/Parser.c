@@ -145,7 +145,7 @@ void read_input(instance *inst) {
 		{
 			token1 = strtok(NULL, " :");									//NULL gives the following word
 			inst->nnodes = atoi(token1);									//string argument to integer
-			printf("nnodes %d\n", inst->nnodes);
+			if(VERBOSE>=100) printf("nnodes %d\n", inst->nnodes);
 			inst->xcoord = (double *)calloc(inst->nnodes, sizeof(double));
 			inst->ycoord = (double *)calloc(inst->nnodes, sizeof(double));
 			inst->choosen_edge= (int *)calloc(inst->nnodes*2, sizeof(int));

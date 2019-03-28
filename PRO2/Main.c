@@ -23,20 +23,16 @@ int main(int argc, char **argv) {
 	instance inst;															//CREATE VARIABLE inst OF TYPE instance
 	inst.model_type = 0;
 	parse_command_line(argc, argv, &inst);									//keep the arguments of the command line
-	printf("Il file di input e': %s\n", inst.input_file);
 	read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
-
 	printf("Input usato: %s\n", inst.input_file_name);
 
+
 	if(VERBOSE>=200){
+		printf("Il file di input e': %s\n", inst.input_file);
 		for (int i = 0; i < inst.nnodes; i++) {
 			printf("Capitale %d coord x:%.0f coord y:%.0f\n", i + 1, inst.xcoord[i], inst.ycoord[i]);
 		}
 
-	}
-	if(VERBOSE>=500){
-		double dProva = dist(31, 39, &inst);
-		printf("Distanza tra 32 e 40 : %.2f\n", dProva);
 	}
 
 	if (TSPopt(&inst)) print_error(" error within TSPopt()");

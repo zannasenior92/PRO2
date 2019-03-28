@@ -122,20 +122,14 @@ int TSPopt(instance *inst)
 		
 		else {
 			add_SEC(env,lp,inst);
-			printf("Aggiunti vincoli\n");
+			if (VERBOSE >= 100) {
+				printf("Aggiunti vincoli\n");
+			}
 		}
 		
 	}
 
-	//if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
-
 	int ncols = CPXgetnumcols(env, lp);
-	/*printf("numero colonne %d\n", ncols);
-	inst->best_sol= (double *)calloc(ncols, sizeof(double));				//best objective solution
-	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
-	*/
-	if(CPXgetobjval(env, lp, &inst->best_obj_val)) print_error("no best objective function");
-	printf("Best Solution: %.0f\n", inst->best_obj_val);
 	if(VERBOSE>=200){
 		for (int i = 0; i < ncols - 1; i++){
 			printf("Best %f\n", inst->best_sol[i]);
@@ -149,7 +143,7 @@ int TSPopt(instance *inst)
 			for (int j = 0; j < inst->nnodes; j++) {
 					if (inst->best_sol[xpos_compact(i, j, inst)] > 0.5) {
 
-						if (VERBOSE >= 1) {
+						if (VERBOSE >= 100) {
 							printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
 						}
 						/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
@@ -166,7 +160,7 @@ int TSPopt(instance *inst)
 			for (int j = i+1; j < inst->nnodes; j++) {
 				if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
 
-					if (VERBOSE >= 1) {
+					if (VERBOSE >= 100) {
 						printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
 					}
 					/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
@@ -180,14 +174,14 @@ int TSPopt(instance *inst)
 	}
 	add_edge_to_file(inst);
 
-	if (VERBOSE >= 1) {
+	if (VERBOSE >= 100) {
 		printf("Selected nodes: %d \n", count);
 	}
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 	double *opt_val = 0;																//VALUE OPTIMAL SOL
-	CPXgetobjval(env, lp, &opt_val);													//OPTIMAL SOLUTION FOUND
-	printf("\n Object function optimal value is: %f\n", opt_val);
+	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
+	printf("Object function optimal value is: %.0f\n", opt_val);
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
@@ -223,7 +217,9 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	}
 	
 	for (int i = 0; i < inst->nnodes; i++) {
-		printf("Componente %d\n", inst->comp[i]);
+		if (VERBOSE >= 100) {
+			printf("Componente %d\n", inst->comp[i]);
+		}
 		inst->mycomp[inst->comp[i]] = 1;
 
 	}
@@ -231,12 +227,13 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	int n = 0;
 	for (int i = 0; i < inst->nnodes; i++) {
 		if (inst->mycomp[i]!=0) {
-			//printf("inst->mycomp[%d]=%d\n", i, inst->mycomp[i]);
 			n++;
 		}
 
 	}
-	printf("Componenti connesse %d\n", n);
+	if(VERBOSE>=100){
+		printf("Componenti connesse %d\n", n);
+	}
 	inst->n_connected_comp = n;
 	return n;
 }
@@ -251,10 +248,7 @@ void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	int matbeg = 0;
 	char **cname = (char **)calloc(1, sizeof(char *));							// (char **) required by cplex...
 	cname[0] = (char *)calloc(100, sizeof(char));
-	/*devo prendermi le componenti connesse
-	metto in ordine?
-	le numero?*/
-	
+
 	for(int h=0; h < inst->nnodes; h++){
 		if(inst->mycomp[h]!=0){
 			for (int i = 0; i < inst->nnodes; i++) {
@@ -271,8 +265,9 @@ void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
 				}
 			}
 			if (CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &matbeg, index, value, NULL, cname)) print_error("wrong CPXaddrow");
-			CPXwriteprob(env, lp, "model.lp", NULL);
-
+			if(VERBOSE>=200){
+				CPXwriteprob(env, lp, "model.lp", NULL);
+			}
 			}
 
 	}
