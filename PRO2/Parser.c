@@ -53,6 +53,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 			}
 			if (strcmp(argv[i], "-timelimit") == 0) { inst->timelimit = atoi(argv[++i]); continue; }
 		}
+		printf("---------------------------------------------------------------------\n");
 	}
 	/*----------------------------READ THE INPUT FILE FROM SHELL-------------------------*/
 	else
