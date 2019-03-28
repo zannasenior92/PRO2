@@ -10,7 +10,7 @@ void plot_gnuplot(instance *inst) {
 	char * commandsForGnuplot[] = {
 
 		/*-------------------------PLOTTING COMMANDS TO PRINT NODES---------------------*/
-
+		/*
 		"set terminal windows",
 		title,													//set title from input file
 		"set output 'nodes.eps'",

@@ -4,6 +4,11 @@
 
 /*----------------------------------COMMAND LINE PARSING--------------------------------*/
 void parse_command_line(int argc, char** argv, instance *inst) {
+	
+	
+
+
+
 	/*-----------------------------CHECK USER INPUT-------------------------------------*/
 	printf("User?(marco/Luca): ");
 	char user[10];
@@ -30,14 +35,29 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 	{
 		for (int i = 0; i < argc; i++) {
 			if (strcmp(argv[i], "-input") == 0) { strcpy(inst->input_file, argv[++i]); continue; }
+			if (strcmp(argv[i], "-model") == 0) {
+
+				/*MODEL TYPE=default=0 ;FLOW1=1 ;MTZ=2 ;FISCHETTI=3*/
+				if ((strcmp(argv[++i], "flow1") == 0)) {
+					inst->model_type = 1;
+					continue;
+				}
+				if (strcmp(argv[++i], "mtz") == 0) {
+					inst->model_type = 2;
+					continue;
+				}
+				if (strcmp(argv[++i], "fischetti") == 0) {
+					inst->model_type = 3;
+					continue;
+				}
+			}
 			if (strcmp(argv[i], "-timelimit") == 0) { inst->timelimit = atoi(argv[++i]); continue; }
 		}
-		printf("Input file: %s",inst->input_file);
 	}
-
 	/*----------------------------READ THE INPUT FILE FROM SHELL-------------------------*/
 	else
 	{
+		/*----------------------------------SPECIFY PATH---------------------------------*/
 		char name_file[100];															//PATH STRING
 		char in_file[30];																//FILE NAME
 		printf("Insert name file used(Specify the file format es   .dat): ");
@@ -51,7 +71,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		}
 		else
 		{
-			strcat(name_file, "\\Documents\\FilesTSP\\");								//LUCA'S PATH
+			strcat(name_file, "\\source\\repos\\PRO2\\PRO2\\");							//LUCA'S PATH
 		}
 		fgets(in_file, 30, stdin);														//GET FILE NAME
 		in_file[strlen(in_file) - 1] = '\0';											//UNCONSIDER \n
@@ -59,8 +79,34 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		printf("\n");
 		printf("Input file selected: %s \n\n", name_file);
 		strcpy(inst->input_file, name_file);											//SAVE PATH
+		/*-------------------------------------------------------------------------------*/
 
+		/*--------------------------------SELECT MODEL-----------------------------------*/
+		printf("Select resolution model(flow1=1/mtz=2/fisch=3)?: ");
+		char resolution_model[20];
+		strcpy(resolution_model, fgets(resolution_model, 20, stdin));
+
+		while ((strncmp(resolution_model, "flow1", 5) != 0) && ((strncmp(resolution_model, "mtz", 3) != 0)) && ((strncmp(resolution_model, "fisch", 2) != 0)) && ((strncmp(resolution_model, "\n", 2) != 0)))//CHECK INPUT
+		{
+			printf("INPUT ERROR! Input method from shell(yes/no)?: ");
+			strcpy(decision, fgets(resolution_model, 5, stdin));
+		}
+
+		if ((strcmp(resolution_model, "flow1") == 0)) {
+			inst->model_type = 1;
+		}
+		else if (strcmp(resolution_model, "mtz") == 0) {
+			inst->model_type = 2;
+		}
+		else if (strcmp(resolution_model, "fisch") == 0) {
+			inst->model_type = 3;
+		}
+		else if (strcmp(resolution_model, "\n") == 0){
+			inst->model_type = 0;
+		}
+		/*-------------------------------------------------------------------------------*/
 	}
+	
 }
 
 /*-----------------------------------READ THE INPUT-------------------------------------*/
@@ -99,11 +145,12 @@ void read_input(instance *inst) {
 		{
 			token1 = strtok(NULL, " :");									//NULL gives the following word
 			inst->nnodes = atoi(token1);									//string argument to integer
-			printf("nnodes %d\n", inst->nnodes);
+			if(VERBOSE>=100) printf("nnodes %d\n", inst->nnodes);
 			inst->xcoord = (double *)calloc(inst->nnodes, sizeof(double));
 			inst->ycoord = (double *)calloc(inst->nnodes, sizeof(double));
 			inst->choosen_edge= (int *)calloc(inst->nnodes*2, sizeof(int));
-			inst->u= (int *)calloc(inst->nnodes, sizeof(int));
+			inst->comp = (int*)calloc(inst->nnodes, sizeof(int));
+
 			continue;
 		}
 		
