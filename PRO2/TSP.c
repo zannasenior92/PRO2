@@ -107,11 +107,12 @@ int TSPopt(instance *inst)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
 	
 	build_model(inst, env, lp);
-	
+	FILE* log = CPXfopen("log.txt", "w");
 	/*METODO LOOP*/
 	int done = 0;
 	while (!done) {
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
+		if (CPXsetlogfile(env, log)) print_error("Error in log file");
 		int ncols = CPXgetnumcols(env, lp);
 		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
 		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
@@ -222,9 +223,9 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	}
 	
 	for (int i = 0; i < inst->nnodes; i++) {
-		//printf("Componente %d\n", inst->comp[i]);
+		printf("Componente %d\n", inst->comp[i]);
 		inst->mycomp[inst->comp[i]] = 1;
-		
+
 	}
 
 	int n = 0;
@@ -270,7 +271,10 @@ void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
 				}
 			}
 			if (CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &matbeg, index, value, NULL, cname)) print_error("wrong CPXaddrow");
+			CPXwriteprob(env, lp, "model.lp", NULL);
+
 			}
+
 	}
 }
 
