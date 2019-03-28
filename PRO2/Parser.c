@@ -6,30 +6,100 @@
 void parse_command_line(int argc, char** argv, instance *inst) {
 	
 	
-	for (int i = 0; i < argc; i++) {
-		if (strcmp(argv[i], "-input") == 0) { strcpy(inst->input_file, argv[++i]); continue; }
-		if (strcmp(argv[i], "-model") == 0) { 
-			/*MODEL TYPE=
-				default=0
-				FLOW1=1
-				MTZ=2
-				FISCHETTI=3
-				*/
-			if ((strcmp(argv[++i], "flow1") == 0)) {
-				inst->model_type = 1;
-				continue;
-			}
-			if (strcmp(argv[++i], "mtz") == 0) {
-				inst->model_type = 2;
-				continue;
-			}
-			if (strcmp(argv[++i], "fischetti") == 0) {
-				inst->model_type = 3;
-				continue;
-			}
-		}
-		if (strcmp(argv[i], "-timelimit") == 0) { inst->timelimit = atoi(argv[++i]); continue; }
+
+
+
+	/*-----------------------------CHECK USER INPUT-------------------------------------*/
+	printf("User?(marco/Luca): ");
+	char user[10];
+	strcpy(user, fgets(user, 10, stdin));
+	while ((strncmp(user, "Luca", 4) != 0) && ((strncmp(user, "marco", 5) != 0)))		//CHECK INPUT
+	{
+		printf("INPUT ERROR! User(marco/Luca)?: ");
+		strcpy(user, fgets(user, 10, stdin));
 	}
+
+	/*-----------------------INPUT LINE SHELL(yes/no)-----------------------------------*/
+	printf("Input method from shell(yes/no)?: ");
+	char decision[5];
+	strcpy(decision, fgets(decision, 5, stdin));
+
+	while ((strncmp(decision, "yes", 3) != 0) && ((strncmp(decision, "no", 2) != 0)))				//CHECK INPUT
+	{
+		printf("INPUT ERROR! Input method from shell(yes/no)?: ");
+		strcpy(decision, fgets(decision, 5, stdin));
+	}
+
+	/*---------------------------------READ INPUT FROM ARGV------------------------------*/
+	if (strncmp(decision, "no", 2) == 0)
+	{
+		for (int i = 0; i < argc; i++) {
+			if (strcmp(argv[i], "-input") == 0) { strcpy(inst->input_file, argv[++i]); continue; }
+			if (strcmp(argv[i], "-model") == 0) {
+
+				/*MODEL TYPE=default=0 ;FLOW1=1 ;MTZ=2 ;FISCHETTI=3*/
+				if ((strcmp(argv[++i], "flow1") == 0)) {
+					inst->model_type = 1;
+					continue;
+				}
+				if (strcmp(argv[++i], "mtz") == 0) {
+					inst->model_type = 2;
+					continue;
+				}
+				if (strcmp(argv[++i], "fischetti") == 0) {
+					inst->model_type = 3;
+					continue;
+				}
+			}
+			if (strcmp(argv[i], "-timelimit") == 0) { inst->timelimit = atoi(argv[++i]); continue; }
+		}
+	}
+	/*----------------------------READ THE INPUT FILE FROM SHELL-------------------------*/
+	else
+	{
+		/*--------------------------------SELECT MODEL-----------------------------------*/
+		printf("Select resolution model(flow1=1/mtz=2/fischetti=3)?: ");
+		char resolution_model[20];
+		strcpy(resolution_model, fgets(resolution_model, 20, stdin));
+
+		while ((strncmp(resolution_model, "flow1", 5) != 0) && ((strncmp(resolution_model, "mtz", 3) != 0)) && ((strncmp(resolution_model, "fischetti", 2) != 0)))//CHECK INPUT
+		{
+			printf("INPUT ERROR! Input method from shell(yes/no)?: ");
+			strcpy(decision, fgets(resolution_model, 5, stdin));
+		}
+		char name_file[100];															//PATH STRING
+		char in_file[30];																//FILE NAME
+		printf("Insert name file used(Specify the file format es   .dat): ");
+		strcpy(name_file, "C:\\Users\\");
+		strcat(name_file, user);														//ADD USER STRING
+		name_file[strlen(name_file) - 1] = '\0';										//UNCONSIDER \n
+
+		if (strncmp(user, "marco", 5) == 0)
+		{
+			strcat(name_file, "\\Documents\\RO2\\");									//MARCO'S PATH
+		}
+		else
+		{
+			strcat(name_file, "\\source\\repos\\PRO2\\PRO2\\");							//LUCA'S PATH
+		}
+		fgets(in_file, 30, stdin);														//GET FILE NAME
+		in_file[strlen(in_file) - 1] = '\0';											//UNCONSIDER \n
+		strcat(name_file, in_file);														//ADD NAME FILE TO THE PATH STRING
+		printf("\n");
+		printf("Input file selected: %s \n\n", name_file);
+		strcpy(inst->input_file, name_file);											//SAVE PATH
+
+		if ((strcmp(resolution_model, "flow1") == 0)) {
+			inst->model_type = 1;
+		}
+		if (strcmp(resolution_model, "mtz") == 0) {
+			inst->model_type = 2;
+		}
+		if (strcmp(resolution_model, "fischetti") == 0) {
+			inst->model_type = 3;
+		}
+	}
+	
 }
 
 /*-----------------------------------READ THE INPUT-------------------------------------*/
