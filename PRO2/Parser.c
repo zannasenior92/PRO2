@@ -57,16 +57,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 	/*----------------------------READ THE INPUT FILE FROM SHELL-------------------------*/
 	else
 	{
-		/*--------------------------------SELECT MODEL-----------------------------------*/
-		printf("Select resolution model(flow1=1/mtz=2/fischetti=3)?: ");
-		char resolution_model[20];
-		strcpy(resolution_model, fgets(resolution_model, 20, stdin));
-
-		while ((strncmp(resolution_model, "flow1", 5) != 0) && ((strncmp(resolution_model, "mtz", 3) != 0)) && ((strncmp(resolution_model, "fischetti", 2) != 0)))//CHECK INPUT
-		{
-			printf("INPUT ERROR! Input method from shell(yes/no)?: ");
-			strcpy(decision, fgets(resolution_model, 5, stdin));
-		}
+		/*----------------------------------SPECIFY PATH---------------------------------*/
 		char name_file[100];															//PATH STRING
 		char in_file[30];																//FILE NAME
 		printf("Insert name file used(Specify the file format es   .dat): ");
@@ -88,16 +79,32 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		printf("\n");
 		printf("Input file selected: %s \n\n", name_file);
 		strcpy(inst->input_file, name_file);											//SAVE PATH
+		/*-------------------------------------------------------------------------------*/
+
+		/*--------------------------------SELECT MODEL-----------------------------------*/
+		printf("Select resolution model(flow1=1/mtz=2/fisch=3)?: ");
+		char resolution_model[20];
+		strcpy(resolution_model, fgets(resolution_model, 20, stdin));
+
+		while ((strncmp(resolution_model, "flow1", 5) != 0) && ((strncmp(resolution_model, "mtz", 3) != 0)) && ((strncmp(resolution_model, "fisch", 2) != 0)) && ((strncmp(resolution_model, "\n", 2) != 0)))//CHECK INPUT
+		{
+			printf("INPUT ERROR! Input method from shell(yes/no)?: ");
+			strcpy(decision, fgets(resolution_model, 5, stdin));
+		}
 
 		if ((strcmp(resolution_model, "flow1") == 0)) {
 			inst->model_type = 1;
 		}
-		if (strcmp(resolution_model, "mtz") == 0) {
+		else if (strcmp(resolution_model, "mtz") == 0) {
 			inst->model_type = 2;
 		}
-		if (strcmp(resolution_model, "fischetti") == 0) {
+		else if (strcmp(resolution_model, "fisch") == 0) {
 			inst->model_type = 3;
 		}
+		else if (strcmp(resolution_model, "\n") == 0){
+			inst->model_type = 0;
+		}
+		/*-------------------------------------------------------------------------------*/
 	}
 	
 }
