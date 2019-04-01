@@ -110,8 +110,18 @@ int TSPopt(instance *inst)
 	FILE* log = CPXfopen("log.txt", "w");
 	/*METODO LOOP*/
 	int done = 0;
+	double ticks1, ticks2, time1, time2;
 	while (!done) {
+		if (CPXgettime(env, &time1)) print_error("Error getting time\n");
+		if (CPXgetdettime(env, &ticks1)) print_error("Error getting time\n");
+
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
+
+		if (CPXgetdettime(env, &ticks2)) print_error("Error getting time\n");
+		if(CPXgettime(env,&time2)) print_error("Error getting time\n");
+		printf("Ticks=%f\n", ticks2-ticks1);
+		printf("Tempo=%f\n", time2-time1);
+
 		if (CPXsetlogfile(env, log)) print_error("Error in log file");
 		int ncols = CPXgetnumcols(env, lp);
 		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
