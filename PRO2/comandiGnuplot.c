@@ -37,6 +37,7 @@ void plot_gnuplot(instance *inst) {
 		"unset ytics",											//remove axis y
 		"unset key",											//remove path legend
 		"plot 'edge_to_plotMTZ.txt' with lp ls 1, '' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
+		"pause 1",
 		"exit"
 	};
 	/*----------------------------------------------------------------------------------*/
@@ -78,8 +79,8 @@ void plot_gnuplot(instance *inst) {
 void add_edge_to_file(instance *inst) {
 	FILE * file = fopen("edge_to_plotMTZ.txt", "w");
 	for (int i = 0; i < 2 * inst->nnodes; i = i + 2) {
-		fprintf(file, "%lf %lf %d \n", inst->xcoord[inst->choosen_edge[i]], inst->ycoord[inst->choosen_edge[i]], inst->choosen_edge[i] + 1); //Write x_i to a temporary file
-		fprintf(file, "%lf %lf %d \n", inst->xcoord[inst->choosen_edge[i + 1]], inst->ycoord[inst->choosen_edge[i + 1]], inst->choosen_edge[i + 1] + 1); //Write x_i to a temporary file
+		fprintf(file, "%lf %lf %d %s \n", inst->xcoord[inst->choosen_edge[i]], inst->ycoord[inst->choosen_edge[i]], inst->choosen_edge[i] + 1, inst->comp_colors[0]); //Write x_i to a temporary file
+		fprintf(file, "%lf %lf %d %s \n", inst->xcoord[inst->choosen_edge[i + 1]], inst->ycoord[inst->choosen_edge[i + 1]], inst->choosen_edge[i + 1] + 1,inst->comp_colors[0]); //Write x_i to a temporary file
 		fprintf(file, "\n");
 	}
 	fclose(file);
