@@ -1,6 +1,7 @@
 /* File che contiene le funzioni che usano cplex */
 #include "TSP.h"
 #include <ilcplex/cplex.h>
+#define CPX_PARAM_EPAGAP = 0.05;
 
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
@@ -111,16 +112,18 @@ int TSPopt(instance *inst)
 	/*METODO LOOP*/
 	int done = 0;
 	double ticks1, ticks2, time1, time2;
+	int count2 = 0;
+
 	while (!done) {
-		if (CPXgettime(env, &time1)) print_error("Error getting time\n");
-		if (CPXgetdettime(env, &ticks1)) print_error("Error getting time\n");
+		//if (CPXgettime(env, &time1)) print_error("Error getting time\n");
+		//if (CPXgetdettime(env, &ticks1)) print_error("Error getting time\n");
 
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 
-		if (CPXgetdettime(env, &ticks2)) print_error("Error getting time\n");
-		if(CPXgettime(env,&time2)) print_error("Error getting time\n");
-		printf("Ticks=%f\n", ticks2-ticks1);
-		printf("Tempo=%f\n", time2-time1);
+		//if (CPXgetdettime(env, &ticks2)) print_error("Error getting time\n");
+		//if(CPXgettime(env,&time2)) print_error("Error getting time\n");
+		//printf("Ticks=%f\n", ticks2-ticks1);
+		//printf("Tempo=%f\n", time2-time1);
 
 		if (CPXsetlogfile(env, log)) print_error("Error in log file");
 		int ncols = CPXgetnumcols(env, lp);
@@ -132,12 +135,39 @@ int TSPopt(instance *inst)
 		
 		else {
 			add_SEC(env,lp,inst);
-			if (VERBOSE >= 100) {
+			if (VERBOSE >= 10) {
+				count2++;
 				printf("Aggiunti vincoli\n");
 			}
 		}
 		
 	}
+	printf("Aggiunti %d volte i vincoli\n", count2);
+	#define CPX_PARAM_EPAGAP = default;
+	done = 0;
+	//add_SEC(env, lp, inst);
+	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
+	/*
+	while (!done) {
+		
+		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
+
+		if (CPXsetlogfile(env, log)) print_error("Error in log file");
+		int ncols = CPXgetnumcols(env, lp);
+		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
+		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
+		if (kruskal_sst(env, lp, inst) == 1) {
+			done = 1;
+		}
+
+		else {
+			add_SEC(env, lp, inst);
+			if (VERBOSE >= 100) {
+				printf("Aggiunti vincoli\n");
+			}
+		}
+		
+	}*/
 
 	int ncols = CPXgetnumcols(env, lp);
 	if(VERBOSE>=200){
