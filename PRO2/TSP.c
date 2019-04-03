@@ -122,9 +122,10 @@ int TSPopt(instance *inst)
 		//prendo il tempo
 		if (CPXgettime(env, &time3)) print_error("Error getting time\n");
 		//if (CPXgetdettime(env, &ticks1)) print_error("Error getting time\n");
-		timelimit = 2.0;
+		timelimit = 15.0;
 		if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit)) print_error("Error on setting parameter");
-
+		//if (CPXsetintparam(env, CPX_PARAM_HEURFREQ, 20)) print_error("Error on setting parameter");
+		
 		resolved = 0;
 		//Finchè lo stato di uscita non è ottimo
 		while (!resolved) {
@@ -138,8 +139,16 @@ int TSPopt(instance *inst)
 				timelimit *= 2;
 				if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit)) print_error("Error on setting parameter");
 				printf("No soluzione, raddoppio il tempo\n");
-				continue;
+				add_SEC(env, lp, inst);
+				if (inst->sec == 0) {
+					resolved = 1;
+					done = 1;
+				}
 			
+			}
+			if (status == CPXMIP_INFEASIBLE) {
+				printf("Soluzione impossibile!\n");
+				exit(0);
 			}
 			if (status == CPXMIP_TIME_LIM_FEAS) {
 				int ncols = CPXgetnumcols(env, lp);
@@ -149,13 +158,19 @@ int TSPopt(instance *inst)
 				if (kruskal_sst(env, lp, inst) == inst->nnodes) {
 					printf("Ha n componenti connesse\n");
 					if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit * 2)) print_error("Error on setting parameter");
-					continue;
+					
 				}
 				else {
+					if (kruskal_sst(env, lp, inst) == 1)
+						resolved = 1;
 					add_SEC(env, lp, inst);
+					if (inst->sec == 0) {
+						done = 1;
+					}
 					if (VERBOSE >= 10) {
 						printf("Aggiunti vincoli\n");
 					}
+					
 					
 				}
 
@@ -191,15 +206,31 @@ int TSPopt(instance *inst)
 	
 	//Ultimissima iterazione senza timelimit TODO
 	if (CPXsetdblparam(env, CPX_PARAM_TILIM, 1e+75)) print_error("Error on setting parameter");
+	if (CPXsetintparam(env, CPX_PARAM_HEURFREQ, 0)) print_error("Error on setting parameter");
+
 	done = 0;
 	while (!done) {
-		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
+		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
+		if (CPXsetlogfile(env, log)) print_error("Error in log file");
+		int ncols = CPXgetnumcols(env, lp);
+		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
+		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
+		if (kruskal_sst(env, lp, inst) == 1) {
+			done = 1;
+		}
+
+		else {
+			add_SEC(env, lp, inst);
+			if (VERBOSE >= 10) {
+				printf("Aggiunti vincoli senza limiti di tempo\n");
+			}
+		}
+
 	}
+
 	int ncols = CPXgetnumcols(env, lp);
 	inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
-
-
 	if(VERBOSE>=200){
 		for (int i = 0; i < ncols - 1; i++){
 			printf("Best %f\n", inst->best_sol[i]);
@@ -311,7 +342,10 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	return n;
 }
 
+
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
+	inst->sec = 0;
+
 	int nnz = 0;
 	double rhs = -1.0;
 	char sense = 'L';
@@ -337,12 +371,14 @@ void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
 					}
 				}
 			}
+			inst->sec = 1;
 			if (CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &matbeg, index, value, NULL, cname)) print_error("wrong CPXaddrow");
 			if(VERBOSE>=200){
 				CPXwriteprob(env, lp, "model.lp", NULL);
 			}
-			}
-
+		}
+		
 	}
+	
 }
 
