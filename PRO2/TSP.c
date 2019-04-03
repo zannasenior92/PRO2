@@ -106,70 +106,100 @@ int TSPopt(instance *inst)
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
-	
+	double time1, time2;
+	if (CPXgettime(env, &time1)) print_error("time error");
 	build_model(inst, env, lp);
 	FILE* log = CPXfopen("log.txt", "w");
-	/*METODO LOOP*/
+	
+	/*---------------------------METODO LOOP----------------------*/
 	int done = 0;
-	double ticks1, ticks2, time1, time2;
-	int count2 = 0;
+	int resolved = 0;
+	double ticks1, ticks2, time3, time4;
+	//SETTO timelimit a 10 secondi
+	double timelimit;
 
 	while (!done) {
-		//if (CPXgettime(env, &time1)) print_error("Error getting time\n");
+		//prendo il tempo
+		if (CPXgettime(env, &time3)) print_error("Error getting time\n");
 		//if (CPXgetdettime(env, &ticks1)) print_error("Error getting time\n");
+		timelimit = 2.0;
+		if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit)) print_error("Error on setting parameter");
 
-		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
+		resolved = 0;
+		//Finchè lo stato di uscita non è ottimo
+		while (!resolved) {
+			
+			if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
+			//Guardo con che stato è terminata la risoluzione
+			int status = CPXgetstat(env, lp);
+			printf("Status=%d\n", status);
+			//Se è terminata per timelimit e non ha soluzioni raddoppio il tempo (????) e continuo
+			if (status == CPXMIP_TIME_LIM_INFEAS) {	
+				timelimit *= 2;
+				if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit)) print_error("Error on setting parameter");
+				printf("No soluzione, raddoppio il tempo\n");
+				continue;
+			
+			}
+			if (status == CPXMIP_TIME_LIM_FEAS) {
+				int ncols = CPXgetnumcols(env, lp);
+				inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
+				if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
+				printf("Ha %d comp conn\n", kruskal_sst(env, lp, inst));
+				if (kruskal_sst(env, lp, inst) == inst->nnodes) {
+					printf("Ha n componenti connesse\n");
+					if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit * 2)) print_error("Error on setting parameter");
+					continue;
+				}
+				else {
+					add_SEC(env, lp, inst);
+					if (VERBOSE >= 10) {
+						printf("Aggiunti vincoli\n");
+					}
+					
+				}
 
-		//if (CPXgetdettime(env, &ticks2)) print_error("Error getting time\n");
-		//if(CPXgettime(env,&time2)) print_error("Error getting time\n");
-		//printf("Ticks=%f\n", ticks2-ticks1);
-		//printf("Tempo=%f\n", time2-time1);
+			}
+			if ((status == CPXMIP_OPTIMAL) || (status == CPXMIP_OPTIMAL_TOL)) {
+				int ncols = CPXgetnumcols(env, lp);
+				inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
+				if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
+				resolved = 1;
+				if (kruskal_sst(env, lp, inst) == 1) {
+					done = 1;
+					resolved = 1;
+				}
 
-		if (CPXsetlogfile(env, log)) print_error("Error in log file");
-		int ncols = CPXgetnumcols(env, lp);
-		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
-		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
-		if (kruskal_sst(env, lp, inst) == 1) {
-			done = 1;
-		}
-		
-		else {
-			add_SEC(env,lp,inst);
-			if (VERBOSE >= 10) {
-				count2++;
-				printf("Aggiunti vincoli\n");
+				else {
+					add_SEC(env, lp, inst);
+					if (VERBOSE >= 10) {
+						printf("Aggiunti vincoli\n");
+					}
+				}
 			}
 		}
+		
+		//if (CPXgetdettime(env, &ticks2)) print_error("Error getting time\n");
+		if(CPXgettime(env,&time4)) print_error("Error getting time\n");
+		//printf("Ticks=%f\n", ticks2-ticks1);
+		printf("Tempo=%f\n", time4-time3);
+
+		if (CPXsetlogfile(env, log)) print_error("Error in log file");
+		
 		
 	}
-	printf("Aggiunti %d volte i vincoli\n", count2);
-	#define CPX_PARAM_EPAGAP = default;
+	
+	//Ultimissima iterazione senza timelimit TODO
+	if (CPXsetdblparam(env, CPX_PARAM_TILIM, 1e+75)) print_error("Error on setting parameter");
 	done = 0;
-	//add_SEC(env, lp, inst);
-	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
-	/*
 	while (!done) {
-		
-		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
-
-		if (CPXsetlogfile(env, log)) print_error("Error in log file");
-		int ncols = CPXgetnumcols(env, lp);
-		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
-		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
-		if (kruskal_sst(env, lp, inst) == 1) {
-			done = 1;
-		}
-
-		else {
-			add_SEC(env, lp, inst);
-			if (VERBOSE >= 100) {
-				printf("Aggiunti vincoli\n");
-			}
-		}
-		
-	}*/
-
+		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
+	}
 	int ncols = CPXgetnumcols(env, lp);
+	inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
+	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
+
+
 	if(VERBOSE>=200){
 		for (int i = 0; i < ncols - 1; i++){
 			printf("Best %f\n", inst->best_sol[i]);
@@ -223,6 +253,9 @@ int TSPopt(instance *inst)
 	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
 	printf("Object function optimal value is: %.0f\n", opt_val);
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
+
+	if (CPXgettime(env, &time2)) print_error("time error");
+	printf("Total time %f\n", time2 - time1);
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
 	return 0;
