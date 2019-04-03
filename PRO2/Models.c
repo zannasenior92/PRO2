@@ -1,13 +1,12 @@
 #include "TSP.h"
 
-/*DEFAULT MODEL*/
+/*********************************** DEFAULT MODEL **********************************/
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0;																	//lower bound
 	double ub = 1.0;																	//upper bound
 	char binary = 'B';																	//binary variable (0 OR 1)
 																						//char continuous = 'C';
-
 
 	char **cname = (char **)calloc(1, sizeof(char *));									// (char **) required by cplex...
 	cname[0] = (char *)calloc(100, sizeof(char));
@@ -64,14 +63,14 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	CPXwriteprob(env, lp, "model.lp", NULL);
 }
 
-/*MTZ MODEL*/
+/*********************************** MTZ MODEL *************************************/
 void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0;																	//lower bound
 	char binary = 'B';																	//binary variable (0 OR 1)
 	char integer = 'I';
 
-	/*-------------------------TO WRITE WELL THE MODEL-------------------------------*/
+	/*-------------------------TO WRITE WELL THE MODEL----------------------------*/
 	char **cname = (char **)calloc(1, sizeof(char *));									// (char **) required by cplex...
 	cname[0] = (char *)calloc(100, sizeof(char));
 
@@ -240,7 +239,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	CPXwriteprob(env, lp, "modelMTZ.lp", NULL);
 }
 
-/*FLOW1 MODEL*/
+/************************************* FLOW1 MODEL **************************************/
 void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0;																	//lower bound
@@ -430,7 +429,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	CPXwriteprob(env, lp, "modelFlow1.lp", NULL);
 }
 
-/*FISCHETTI MODEL*/
+/*********************************** FISCH MODEL ************************************/
 void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0; //lower bound

@@ -141,7 +141,7 @@ int TSPopt(instance *inst)
 	if (inst->compact == 1) {
 		for (int i = 0; i < inst->nnodes; i++) {
 			for (int j = 0; j < inst->nnodes; j++) {
-					if (inst->best_sol[xpos_compact(i, j, inst)] > 0.5) {
+					if (inst->best_sol[xpos_compact(i, j, inst)] > TOLERANCE) {
 
 						if (VERBOSE >= 100) {
 							printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
@@ -158,7 +158,7 @@ int TSPopt(instance *inst)
 	else {
 		for (int i = 0; i < inst->nnodes; i++) {
 			for (int j = i+1; j < inst->nnodes; j++) {
-				if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
+				if (inst->best_sol[xpos(i, j, inst)] > TOLERANCE) {
 
 					if (VERBOSE >= 100) {
 						printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
@@ -182,26 +182,27 @@ int TSPopt(instance *inst)
 	double *opt_val = 0;																//VALUE OPTIMAL SOL
 	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
 	printf("Object function optimal value is: %.0f\n", opt_val);
-	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
+	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
 	return 0;
 }
 
+/*---------------------------DEFINING CONNECTED COMPONENTS---------------------------*/
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	int c1, c2 = 0;
 	int n_connected_comp = 0;
 	int max = -1;
 	inst->mycomp = (int*)calloc(inst->nnodes, sizeof(int));
 
-	/*INIZIALIZZAZIONE*/
+	/*---------------------INIZIALIZATION----------------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		inst->comp[i] = i;
 	}
-	/*UNIONE COMPONENTI CONNESSE*/
+	/*-----------------------COMPONENTS UNION------------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		for (int j = i + 1; j < inst->nnodes; j++) {
-			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
+			if (inst->best_sol[xpos(i, j, inst)] > TOLERANCE) {
 				if (inst->comp[i] != inst->comp[j]) {
 					c1 = inst->comp[i];
 					c2 = inst->comp[j];
@@ -216,28 +217,31 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 		}
 	}
 	
+
+	/*--------------------COUNT COMPONENTS---------------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		if (VERBOSE >= 100) {
 			printf("Componente %d\n", inst->comp[i]);
 		}
 		inst->mycomp[inst->comp[i]] = 1;
-
 	}
-
 	int n = 0;
 	for (int i = 0; i < inst->nnodes; i++) {
 		if (inst->mycomp[i]!=0) {
 			n++;
 		}
-
 	}
 	if(VERBOSE>=100){
 		printf("Componenti connesse %d\n", n);
 	}
 	inst->n_connected_comp = n;
 	return n;
+	/*---------------------------------------------------------*/
+
 }
 
+
+/*------------------------ADD SUBTOUR ELIMINATION CONSTRAINTS------------------------*/
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	int nnz = 0;
 	double rhs = -1.0;
