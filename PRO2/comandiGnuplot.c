@@ -37,6 +37,10 @@ void plot_gnuplot(instance *inst) {
 		"unset ytics",											//remove axis y
 		"unset key",											//remove path legend
 		"plot 'edge_to_plotMTZ.txt' with lp ls 1, '' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
+		/*---------------PER STAMPARE COMPONENTI CONNESSE-------------------------------*/
+		//"plot 'connected_components.txt' with lp ls 1 lc variable, '' with point pointtype 7 lc rgb '#0060ad'",
+
+		
 		"exit"
 	};
 	/*----------------------------------------------------------------------------------*/
@@ -55,7 +59,7 @@ void plot_gnuplot(instance *inst) {
 
 	for (int i = 0; i < inst->nnodes; i++)
 	{
-		fprintf(temp, "%lf %lf %d \n", inst->xcoord[i], inst->ycoord[i], i + 1);  //WRITE DATA TO A TEMPORARY FILE
+		fprintf(temp, "%lf %lf %d %d\n", inst->xcoord[i], inst->ycoord[i], i + 1);  //WRITE DATA TO A TEMPORARY FILE
 	}
 	fclose(temp);
 	/*----------------------------------------------------------------------------------*/
@@ -75,11 +79,21 @@ void plot_gnuplot(instance *inst) {
 
 
 /*---------------------------------FILE WITH NODES TO PLOT------------------------------*/
-void add_edge_to_file(instance *inst) {
+/*void add_edge_to_file(instance *inst) {
 	FILE * file = fopen("edge_to_plotMTZ.txt", "w");
 	for (int i = 0; i < 2 * inst->nnodes; i = i + 2) {
-		fprintf(file, "%lf %lf %d \n", inst->xcoord[inst->choosen_edge[i]], inst->ycoord[inst->choosen_edge[i]], inst->choosen_edge[i] + 1); //Write x_i to a temporary file
-		fprintf(file, "%lf %lf %d \n", inst->xcoord[inst->choosen_edge[i + 1]], inst->ycoord[inst->choosen_edge[i + 1]], inst->choosen_edge[i + 1] + 1); //Write x_i to a temporary file
+		fprintf(file, "%lf %lf %d\n", inst->xcoord[inst->choosen_edge[i]], inst->ycoord[inst->choosen_edge[i]], inst->choosen_edge[i] + 1); //Write x_i to a temporary file
+		fprintf(file, "%lf %lf %d\n", inst->xcoord[inst->choosen_edge[i + 1]], inst->ycoord[inst->choosen_edge[i + 1]], inst->choosen_edge[i + 1] + 1); //Write x_i to a temporary file
+		fprintf(file, "\n");
+	}
+	fclose(file);
+}
+/*----------------------METODO PER STAMPARE LE COMPONENTI CONNESSE SU FILE--------------*/
+void add_edge_to_file(instance *inst) {
+	FILE * file = fopen("connected_components.txt", "w");
+	for (int i = 0; i < 2 * inst->nnodes; i = i + 2) {
+		fprintf(file, "%lf %lf %d\n", inst->xcoord[inst->choosen_edge[i]], inst->ycoord[inst->choosen_edge[i]], inst->comp[i / 2]); //Write x_i to a temporary file
+		fprintf(file, "%lf %lf %d\n", inst->xcoord[inst->choosen_edge[i + 1]], inst->ycoord[inst->choosen_edge[i + 1]], inst->comp[i / 2 + 1]); //Write x_i to a temporary file
 		fprintf(file, "\n");
 	}
 	fclose(file);
