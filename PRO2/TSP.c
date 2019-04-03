@@ -108,7 +108,6 @@ int TSPopt(instance *inst)
 	
 	build_model(inst, env, lp);
 	FILE* log = CPXfopen("log.txt", "w");
-
 	/*METODO LOOP*/
 	int done = 0;
 	double ticks1, ticks2, time1, time2;
@@ -137,6 +136,7 @@ int TSPopt(instance *inst)
 				printf("Aggiunti vincoli\n");
 			}
 		}
+		
 	}
 
 	int ncols = CPXgetnumcols(env, lp);
@@ -182,7 +182,7 @@ int TSPopt(instance *inst)
 			}
 		}
 	}
-	add_edge_to_file_colors(inst);
+	add_edge_to_file(inst);
 
 	if (VERBOSE >= 100) {
 		printf("Selected nodes: %d \n", count);
@@ -208,8 +208,6 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	for (int i = 0; i < inst->nnodes; i++) {
 		inst->comp[i] = i;
 	}
-
-
 	/*UNIONE COMPONENTI CONNESSE*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		for (int j = i + 1; j < inst->nnodes; j++) {
@@ -235,7 +233,7 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 		inst->mycomp[inst->comp[i]] = 1;
 
 	}
-	/*colori componenti connesse*/
+
 	int n = 0;
 	for (int i = 0; i < inst->nnodes; i++) {
 		if (inst->mycomp[i]!=0) {
@@ -243,30 +241,10 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 		}
 
 	}
-	if(VERBOSE>=10){
+	if(VERBOSE>=100){
 		printf("Componenti connesse %d\n", n);
 	}
 	inst->n_connected_comp = n;
-	/*--------------------------------------------------------------------------------------*/
-
-
-	/*---------------------------------ARRAY DI COLORI--------------------------------------*/
-	char *colors[] = { "#7FFFD4","#FBCEB1","#E52B50","#FFBF00","#884DA7","#293133","#FF6600","#FFFFF0","#007FFF","#ABCDEF","#00A86B","#FF8C00","#FFF44F","#A98307","#C9A0DC"};
-	/*-------------------------------ASSEGNO AD OGNI COMPONENTE CONNESSA UN COLORE----------*/
-	inst->comp_colors[inst->nnodes];
-	if (inst->n_connected_comp <= 15)
-	{
-		for (int i = 0; i < inst->nnodes; i++)
-		{
-			if (inst->mycomp[i]!=0)
-			{
-				inst->comp_colors[i] = colors[i];
-				printf("colore componente %d: %s \n", i, inst->comp_colors[i]);
-			}
-		}
-	}
-	
-
 	return n;
 }
 

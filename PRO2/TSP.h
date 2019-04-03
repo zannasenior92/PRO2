@@ -27,7 +27,7 @@ typedef struct {
 
 	//-----------------------PARAMETERS-----------------------
 	char input_file[1000];
-	char *comp_colors;											//COLORE COMPONENTI CONNESSE
+
 
 	//----------------------GLOBAL DATA-------------------------
 	double *best_sol;						// best sol. available
@@ -37,7 +37,7 @@ typedef struct {
 	int *comp;		//COMPONENTI CONNESSE
 	int *mycomp;
 	/*-----------------LAST VARIABLE CPLEX INDEX--------------------*/
-	int last_x_index;											//LAST INDEX OF x VARIABLES (LAST COLUMN IN CPLEX)
+	int last_x_index;											//LATS INDEX OF x VARIABLES (LAST COLUMN IN CPLEX)
 	
 
 } instance;														//NAME OF THE INSTANCE
