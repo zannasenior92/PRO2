@@ -86,12 +86,12 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		/*-------------------------------------------------------------------------------*/
 
 		/*--------------------------------SELECT MODEL-----------------------------------*/
-		printf("Select resolution model( flow1 / mtz / fisch )?: ");
+		printf("Select resolution model( flow1 / flow2 / mtz / fisch )?: ");
 		char resolution_model[20];
 		strcpy(resolution_model, fgets(resolution_model, 20, stdin));
 		printf("---------------------------------------------------------------------\n");
 
-		while ((strncmp(resolution_model, "flow1", 5) != 0) && ((strncmp(resolution_model, "mtz", 3) != 0)) && ((strncmp(resolution_model, "fisch", 2) != 0)) && ((strncmp(resolution_model, "\n", 2) != 0)))//CHECK INPUT
+		while ((strncmp(resolution_model, "flow1", 5) != 0) && (strncmp(resolution_model, "flow2", 5) != 0) && ((strncmp(resolution_model, "mtz", 3) != 0)) && ((strncmp(resolution_model, "fisch", 2) != 0)) && ((strncmp(resolution_model, "\n", 2) != 0)))//CHECK INPUT
 		{
 			printf("INPUT ERROR! Input method from shell(yes/no)?: ");
 			strcpy(decision, fgets(resolution_model, 5, stdin));
@@ -105,6 +105,9 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		}
 		else if (strcmp(resolution_model, "fisch") == 0) {
 			inst->model_type = 3;
+		}
+		else if (strcmp(resolution_model, "flow2") == 0) {
+			inst->model_type = 4;
 		}
 		else if (strcmp(resolution_model, "\n") == 0){
 			inst->model_type = 0;

@@ -6,6 +6,7 @@
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
 void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp);
 void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp);
 void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp);
 void add_edge_to_file(instance *inst);
