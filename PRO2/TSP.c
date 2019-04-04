@@ -113,24 +113,23 @@ int TSPopt(instance *inst)
 	build_model(inst, env, lp);
 	FILE* log = CPXfopen("log.txt", "w");
 	
-	/*---------------------------METODO LOOP----------------------*/
+	/*---------------------------LOOP METHOD-----------------------------------------*/
 	int done = 0;
 	double ottimo;
 	int resolved = 0;
 	double ticks1, ticks2, time3, time4;
-	//SETTO timelimit a 10 secondi
-	double timelimit = 15.0;
-	printf("timelimit di %f secondi\n", timelimit);
-	int resolved_in_time = 0;		//1 se è stato risolto il modello nel tempo e non è uscito per timelimit
+	double timelimit = 15.0;															//SET TIMELIMIT 
+	printf("timelimit: %f second\n", timelimit);
+	int resolved_in_time = 0;															//1 se è stato risolto il modello nel tempo e non è uscito per timelimit
 	while (!done) {
-		//prendo il tempo
-		if (CPXgettime(env, &time3)) print_error("Error getting time\n");
+		
+		if (CPXgettime(env, &time3)) print_error("Error getting time\n");				//GET TIME
 		//if (CPXgetdettime(env, &ticks1)) print_error("Error getting time\n");
 		if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit)) print_error("Error on setting parameter");
 		//if (CPXsetintparam(env, CPX_PARAM_HEURFREQ, 20)) print_error("Error on setting parameter");
 		
-		resolved = 0;
-		//Finchè lo stato di uscita non è ottimo
+		resolved = 0;																	//UNTIL OUT STATE ISN'T OPTIMAL
+		
 		while (!resolved) {
 			
 			if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");

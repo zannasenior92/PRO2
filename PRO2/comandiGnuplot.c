@@ -15,7 +15,7 @@ void plot_gnuplot(instance *inst) {
 		title,													//set title from input file
 		"set output 'nodes.eps'",
 		"set style line 1 \
-    linecolor rgb '#0060ad' ",									//set the color line
+	linecolor rgb '#0060ad' ",									//set the color line
 		"unset border",											//remove the bordes
 		"unset xtics",											//remove axis x
 		"unset ytics",											//remove axis y
@@ -29,18 +29,14 @@ void plot_gnuplot(instance *inst) {
 
 		"set terminal windows 1", // set a different window to plot with gnuplot
 		title,													//set title from input file
+		"set key",										//set legend
 		"set output 'nodes.eps'",
-		"set style line 1 \
-    linecolor rgb '#0060ad' ",									//set the color line
 		"unset border",											//remove the bordes
 		"unset xtics",											//remove axis x
 		"unset ytics",											//remove axis y
-		"unset key",											//remove path legend
-		//"plot 'edge_to_plotMTZ.txt' with lp ls 1, '' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
-		/*---------------PER STAMPARE COMPONENTI CONNESSE-------------------------------*/
-		"plot 'connected_components.txt' with lp ls 1 lc variable, '' with point pointtype 7 lc rgb '#0060ad'",
-
-		"pause 2",
+		/*------------------TO STAMP CONNECTED COMPONENTS-------------------------------*/
+		"plot 'connected_components.txt' with lp ls 1 lc variable, '' with point pointtype 7 lc variable",
+		"pause 1",
 		"exit"
 	};
 	/*----------------------------------------------------------------------------------*/
