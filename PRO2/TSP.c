@@ -10,9 +10,10 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp);
 void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp);
 void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp);
 void add_edge_to_file(instance *inst);
-void add_components_to_file(instance *inst);
+void plot_gnuplot(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
+void update_choosen_edge(instance* inst);
 
 /*METODO CHE CONTROLLA IL TIPO DI MODELLO E COSTRUISCE QUELLO RELATIVO*/
 void select_and_build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
@@ -114,6 +115,7 @@ int TSPopt(instance *inst)
 	
 	/*---------------------------METODO LOOP----------------------*/
 	int done = 0;
+	double ottimo;
 	int resolved = 0;
 	double ticks1, ticks2, time3, time4;
 	//SETTO timelimit a 10 secondi
@@ -155,12 +157,16 @@ int TSPopt(instance *inst)
 				int ncols = CPXgetnumcols(env, lp);
 				inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
 				if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
+				if (CPXgetobjval(env, lp, &ottimo)) print_error("Error getting optimal value");
+				
+				printf("Miglior soluzione trovata:%.0f\n", ottimo);
 				if (kruskal_sst(env, lp, inst) == inst->nnodes) {
 					if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit * 2)) print_error("Error on setting parameter");
 					printf("Ha n=%d comp conn\n", kruskal_sst(env, lp, inst));
 				}
 				else {
 					if (kruskal_sst(env, lp, inst) == 1) {
+						
 						resolved = 1;
 						done = 1;
 					}
@@ -174,7 +180,9 @@ int TSPopt(instance *inst)
 							printf("Aggiunti vincoli\n");
 						}
 					}
-					
+					update_choosen_edge(inst);
+					add_edge_to_file(inst);
+					plot_gnuplot(inst);
 					
 					
 				}
@@ -184,6 +192,8 @@ int TSPopt(instance *inst)
 				int ncols = CPXgetnumcols(env, lp);
 				inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
 				if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
+				if (CPXgetobjval(env, lp, &ottimo)) print_error("Error getting optimal value");
+				printf("Miglior soluzione trovata:%.0f\n", ottimo);
 				resolved = 1;
 				if (kruskal_sst(env, lp, inst) == 1) {
 					done = 1;
@@ -197,6 +207,9 @@ int TSPopt(instance *inst)
 						printf("Aggiunti vincoli\n");
 					}
 				}
+				update_choosen_edge(inst);
+				add_edge_to_file(inst);
+				plot_gnuplot(inst);
 			}
 		}
 		
@@ -390,3 +403,21 @@ void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	
 }
 
+void update_choosen_edge(instance* inst) {
+	int n = 0;
+	for (int i = 0; i < inst->nnodes; i++) {
+		for (int j = i + 1; j < inst->nnodes; j++) {
+			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
+
+				if (VERBOSE >= 100) {
+					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
+				}
+				/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
+				inst->choosen_edge[n] = i;
+				inst->choosen_edge[n + 1] = j;
+				n += 2;
+				
+			}
+		}
+	}
+}

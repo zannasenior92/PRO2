@@ -40,7 +40,7 @@ void plot_gnuplot(instance *inst) {
 		/*---------------PER STAMPARE COMPONENTI CONNESSE-------------------------------*/
 		"plot 'connected_components.txt' with lp ls 1 lc variable, '' with point pointtype 7 lc rgb '#0060ad'",
 
-		
+		"pause 2",
 		"exit"
 	};
 	/*----------------------------------------------------------------------------------*/
@@ -66,7 +66,7 @@ void plot_gnuplot(instance *inst) {
 
 
 	/*----------------USING A PIPE FOR GNUPLOT TO PRINT POINTS--------------------------*/
-	FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe -persistent", "w");	//"-persistent" KEEPS THE PLOT OPEN EVEN AFTER YOUR C PROGRAM QUIT
+	FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe", "w");	//"-persistent" KEEPS THE PLOT OPEN EVEN AFTER YOUR C PROGRAM QUIT
 
 	for (int i = 0; i < n_commands; i++)
 	{
