@@ -165,7 +165,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		int *index = (int *)malloc((2 * inst->nnodes - 2) * sizeof(int));
 		double *value = (double *)malloc((2 * inst->nnodes - 2) * sizeof(double));
 		double rhs = 1;
-		sprintf(cname[0], "SUM_j (y%dj-yj%d)", i , i );
+		sprintf(cname[0], "SUM_j (y%dj-yj%d)", i + 1, i + 1 );
 
 		/*----LAZY INSERTION FUNCTION NEEDS ARRAY OF INDEXES AND ARRAY OF RELATED VALUES------*/
 		int lazy_index = 0;
@@ -223,7 +223,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			int *index = (int *)malloc((2 * inst->nnodes - 2) * sizeof(int));
 			double *value = (double *)malloc((2 * inst->nnodes - 2) * sizeof(double));
 			double rhs = -1;
-			sprintf(cname[0], "SUM_j (z%dj-zj%d)", i, i);
+			sprintf(cname[0], "SUM_j (z%dj-zj%d)", i + 1, i + 1);
 
 			/*----LAZY INSERTION FUNCTION NEEDS ARRAY OF INDEXES AND ARRAY OF RELATED VALUES------*/
 			int lazy_index = 0;
@@ -256,7 +256,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			int *index = (int *)malloc((2 * inst->nnodes - 2) * sizeof(int));
 			double *value = (double *)malloc((2 * inst->nnodes - 2) * sizeof(double));
 			double rhs = inst->nnodes-1;
-			sprintf(cname[0], "SUM_j (z%dj-z%dj)", i, i);
+			sprintf(cname[0], "SUM_j (z%dj-z%dj)", i + 1, i + 1);
 
 			/*----LAZY INSERTION FUNCTION NEEDS ARRAY OF INDEXES AND ARRAY OF RELATED VALUES------*/
 			int lazy_index = 0;
@@ -292,7 +292,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 				int *index = (int *)malloc((inst->nnodes - 1) * sizeof(int));
 				double *value = (double *)malloc((inst->nnodes - 1) * sizeof(double));
 				double rhs = 0;																		//(n-1)
-				sprintf(cname[0], "y%d%d - z%d%d = (n-1)x%d%d", i, j, i, j);
+				sprintf(cname[0], "y%d%d - z%d%d = (n-1)x%d%d", i + 1, j + 1, i + 1, j + 1);
 
 				index[0] = ypos(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 				value[0] = 1.0;
