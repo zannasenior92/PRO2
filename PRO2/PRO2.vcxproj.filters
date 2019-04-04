@@ -33,6 +33,9 @@
     <ClCompile Include="Models.c">
       <Filter>FileFunzioni</Filter>
     </ClCompile>
+    <ClCompile Include="dist_and_pos.c">
+      <Filter>FileFunzioni</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h">

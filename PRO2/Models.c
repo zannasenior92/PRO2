@@ -1,5 +1,35 @@
 #include "TSP.h"
 
+/*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
+void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp);
+
+
+/*------------------------CHECK THE MODEL AND BUILD THE RELATIVE---------------------*/
+void select_and_build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
+	if (inst->model_type == 0) {
+		printf("Modello TSP normale\n");
+		build_model(inst, env, lp);
+	}
+	if (inst->model_type == 1) {
+		printf("Modello Flow1\n");
+		inst->compact = 1;
+		build_modelFlow1(inst, env, lp);
+	}
+	if (inst->model_type == 2) {
+		printf("Modello MTZ\n");
+		inst->compact = 1;
+		build_modelMTZ(inst, env, lp);
+	}
+	if (inst->model_type == 3) {
+		printf("Modello Fischetti\n");
+		build_modelFischetti(inst, env, lp);
+	}
+
+}
+
 /*********************************** DEFAULT MODEL **********************************/
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 

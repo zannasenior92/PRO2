@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="comandiGnuplot.c" />
+    <ClCompile Include="dist_and_pos.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="Models.c" />
     <ClCompile Include="Parser.c" />
