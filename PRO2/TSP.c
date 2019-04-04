@@ -11,7 +11,8 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp);
 void add_edge_to_file(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
-
+static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle, int *useraction_p);
+int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, int wherefrom);
 
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
@@ -25,31 +26,35 @@ int TSPopt(instance *inst)
 	
 	build_model(inst, env, lp);
 	FILE* log = CPXfopen("log.txt", "w");
-
+	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
+	CPXsetlazyconstraintcallbackfunc(env, add_SEC_lazy, inst);
+	int ncores = 1; CPXgetnumcores(env, &ncores);
+	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
 	/*------------------------------------METODO LOOP---------------------------------------*/
 	int done = 0;
 	while (!done) {
+		
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 		if (CPXsetlogfile(env, log)) print_error("Error in log file");
-		int ncols = CPXgetnumcols(env, lp);
-		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
-		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
+		inst->ncols = CPXgetnumcols(env, lp);
+		inst->best_sol = (double *)calloc(inst->ncols, sizeof(double));				//best objective solution
+		if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
 		if (kruskal_sst(env, lp, inst) == 1) {
 			done = 1;
 		}
 		
 		else {
 			add_SEC(env,lp,inst);
-			if (VERBOSE >= 100) {
+			if (VERBOSE >= 10) {
 				printf("Aggiunti vincoli\n");
 			}
 		}
 		
 	}
 
-	int ncols = CPXgetnumcols(env, lp);
+
 	if(VERBOSE>=200){
-		for (int i = 0; i < ncols - 1; i++){
+		for (int i = 0; i < inst->ncols - 1; i++){
 			printf("Best %f\n", inst->best_sol[i]);
 		}
 	}
@@ -193,5 +198,59 @@ void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
 			}
 
 	}
+}
+
+static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle, int *useraction_p) {
+	*useraction_p = CPX_CALLBACK_DEFAULT;   //Dico che non ho fatto niente 
+	instance* inst = (instance *)cbhandle; 			// casting of cbhandle    
+	//da qui abbiamo di nuovo il puntatore all'instanza
+
+	// get solution xstar
+	printf("ncols=%d\n", inst->ncols);
+	
+
+	double *xstar = (double*)malloc(inst->ncols * sizeof(double));
+	int stat = CPXgetcallbacknodex(env, cbdata, wherefrom, xstar, 0, inst->ncols - 1);
+	printf("stat=%d\n", stat);
+	if (stat) return 1; // y = current y from CPLEX-- y starts from position 0
+	//Praticamente la getx, da la soluzione per la quale la soluzione è stata chiamata
+	//Ripasso i parametri riempi posizione da 0 a numero di colonne (forse ncols-1) mi salvo prima il numero di colonne cosi per averle qua
+	for (int i = 0; i < inst->ncols; i++)
+		printf("Xstar[%d]=%d\n", i, xstar[i]);
+	double zbest;	CPXgetcallbackinfo(env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_INTEGER, &zbest); 	//valore dell'ottimo intero	printf("zbest=%f\n", zbest);
+	//apply cut separator and possibly add violated cuts
+	int ncuts = myseparation(inst, xstar, env, cbdata, wherefrom);	    //separatore per aggiungere vincoli e restituisce quanti tagli ha aggiunto
+	free(xstar);							//IMPORTANTE!!!!! seno esauriamo la memoria
+
+	if (ncuts >= 1) *useraction_p = CPX_CALLBACK_SET; 		// tell CPLEX that cuts have been created
+	return 0;
+}
+
+int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, int wherefrom) {
+	int nnz = 0;
+	double rhs = -1.0;
+	char sense = 'L';
+	int *index = (int *)malloc(inst->ncols * sizeof(int));
+	double *value = (double *)malloc(inst->ncols * sizeof(double));
+	int count = 0;
+	for (int h = 0; h < inst->nnodes; h++) {
+		if (inst->mycomp[h] != 0) {
+			for (int i = 0; i < inst->nnodes; i++) {
+				if (inst->comp[i] != h) continue;
+				rhs++;
+
+				for (int j = i + 1; j < inst->nnodes; j++) {
+					if (inst->comp[j] == h) {
+						index[nnz] = xpos(i, j, inst);
+						value[nnz] = 1;
+						nnz++;
+					}
+				}
+			}
+			count++;
+			if (CPXcutcallbackadd(env, cbdata, wherefrom, nnz, rhs, sense, index, value, 0)) print_error("USER_separation: CPXcutcallbackadd error");
+		}
+
+	}	return count;
 }
 
