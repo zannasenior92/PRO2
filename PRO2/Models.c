@@ -1,5 +1,12 @@
 #include "TSP.h"
 
+/*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
+void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp);
+
 /*METODO CHE CONTROLLA IL TIPO DI MODELLO E COSTRUISCE QUELLO RELATIVO*/
 void select_and_build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	if (inst->model_type == 0) {
