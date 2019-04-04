@@ -33,10 +33,10 @@ int TSPopt(instance *inst)
 	/*------------------------------------METODO LOOP---------------------------------------*/
 	int done = 0;
 	while (!done) {
-		
+		inst->ncols = CPXgetnumcols(env, lp);
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 		if (CPXsetlogfile(env, log)) print_error("Error in log file");
-		inst->ncols = CPXgetnumcols(env, lp);
+		
 		inst->best_sol = (double *)calloc(inst->ncols, sizeof(double));				//best objective solution
 		if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
 		if (kruskal_sst(env, lp, inst) == 1) {
@@ -210,14 +210,14 @@ static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, v
 	
 
 	double *xstar = (double*)malloc(inst->ncols * sizeof(double));
-	int stat = CPXgetcallbacknodex(env, cbdata, wherefrom, xstar, 0, inst->ncols - 1);
-	printf("stat=%d\n", stat);
-	if (stat) return 1; // y = current y from CPLEX-- y starts from position 0
+		
+	if (CPXgetcallbacknodex(env, cbdata, wherefrom, xstar, 0, inst->ncols - 1)) return 1; // y = current y from CPLEX-- y starts from position 0
 	//Praticamente la getx, da la soluzione per la quale la soluzione è stata chiamata
 	//Ripasso i parametri riempi posizione da 0 a numero di colonne (forse ncols-1) mi salvo prima il numero di colonne cosi per averle qua
-	for (int i = 0; i < inst->ncols; i++)
+	/*for (int i = 0; i < inst->ncols; i++)
 		printf("Xstar[%d]=%d\n", i, xstar[i]);
-	double zbest;	CPXgetcallbackinfo(env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_INTEGER, &zbest); 	//valore dell'ottimo intero	printf("zbest=%f\n", zbest);
+		*/
+	double zbest;	if(CPXgetcallbackinfo(env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_INTEGER, &zbest)) print_error("Error getting zbest"); 	//valore dell'ottimo intero	printf("zbest=%f\n", zbest);
 	//apply cut separator and possibly add violated cuts
 	int ncuts = myseparation(inst, xstar, env, cbdata, wherefrom);	    //separatore per aggiungere vincoli e restituisce quanti tagli ha aggiunto
 	free(xstar);							//IMPORTANTE!!!!! seno esauriamo la memoria
