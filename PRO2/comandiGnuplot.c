@@ -29,7 +29,7 @@ void plot_gnuplot(instance *inst) {
 
 		"set terminal windows 1", // set a different window to plot with gnuplot
 		title,													//set title from input file
-		"set key",										//set legend
+		"set key opaque box",										//set legend
 		"set output 'nodes.eps'",
 		"unset border",											//remove the bordes
 		"unset xtics",											//remove axis x
