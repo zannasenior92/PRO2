@@ -92,11 +92,8 @@ void plot_gnuplot(instance *inst) {
 void add_edge_to_file(instance *inst) {
 	FILE * file = fopen("connected_components.txt", "w");
 	for (int i = 0; i < 2 * inst->nnodes; i = i + 2) {
-		fprintf(file, "%lf %lf %d\n", inst->xcoord[inst->choosen_edge[i]], inst->ycoord[inst->choosen_edge[i]], inst->comp[i]); //Write x_i to a temporary file
-		if (i != (2 *inst->nnodes-1))
-		{
-			fprintf(file, "%lf %lf %d\n", inst->xcoord[inst->choosen_edge[i + 1]], inst->ycoord[inst->choosen_edge[i + 1]], inst->comp[i + 1]); //Write x_i to a temporary file
-		}
+		fprintf(file, "%lf %lf %d\n", inst->xcoord[inst->choosen_edge[i]], inst->ycoord[inst->choosen_edge[i]], inst->comp[inst->choosen_edge[i]]); //Write x_i to a temporary file
+		fprintf(file, "%lf %lf %d\n", inst->xcoord[inst->choosen_edge[i + 1]], inst->ycoord[inst->choosen_edge[i + 1]], inst->comp[inst->choosen_edge[i + 1]]); //Write x_i to a temporary file
 		
 		fprintf(file, "\n");
 	}
