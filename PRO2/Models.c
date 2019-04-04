@@ -31,7 +31,7 @@ void select_and_build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	if (inst->model_type == 4) {
 		printf("Modello Flow2\n");
 		inst->compact = 1;
-		build_modelFlow1(inst, env, lp);
+		build_modelFlow2(inst, env, lp);
 	}
 
 }

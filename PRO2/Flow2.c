@@ -80,7 +80,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 			if (VERBOSE >= 200)
 			{
-				printf("The column with i=%d e j=%d is in position %d and ypos is %d\n", i, j, CPXgetnumcols(env, lp), ypos(i, j, inst));
+				printf("The column with i=%d e j=%d is in position %d and ypos is %d\n", i, j, CPXgetnumcols(env, lp), zpos(i, j, inst));
 			}
 		}
 	}
