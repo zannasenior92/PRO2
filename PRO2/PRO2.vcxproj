@@ -20,8 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="comandiGnuplot.c" />
+    <ClCompile Include="Default.c" />
+    <ClCompile Include="dist_and_pos.c" />
+    <ClCompile Include="Fisch.c" />
+    <ClCompile Include="Flow1.c" />
+    <ClCompile Include="Flow2.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="Models.c" />
+    <ClCompile Include="MTZ.c" />
     <ClCompile Include="Parser.c" />
     <ClCompile Include="TSP.c" />
   </ItemGroup>

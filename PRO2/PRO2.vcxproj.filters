@@ -16,6 +16,9 @@
     <Filter Include="FileFunzioni">
       <UniqueIdentifier>{8d8c91bc-86d2-43d5-9511-1254ad54e3b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Models">
+      <UniqueIdentifier>{798a1f0f-3837-47f9-a2df-154122a03211}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.c">
@@ -32,6 +35,24 @@
     </ClCompile>
     <ClCompile Include="Models.c">
       <Filter>FileFunzioni</Filter>
+    </ClCompile>
+    <ClCompile Include="dist_and_pos.c">
+      <Filter>FileFunzioni</Filter>
+    </ClCompile>
+    <ClCompile Include="Flow1.c">
+      <Filter>Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Flow2.c">
+      <Filter>Models</Filter>
+    </ClCompile>
+    <ClCompile Include="MTZ.c">
+      <Filter>Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Fisch.c">
+      <Filter>Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Default.c">
+      <Filter>Models</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
