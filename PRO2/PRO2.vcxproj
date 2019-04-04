@@ -28,7 +28,7 @@
     <ClCompile Include="Models.c" />
     <ClCompile Include="MTZ.c" />
     <ClCompile Include="Parser.c" />
-    <ClCompile Include="pos_and_distances.c" />
+    <ClCompile Include="dist_and_pos.c" />
     <ClCompile Include="TSP.c" />
   </ItemGroup>
   <ItemGroup>

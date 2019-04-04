@@ -51,7 +51,7 @@
     <ClCompile Include="Flow2.c">
       <Filter>Models</Filter>
     </ClCompile>
-    <ClCompile Include="pos_and_distances.c">
+    <ClCompile Include="dist_and_pos.c">
       <Filter>FileFunzioni</Filter>
     </ClCompile>
   </ItemGroup>
