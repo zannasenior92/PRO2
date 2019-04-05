@@ -19,6 +19,9 @@
     <Filter Include="Models">
       <UniqueIdentifier>{48ea1c4d-00b7-4bd6-82e7-bf90aa335982}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Models\Default">
+      <UniqueIdentifier>{f21cf11f-4733-48c6-9752-349ab662da1d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.c">
@@ -45,14 +48,17 @@
     <ClCompile Include="MTZ.c">
       <Filter>Models</Filter>
     </ClCompile>
-    <ClCompile Include="Default.c">
-      <Filter>Models</Filter>
-    </ClCompile>
     <ClCompile Include="Flow2.c">
       <Filter>Models</Filter>
     </ClCompile>
     <ClCompile Include="dist_and_pos.c">
       <Filter>FileFunzioni</Filter>
+    </ClCompile>
+    <ClCompile Include="Default.c">
+      <Filter>Models\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="kruskal_and_SEC.c">
+      <Filter>Models\Default</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

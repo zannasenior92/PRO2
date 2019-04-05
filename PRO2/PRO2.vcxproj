@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="comandiGnuplot.c" />
+    <ClCompile Include="kruskal_and_SEC.c" />
     <ClCompile Include="Default.c" />
     <ClCompile Include="Fisch.c" />
     <ClCompile Include="Flow1.c" />
