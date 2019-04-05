@@ -217,12 +217,18 @@ static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, v
 	/*for (int i = 0; i < inst->ncols; i++)
 		printf("Xstar[%d]=%d\n", i, xstar[i]);
 		*/
-	double zbest;	if(CPXgetcallbackinfo(env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_INTEGER, &zbest)) print_error("Error getting zbest"); 	//valore dell'ottimo intero	printf("zbest=%f\n", zbest);
+	double zbest;
+	if(CPXgetcallbackinfo(env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_INTEGER, &zbest)) print_error("Error getting zbest"); 	//valore dell'ottimo intero
+	printf("zbest=%f\n", zbest);
 	//apply cut separator and possibly add violated cuts
-	int ncuts = myseparation(inst, xstar, env, cbdata, wherefrom);	    //separatore per aggiungere vincoli e restituisce quanti tagli ha aggiunto
-	free(xstar);							//IMPORTANTE!!!!! seno esauriamo la memoria
-
-	if (ncuts >= 1) *useraction_p = CPX_CALLBACK_SET; 		// tell CPLEX that cuts have been created
+	int ncuts = myseparation(inst, xstar, env, cbdata, wherefrom);	    //separatore per aggiungere vincoli e restituisce quanti tagli ha aggiunto
+
+	free(xstar);							//IMPORTANTE!!!!! seno esauriamo la memoria
+
+
+
+	if (ncuts >= 1) *useraction_p = CPX_CALLBACK_SET; 		// tell CPLEX that cuts have been created
+
 	return 0;
 }
 
@@ -251,6 +257,7 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 			if (CPXcutcallbackadd(env, cbdata, wherefrom, nnz, rhs, sense, index, value, 0)) print_error("USER_separation: CPXcutcallbackadd error");
 		}
 
-	}	return count;
+	}
+	return count;
 }
 
