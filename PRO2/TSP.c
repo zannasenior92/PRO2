@@ -209,17 +209,17 @@ static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, v
 	printf("ncols=%d\n", inst->ncols);
 	
 
-	double *xstar = (double*)malloc(inst->ncols * sizeof(double));
+	double *xstar = (double*) calloc(inst->ncols, sizeof(double));
 		
 	if (CPXgetcallbacknodex(env, cbdata, wherefrom, xstar, 0, inst->ncols - 1)) return 1; // y = current y from CPLEX-- y starts from position 0
 	//Praticamente la getx, da la soluzione per la quale la soluzione è stata chiamata
 	//Ripasso i parametri riempi posizione da 0 a numero di colonne (forse ncols-1) mi salvo prima il numero di colonne cosi per averle qua
-	/*for (int i = 0; i < inst->ncols; i++)
-		printf("Xstar[%d]=%d\n", i, xstar[i]);
-		*/
-	double zbest;
+	for (int i = 0; i < inst->ncols; i++)
+		printf("Xstar[%d]=%.0f\n", i, xstar[i]);
+		
+	/*double zbest;
 	if(CPXgetcallbackinfo(env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_INTEGER, &zbest)) print_error("Error getting zbest"); 	//valore dell'ottimo intero
-	printf("zbest=%f\n", zbest);
+	printf("zbest=%f\n", zbest);*/
 	//apply cut separator and possibly add violated cuts
 	int ncuts = myseparation(inst, xstar, env, cbdata, wherefrom);	    //separatore per aggiungere vincoli e restituisce quanti tagli ha aggiunto
 
