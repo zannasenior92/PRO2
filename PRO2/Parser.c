@@ -97,19 +97,19 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 			strcpy(decision, fgets(resolution_model, 5, stdin));
 		}
 
-		if ((strcmp(resolution_model, "flow1") == 0)) {
+		if ((strncmp(resolution_model, "flow1",5) == 0)) {
 			inst->model_type = 1;
 		}
-		else if (strcmp(resolution_model, "mtz") == 0) {
+		else if (strncmp(resolution_model, "mtz",3) == 0) {
 			inst->model_type = 2;
 		}
-		else if (strcmp(resolution_model, "fisch") == 0) {
+		else if (strncmp(resolution_model, "fisch",5) == 0) {
 			inst->model_type = 3;
 		}
-		else if (strcmp(resolution_model, "flow2") == 0) {
+		else if (strncmp(resolution_model, "flow2",5) == 0) {
 			inst->model_type = 4;
 		}
-		else if (strcmp(resolution_model, "\n") == 0){
+		else if (strncmp(resolution_model, "\n",1) == 0){
 			inst->model_type = 0;
 		}
 		/*-------------------------------------------------------------------------------*/

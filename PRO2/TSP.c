@@ -4,6 +4,7 @@
 
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
+void select_and_build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
 void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp);
 void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp);
@@ -23,7 +24,7 @@ int TSPopt(instance *inst)
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
 	
-	build_model(inst, env, lp);
+	select_and_build_model(inst, env, lp);
 	FILE* log = CPXfopen("log.txt", "w");
 	/*METODO LOOP*/
 	int done = 0;
