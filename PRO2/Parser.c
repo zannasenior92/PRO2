@@ -5,10 +5,6 @@
 /*----------------------------------COMMAND LINE PARSING--------------------------------*/
 void parse_command_line(int argc, char** argv, instance *inst) {
 	
-	
-
-
-
 	/*-----------------------------CHECK USER INPUT-------------------------------------*/
 	printf("User?(marco/Luca): ");
 	char user[10];

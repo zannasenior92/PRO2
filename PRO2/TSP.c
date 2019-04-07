@@ -113,6 +113,9 @@ int TSPopt(instance *inst)
 		CPXcloseCPLEX(&env);
 		return 0;
 	}
+	/**************************************************************************************************/
+	/**************************************************************************************************/
+	/**************************************************************************************************/
 
 	/*--------------------------------RESOLVE WITH OTHER MODEL----------------------------------------*/
 	else
@@ -123,6 +126,55 @@ int TSPopt(instance *inst)
 		int ncols = CPXgetnumcols(env, lp);
 		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
 		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
+
+		int count = 0;
+		int n = 0;
+		/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
+		if (inst->compact == 1) {
+			for (int i = 0; i < inst->nnodes; i++) {
+				for (int j = 0; j < inst->nnodes; j++) {
+					if (inst->best_sol[xpos_compact(i, j, inst)] > TOLERANCE) {
+
+						if (VERBOSE >= 100) {
+							printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
+						}
+						/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
+						inst->choosen_edge[n] = i;
+						inst->choosen_edge[n + 1] = j;
+						n += 2;
+						count++;
+					}
+				}
+			}
+		}
+		else {
+			for (int i = 0; i < inst->nnodes; i++) {
+				for (int j = i + 1; j < inst->nnodes; j++) {
+					if (inst->best_sol[xpos(i, j, inst)] > TOLERANCE) {
+
+						if (VERBOSE >= 100) {
+							printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
+						}
+						/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
+						inst->choosen_edge[n] = i;
+						inst->choosen_edge[n + 1] = j;
+						n += 2;
+						count++;
+					}
+				}
+			}
+		}
+		add_edge_to_file(inst);
+		/*-------------------------------------------------------------------------------*/
+		/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
+		double *opt_val = 0;																//VALUE OPTIMAL SOL
+		if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
+		printf("Object function optimal value is: %.0f\n", opt_val);
+		/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
+		CPXfreeprob(env, &lp);
+		CPXcloseCPLEX(&env);
+		return 0;
+
 	}
 }
 

@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 	parse_command_line(argc, argv, &inst);									//keep the arguments of the command line
 	read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
 	printf("Input used: %s\n", inst.input_file_name);
-
+	
 
 	if(VERBOSE>=200){
 		printf("Il file di input e': %s\n", inst.input_file);
