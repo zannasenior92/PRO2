@@ -93,7 +93,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 
 		while ((strncmp(resolution_model, "flow1", 5) != 0) && ((strncmp(resolution_model, "mtz", 3) != 0)) && ((strncmp(resolution_model, "fisch", 2) != 0)) && ((strncmp(resolution_model, "\n", 2) != 0)))//CHECK INPUT
 		{
-			printf("INPUT ERROR! Input method from shell(yes/no)?: ");
+			printf("INPUT ERROR! Input method from shell(y/n)?: ");
 			strcpy(decision, fgets(resolution_model, 5, stdin));
 		}
 
