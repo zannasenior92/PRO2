@@ -19,6 +19,9 @@
     <Filter Include="Models">
       <UniqueIdentifier>{5baf47ea-d3da-4c65-8ce7-28d52dac26ac}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Models\Default">
+      <UniqueIdentifier>{a9d851b2-8c8c-4d90-bb08-379160c0ef32}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.c">
@@ -48,11 +51,17 @@
     <ClCompile Include="Fisch.c">
       <Filter>Models</Filter>
     </ClCompile>
-    <ClCompile Include="Default.c">
-      <Filter>Models</Filter>
-    </ClCompile>
     <ClCompile Include="Flow2.c">
       <Filter>Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Default.c">
+      <Filter>Models\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="Kruskal.c">
+      <Filter>Models\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="add_SEC_lazy.c">
+      <Filter>Models\Default</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
