@@ -20,13 +20,13 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 	}
 
 	/*-----------------------INPUT LINE SHELL(yes/no)-----------------------------------*/
-	printf("Input method from shell(yes/no)?: ");
+	printf("Input method from shell(y/n)?: ");
 	char decision[5];
 	strcpy(decision, fgets(decision, 5, stdin));
 
 	while ((strncmp(decision, "y", 1) != 0) && ((strncmp(decision, "n", 1) != 0)))				//CHECK INPUT
 	{
-		printf("INPUT ERROR! Input method from shell(yes/no)?: ");
+		printf("INPUT ERROR! Input method from shell(y/n)?: ");
 		strcpy(decision, fgets(decision, 5, stdin));
 	}
 
