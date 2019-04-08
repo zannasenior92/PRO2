@@ -5,9 +5,6 @@
 /*----------------------------------COMMAND LINE PARSING--------------------------------*/
 void parse_command_line(int argc, char** argv, instance *inst) {
 	
-	
-
-
 
 	/*-----------------------------CHECK USER INPUT-------------------------------------*/
 	printf("User?(marco/Luca): ");
@@ -20,18 +17,18 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 	}
 
 	/*-----------------------INPUT LINE SHELL(yes/no)-----------------------------------*/
-	printf("Input method from shell(yes/no)?: ");
+	printf("Input method from shell(y/n)?: ");
 	char decision[5];
 	strcpy(decision, fgets(decision, 5, stdin));
 
-	while ((strncmp(decision, "yes", 3) != 0) && ((strncmp(decision, "no", 2) != 0)))				//CHECK INPUT
+	while ((strncmp(decision, "y", 1) != 0) && ((strncmp(decision, "n", 1) != 0)))				//CHECK INPUT
 	{
-		printf("INPUT ERROR! Input method from shell(yes/no)?: ");
+		printf("INPUT ERROR! Input method from shell(y/n)?: ");
 		strcpy(decision, fgets(decision, 5, stdin));
 	}
 
 	/*---------------------------------READ INPUT FROM ARGV------------------------------*/
-	if (strncmp(decision, "no", 2) == 0)
+	if (strncmp(decision, "n", 1) == 0)
 	{
 		for (int i = 0; i < argc; i++) {
 			if (strcmp(argv[i], "-input") == 0) { strcpy(inst->input_file, argv[++i]); continue; }
@@ -93,7 +90,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 
 		while ((strncmp(resolution_model, "flow1", 5) != 0) && (strncmp(resolution_model, "flow2", 5) != 0) && ((strncmp(resolution_model, "mtz", 3) != 0)) && ((strncmp(resolution_model, "fisch", 2) != 0)) && ((strncmp(resolution_model, "\n", 2) != 0)))//CHECK INPUT
 		{
-			printf("INPUT ERROR! Input method from shell(yes/no)?: ");
+			printf("INPUT ERROR! Select resolution model( flow1 / flow2 / mtz / fisch )?: ");
 			strcpy(decision, fgets(resolution_model, 5, stdin));
 		}
 
