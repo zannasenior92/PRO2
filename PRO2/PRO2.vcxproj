@@ -25,6 +25,7 @@
     <ClCompile Include="Fisch.c" />
     <ClCompile Include="Flow1.c" />
     <ClCompile Include="Flow2.c" />
+    <ClCompile Include="Kruskal.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="Models.c" />
     <ClCompile Include="MTZ.c" />

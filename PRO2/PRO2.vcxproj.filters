@@ -19,6 +19,9 @@
     <Filter Include="Models">
       <UniqueIdentifier>{798a1f0f-3837-47f9-a2df-154122a03211}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Models\Default">
+      <UniqueIdentifier>{02ad4fe5-cd5a-4aab-ba58-edf76e600a77}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.c">
@@ -52,7 +55,10 @@
       <Filter>Models</Filter>
     </ClCompile>
     <ClCompile Include="Default.c">
-      <Filter>Models</Filter>
+      <Filter>Models\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="Kruskal.c">
+      <Filter>Models\Default</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
