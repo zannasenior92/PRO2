@@ -57,7 +57,10 @@
     <ClCompile Include="Default.c">
       <Filter>Models\Default</Filter>
     </ClCompile>
-    <ClCompile Include="Kruskal.c">
+    <ClCompile Include="loop_m_timelimit.c">
+      <Filter>Models\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="Kruskal_and_SEC.c">
       <Filter>Models\Default</Filter>
     </ClCompile>
   </ItemGroup>
