@@ -1,34 +1,22 @@
 #include "TSP.h"
 
+/*------------------------ADD SUBTOUR ELIMINATION CONSTRAINTS------------------------*/
+
 static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle, int *useraction_p) {
-	*useraction_p = CPX_CALLBACK_DEFAULT;   //Dico che non ho fatto niente 
-	instance* inst = (instance *)cbhandle; 			// casting of cbhandle    
-	//da qui abbiamo di nuovo il puntatore all'instanza
+	*useraction_p = CPX_CALLBACK_DEFAULT;			//Dico che non ho fatto niente 
+	instance* inst = (instance *)cbhandle; 			// casting of cbhandle to have the instance
 
 	// get solution xstar
-	printf("ncols=%d\n", inst->ncols);
-
-
 	double *xstar = (double*)calloc(inst->ncols, sizeof(double));
+	//Call the callback
+	if (CPXgetcallbacknodex(env, cbdata, wherefrom, xstar, 0, inst->ncols - 1)) print_error("Error in callback");
 
-	if (CPXgetcallbacknodex(env, cbdata, wherefrom, xstar, 0, inst->ncols - 1)) return 1; // y = current y from CPLEX-- y starts from position 0
-	//Praticamente la getx, da la soluzione per la quale la soluzione è stata chiamata
-	//Ripasso i parametri riempi posizione da 0 a numero di colonne (forse ncols-1) mi salvo prima il numero di colonne cosi per averle qua
-
-
-	/*double zbest;
-	if(CPXgetcallbackinfo(env, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_INTEGER, &zbest)) print_error("Error getting zbest"); 	//valore dell'ottimo intero
-	printf("zbest=%f\n", zbest);*/
 	//apply cut separator and possibly add violated cuts
-
-	int ncuts = myseparation(inst, xstar, env, cbdata, wherefrom);	    //separatore per aggiungere vincoli e restituisce quanti tagli ha aggiunto
-
-	free(xstar);							//IMPORTANTE!!!!! seno esauriamo la memoria
-
-
+	int ncuts = myseparation(inst, xstar, env, cbdata, wherefrom);
+	//Free space in xstar
+	free(xstar);
 
 	if (ncuts >= 1) *useraction_p = CPX_CALLBACK_SET; 		// tell CPLEX that cuts have been created
-
 	return 0;
 }
 
@@ -38,7 +26,7 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 	int max = -1;
 	int *comp = (int*)calloc(inst->nnodes, sizeof(int));
 	int *mycomp = (int*)calloc(inst->nnodes, sizeof(int));
-
+	/*---------------------COUNTING CONNECTED COMPONENTS-----------*/
 	/*---------------------INIZIALIZATION----------------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		comp[i] = i;
@@ -55,12 +43,9 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 					if (comp[v] == c2)
 						comp[v] = c1;
 				}
-
 			}
-
 		}
 	}
-
 	/*--------------------COUNT COMPONENTS---------------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		if (VERBOSE >= 100) {
@@ -74,8 +59,11 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 			n++;
 		}
 	}
-	if (n == 1)
+	//Se ha una sola componente connesse non aggiungo vincoli ed esco
+	if (n == 1) {
+		printf("%d componenti connesse qui\n", n);
 		return 0;
+	}
 	printf("%d componenti connesse", n);
 
 	/*add constraints*/
@@ -99,17 +87,13 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 					}
 				}
 			}
+			//Aggiungo i vincoli
 			count++;
 			if (CPXcutcallbackadd(env, cbdata, wherefrom, nnz, rhs, sense, index, value, 0)) print_error("USER_separation: CPXcutcallbackadd error");
 		}
-
 	}
+	free(index);
+	free(value);
 	printf("    Aggiunti %d vincoli\n", count);
 	return count;
-}
-
-void component(CPXENVptr env, double* xstar, instance *inst) {
-
-	/*---------------------------------------------------------*/
-
 }
