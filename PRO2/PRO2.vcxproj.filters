@@ -60,6 +60,9 @@
     <ClCompile Include="kruskal_and_SEC.c">
       <Filter>Models\Default</Filter>
     </ClCompile>
+    <ClCompile Include="loop_method.c">
+      <Filter>Models\Default</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h">
