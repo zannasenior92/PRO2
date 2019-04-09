@@ -60,9 +60,6 @@
     <ClCompile Include="Kruskal.c">
       <Filter>Models\Default</Filter>
     </ClCompile>
-    <ClCompile Include="add_SEC_lazy.c">
-      <Filter>Models\Default</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h">
