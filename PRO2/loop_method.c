@@ -8,6 +8,10 @@ void add_edge_to_file(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
 int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE *log);
+void plot_gnuplot(instance *inst);
+void update_choosen_edge(instance* inst);
+
+
 
 /*****************************************************************************************************************/
 int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
@@ -29,6 +33,9 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
 				printf("Aggiunti vincoli\n");
 			}
 		}
+		update_choosen_edge(inst);
+		add_edge_to_file(inst);
+		plot_gnuplot(inst);
 
 	}
 
@@ -89,4 +96,24 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
 	return 0;
+}
+
+
+void update_choosen_edge(instance* inst) {
+	int n = 0;
+	for (int i = 0; i < inst->nnodes; i++) {
+		for (int j = i + 1; j < inst->nnodes; j++) {
+			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
+
+				if (VERBOSE >= 100) {
+					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
+				}
+				/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
+				inst->choosen_edge[n] = i;
+				inst->choosen_edge[n + 1] = j;
+				n += 2;
+
+			}
+		}
+	}
 }

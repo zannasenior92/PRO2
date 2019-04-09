@@ -41,7 +41,6 @@ int TSPopt(instance *inst)
 	/*-----------------------------------------RESOLVE WITH OTHER MODEL----------------------------------------*/
 	else
 	{
-
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 		if (CPXsetlogfile(env, log)) print_error("Error in log file");
 		int ncols = CPXgetnumcols(env, lp);
