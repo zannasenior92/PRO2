@@ -7,7 +7,7 @@
 void update_choosen_edge(instance* inst);
 
 
-void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log, double time1, double time2){
+void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log, double time1){
 
 	int done = 0;
 	double ottimo;

@@ -14,7 +14,7 @@ void plot_gnuplot(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
 void update_choosen_edge(instance* inst);
-void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log, double time1, double time2);
+void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log, double time1);
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
@@ -30,7 +30,7 @@ int TSPopt(instance *inst)
 	FILE* log = CPXfopen("log.txt", "w");
 	
 	/*---------------------------------LOOP METHOD WITH TIMELIMIT-------------------*/
-	loop_method_with_timelimit(env,lp,inst,log,time1,time2);
+	loop_method_with_timelimit(env,lp,inst,log,time1);
 
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
 	if (CPXgettime(env, &time2)) print_error("time error");
