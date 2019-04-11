@@ -5,6 +5,10 @@
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 void update_choosen_edge(instance* inst);
+void add_edge_to_file(instance *inst);
+void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
+
+
 
 
 void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log, double time1){
@@ -201,7 +205,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 	}
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
-	double *opt_val = 0;																//VALUE OPTIMAL SOL
+	double opt_val;																//VALUE OPTIMAL SOL
 	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
 	printf("Object function optimal value is: %.0f\n", opt_val);
 }
