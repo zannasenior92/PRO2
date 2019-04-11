@@ -1,5 +1,8 @@
 #include "TSP.h"
 
+/*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
+int xpos(int i, int j, instance *inst);
+
 /*------------------------------MYSEPARATION METHOD TO ---------------------------------*/
 int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, int wherefrom) {
 	int c1, c2 = 0;
@@ -29,9 +32,7 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 	}
 	/*--------------------COUNT COMPONENTS---------------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
-		if (VERBOSE >= 100) {
-			printf("Componente %d\n", inst->comp[i]);
-		}
+		if (VERBOSE >= 100) {printf("Componente %d\n", inst->comp[i]);}
 		mycomp[comp[i]] = 1;
 	}
 	int n = 0;
@@ -42,10 +43,10 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 	}
 	//Se ha una sola componente connesse non aggiungo vincoli ed esco
 	if (n == 1) {
-		printf("%d componenti connesse qui\n", n);
+		if (VERBOSE>=1){printf("%d componenti connesse qui\n", n);}
 		return 0;
 	}
-	printf("%d componenti connesse", n);
+	if (VERBOSE>=1){printf("%d componenti connesse", n);}
 
 	/*add constraints*/
 	int nnz = 0;
@@ -75,6 +76,8 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 	}
 	free(index);
 	free(value);
-	printf("    Aggiunti %d vincoli\n", count);
+
+	if (VERBOSE>=1){printf("    Aggiunti %d vincoli\n", count);}
+
 	return count;
 }

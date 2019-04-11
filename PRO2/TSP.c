@@ -11,6 +11,10 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp);
 void add_edge_to_file(instance *inst);
 static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle, int *useraction_p);
 int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, int wherefrom);
+int xpos(int i, int j, instance *inst);
+int xpos_compact(int i, int j, instance *inst);
+void print_error(const char *err);
+
 
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
@@ -88,9 +92,11 @@ int TSPopt(instance *inst)
 	}
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
-	double *opt_val = 0;																//VALUE OPTIMAL SOL
+	double opt_val;																//VALUE OPTIMAL SOL
 	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
 	printf("Object function optimal value is: %.0f\n", opt_val);
+	
+	CPXfclose(log);																//CLOSE LOG FILE
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
