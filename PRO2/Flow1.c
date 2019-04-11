@@ -1,5 +1,11 @@
 #include "TSP.h"
 
+/*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
+double dist(int i, int j, instance *inst);
+void print_error(const char *err);
+int xpos_compact(int i, int j, instance *inst);
+int ypos(int i, int j, instance *inst);
+
 /************************************* FLOW1 MODEL **************************************/
 void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
@@ -53,7 +59,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			double ub = (i == j) ? 0.0 : inst->nnodes - 1;
 
 			/*--------------------INSERT VARIABLE IN CPLEX----------------*/
-			if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on y(%d,%d) var.s", i, j);
+			if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on y(i,j) var.s");
 			/*--------------------CHECK VARIABLE POSITION-----------------*/
 			if (CPXgetnumcols(env, lp) - 1 != ypos(i, j, inst))	print_error(" wrong position for y var.s");
 
@@ -177,7 +183,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			value[lazy_index] = -1.0;
 			lazy_index++;
 		}
-		if (VERBOSE >= 1 & (j == inst->nnodes - 1))
+		if (VERBOSE >= 1 && (j == inst->nnodes - 1))
 		{
 			printf("Last number of lazy_index: %d \n", lazy_index);
 		}

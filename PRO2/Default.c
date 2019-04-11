@@ -1,5 +1,8 @@
 #include "TSP.h"
 
+/*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
+double dist(int i, int j, instance *inst);
+
 /*********************************** DEFAULT MODEL **********************************/
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
