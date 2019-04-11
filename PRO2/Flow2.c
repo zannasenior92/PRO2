@@ -1,5 +1,12 @@
 #include "TSP.h"
 
+/*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
+double dist(int i, int j, instance *inst);
+void print_error(const char *err);
+int xpos_compact(int i, int j, instance *inst);
+int ypos(int i, int j, instance *inst);
+int zpos_flow2(int i, int j, instance *inst);
+
 /************************************* FLOW2 MODEL **************************************/
 void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
@@ -53,7 +60,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			double ub = (i == j) ? 0.0 : inst->nnodes - 1;
 
 			/*--------------------INSERT VARIABLE IN CPLEX----------------*/
-			if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on y(%d,%d) var.s", i, j);
+			if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on y(i,j) var.s");
 			/*--------------------CHECK VARIABLE POSITION-----------------*/
 			if (CPXgetnumcols(env, lp) - 1 != ypos(i, j, inst))	print_error(" wrong position for y var.s");
 
@@ -74,7 +81,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			double ub = (i == j) ? 0.0 : inst->nnodes - 1;
 
 			/*--------------------INSERT VARIABLE IN CPLEX----------------*/
-			if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on z(%d,%d) var.s", i, j);
+			if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on z(i,j) var.s");
 			/*--------------------CHECK VARIABLE POSITION-----------------*/
 			//printf("Ultimo indice ypos: %d", ypos(inst->nnodes-1, inst->nnodes-1,inst));
 			//printf("Primo indice: %d", zpos_flow2(i, j, inst));
@@ -142,7 +149,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	int *index = (int *)malloc((2 * inst->nnodes - 2) * sizeof(int));
 	double *value = (double *)malloc((2 * inst->nnodes - 2) * sizeof(double));
 	double rhs = inst->nnodes - 1;														//(n-1)
-	sprintf(cname[0], "SUM_j (y1j - yj1) = n-1");
+	sprintf(cname[0], "SUM_j (y1j - yj1) equal n-1");
 
 	int lazy_index = 0;
 	for (int j = 1; j < inst->nnodes; j++) {
@@ -167,7 +174,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		int *index = (int *)malloc((2 * inst->nnodes - 2) * sizeof(int));
 		double *value = (double *)malloc((2 * inst->nnodes - 2) * sizeof(double));
 		double rhs = 1;
-		sprintf(cname[0], "SUM_j (y%dj-yj%d)", i + 1, i + 1 );
+		sprintf(cname[0], "SUM_j (y%dj - yj%d)", i + 1, i + 1 );
 
 		/*----LAZY INSERTION FUNCTION NEEDS ARRAY OF INDEXES AND ARRAY OF RELATED VALUES------*/
 		int lazy_index = 0;
@@ -199,17 +206,17 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		int *index2 = (int *)malloc((2 * inst->nnodes - 2) * sizeof(int));
 		double *value2 = (double *)malloc((2 * inst->nnodes - 2) * sizeof(double));
 		double rhs2 = -(inst->nnodes-1);
-		sprintf(cname[0], "SUM_j (z1j-zj1)");
+		sprintf(cname[0], "SUM_j (z1j - zj1)");
 
 		/*----LAZY INSERTION FUNCTION NEEDS ARRAY OF INDEXES AND ARRAY OF RELATED VALUES------*/
 		int lazy_index2 = 0;
 		for (int j = 1; j < inst->nnodes; j++) {											//FIRST SUM
-			index[lazy_index2] = zpos_flow2(1, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+			index[lazy_index2] = zpos_flow2(0, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 			value[lazy_index2] = 1.0;
 			lazy_index2++;
 		}
 		for (int j = 1; j < inst->nnodes; j++) {											//SECOND SUM
-			index[lazy_index2] = zpos_flow2(j, 1, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+			index[lazy_index2] = zpos_flow2(j, 0, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 			value[lazy_index2] = -1.0;
 			lazy_index2++;
 		}
@@ -294,7 +301,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 				int *index = (int *)malloc((inst->nnodes - 1) * sizeof(int));
 				double *value = (double *)malloc((inst->nnodes - 1) * sizeof(double));
 				double rhs = 0;																		//(n-1)
-				sprintf(cname[0], "y%d%d - z%d%d = (n-1)x%d%d", i + 1, j + 1, i + 1, j + 1);
+				sprintf(cname[0], "y%d%d - z%d%d = (n-1)x%d%d", i + 1, j + 1, i + 1, j + 1,i + 1,j + 1);
 
 				index[0] = ypos(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 				value[0] = 1.0;

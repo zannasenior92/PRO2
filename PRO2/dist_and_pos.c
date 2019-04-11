@@ -15,7 +15,7 @@ int zpos(int i, int j, instance *inst) {
 	return ((xpos(inst->nnodes, inst->nnodes, inst) + (i * inst->nnodes + j)) + 1);
 }
 int zpos_flow2(int i, int j, instance *inst) {
-	return (ypos(inst->nnodes-1, inst->nnodes-1, inst) + (i * inst->nnodes + j) + 1);
+	return ((ypos(inst->nnodes-1, inst->nnodes-1, inst) + (i * inst->nnodes + j)) + 1);
 }
 int upos(int i, instance *inst) {
 	return inst->nnodes*inst->nnodes + i;
