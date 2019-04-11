@@ -60,6 +60,9 @@
     <ClCompile Include="Kruskal.c">
       <Filter>Models\Default</Filter>
     </ClCompile>
+    <ClCompile Include="myseparation.c">
+      <Filter>Models\Default</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h">

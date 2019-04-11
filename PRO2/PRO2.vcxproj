@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="myseparation.c" />
     <ClCompile Include="comandiGnuplot.c" />
     <ClCompile Include="Default.c" />
     <ClCompile Include="dist_and_pos.c" />
