@@ -27,5 +27,10 @@ void select_and_build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		printf("Modello Fischetti\n");
 		build_modelFischetti(inst, env, lp);
 	}
+	if (inst->model_type == 4) {
+		printf("Modello Flow2\n");
+		inst->compact = 1;
+		build_modelFlow2(inst, env, lp);
+	}
 
 }

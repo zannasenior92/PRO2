@@ -14,17 +14,23 @@ int ypos(int i, int j, instance *inst) {
 int zpos(int i, int j, instance *inst) {
 	return ((xpos(inst->nnodes, inst->nnodes, inst) + (i * inst->nnodes + j)) + 1);
 }
+int zpos_flow2(int i, int j, instance *inst) {
+	return ((ypos(inst->nnodes - 1, inst->nnodes - 1, inst) + (i * inst->nnodes + j)) + 1);
+}
 int upos(int i, instance *inst) {
 	return inst->nnodes*inst->nnodes + i;
 }
 
 /*-------------------------DISTANCE BETWEEN TWO POINTS-------------------------------*/
 double dist(int i, int j, instance *inst) {
+
+	/*-------------------------EUC_2D DISTANCE--------------------------*/
 	if (inst->dist_type == 0) {
 		double dx = inst->xcoord[i] - inst->xcoord[j];
 		double dy = inst->ycoord[i] - inst->ycoord[j];
 		return (int)(sqrt((dx*dx + dy * dy)) + 0.5);
 	}
+	/*--------------------------ATT DISTANCE----------------------------*/
 	if (inst->dist_type == 1) {
 		double dx = inst->xcoord[i] - inst->xcoord[j];
 		double dy = inst->ycoord[i] - inst->ycoord[j];
@@ -35,20 +41,20 @@ double dist(int i, int j, instance *inst) {
 		else
 			return tij;
 	}
-
+	/*-------------------------GEO DISTANCE-----------------------------*/
 	if (inst->dist_type == 2) {
 		double PI = 3.141592;
 		double deg = (int)(inst->xcoord[i]);
 		double min = inst->xcoord[i] - deg;
 		double lati = PI * (deg + 5.0*min / 3.0) / 180.0;
-		deg = (int)(inst->ycoord[i] + 0.5);
+		deg = (int)(inst->ycoord[i]);
 		min = inst->ycoord[i] - deg;
 		double longi = PI * (deg + 5.0*min / 3.0) / 180.0;
 
 		deg = (int)(inst->xcoord[j]);
 		min = inst->xcoord[j] - deg;
 		double latj = PI * (deg + 5.0*min / 3.0) / 180.0;
-		deg = (int)(inst->ycoord[j] + 0.5);
+		deg = (int)(inst->ycoord[j]);
 		min = inst->ycoord[j] - deg;
 		double longj = PI * (deg + 5.0*min / 3.0) / 180.0;
 
