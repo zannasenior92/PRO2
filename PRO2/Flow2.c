@@ -173,7 +173,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		int izero = 0;
 		int *index = (int *)malloc((2 * inst->nnodes - 2) * sizeof(int));
 		double *value = (double *)malloc((2 * inst->nnodes - 2) * sizeof(double));
-		double rhs = 1;
+		double rhs = -1;
 		sprintf(cname[0], "SUM_j (y%dj - yj%d)", i + 1, i + 1 );
 
 		/*----LAZY INSERTION FUNCTION NEEDS ARRAY OF INDEXES AND ARRAY OF RELATED VALUES------*/
@@ -211,13 +211,13 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		/*----LAZY INSERTION FUNCTION NEEDS ARRAY OF INDEXES AND ARRAY OF RELATED VALUES------*/
 		int lazy_index2 = 0;
 		for (int j = 1; j < inst->nnodes; j++) {											//FIRST SUM
-			index[lazy_index2] = zpos_flow2(0, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
-			value[lazy_index2] = 1.0;
+			index2[lazy_index2] = zpos_flow2(0, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+			value2[lazy_index2] = 1.0;
 			lazy_index2++;
 		}
 		for (int j = 1; j < inst->nnodes; j++) {											//SECOND SUM
-			index[lazy_index2] = zpos_flow2(j, 0, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
-			value[lazy_index2] = -1.0;
+			index2[lazy_index2] = zpos_flow2(j, 0, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+			value2[lazy_index2] = -1.0;
 			lazy_index2++;
 		}
 
@@ -231,7 +231,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			int izero = 0;
 			int *index = (int *)malloc((2 * inst->nnodes - 2) * sizeof(int));
 			double *value = (double *)malloc((2 * inst->nnodes - 2) * sizeof(double));
-			double rhs = -1;
+			double rhs = 1;
 			sprintf(cname[0], "SUM_j (z%dj-zj%d)", i + 1, i + 1);
 
 			/*----LAZY INSERTION FUNCTION NEEDS ARRAY OF INDEXES AND ARRAY OF RELATED VALUES------*/
@@ -262,21 +262,19 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int i = 0; i < inst->nnodes; i++) {
 			char sense = 'E';
 			int izero = 0;
-			int *index = (int *)malloc((2 * inst->nnodes - 2) * sizeof(int));
-			double *value = (double *)malloc((2 * inst->nnodes - 2) * sizeof(double));
+			int *index = (int *)malloc((2 * inst->nnodes ) * sizeof(int));
+			double *value = (double *)malloc((2 * inst->nnodes ) * sizeof(double));
 			double rhs = inst->nnodes-1;
 			sprintf(cname[0], "SUM_j (z%dj-z%dj)", i + 1, i + 1);
 
 			/*----LAZY INSERTION FUNCTION NEEDS ARRAY OF INDEXES AND ARRAY OF RELATED VALUES------*/
 			int lazy_index = 0;
 			for (int j = 0; j < inst->nnodes; j++) {											//FIRST SUM
-				if (i == j) continue;
 				index[lazy_index] = ypos(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 				value[lazy_index] = 1.0;
 				lazy_index++;
 			}
 			for (int j = 0; j < inst->nnodes; j++) {											//SECOND SUM
-				if (i == j) continue;
 				index[lazy_index] = zpos_flow2(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 				value[lazy_index] = 1.0;
 				lazy_index++;
@@ -285,7 +283,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			{
 				printf("Last number of lazy_index: %d \n", lazy_index);
 			}
-			if (CPXaddlazyconstraints(env, lp, 1, (2 * inst->nnodes - 2), &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
+			if (CPXaddlazyconstraints(env, lp, 1, (2 * inst->nnodes ), &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 			free(index);
 			free(value);
 
@@ -296,12 +294,13 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		{
 			for (int j = 0; j < inst->nnodes; j++)
 			{
+				if (i == j) continue;
 				char sense = 'E';
 				int izero = 0;
 				int *index = (int *)malloc((inst->nnodes - 1) * sizeof(int));
 				double *value = (double *)malloc((inst->nnodes - 1) * sizeof(double));
 				double rhs = 0;																		//(n-1)
-				sprintf(cname[0], "y%d%d - z%d%d = (n-1)x%d%d", i + 1, j + 1, i + 1, j + 1,i + 1,j + 1);
+				sprintf(cname[0], "y%d%d - z%d%d = (n-1)x%d%d", i + 1, j + 1, i + 1, j + 1, i + 1, j + 1);
 
 				index[0] = ypos(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 				value[0] = 1.0;

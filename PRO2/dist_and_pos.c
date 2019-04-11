@@ -38,20 +38,20 @@ double dist(int i, int j, instance *inst) {
 		else
 			return tij;
 	}
-
+	/*-------------------------GEO DISTANCE-----------------------------*/
 	if (inst->dist_type == 2) {
 		double PI = 3.141592;
 		double deg = (int)(inst->xcoord[i]);
 		double min = inst->xcoord[i] - deg;
 		double lati = PI * (deg + 5.0*min / 3.0) / 180.0;
-		deg = (int)(inst->ycoord[i] + 0.5);
+		deg = (int)(inst->ycoord[i]);
 		min = inst->ycoord[i] - deg;
 		double longi = PI * (deg + 5.0*min / 3.0) / 180.0;
 
 		deg = (int)(inst->xcoord[j]);
 		min = inst->xcoord[j] - deg;
 		double latj = PI * (deg + 5.0*min / 3.0) / 180.0;
-		deg = (int)(inst->ycoord[j] + 0.5);
+		deg = (int)(inst->ycoord[j]);
 		min = inst->ycoord[j] - deg;
 		double longj = PI * (deg + 5.0*min / 3.0) / 180.0;
 
