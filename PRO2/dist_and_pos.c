@@ -23,11 +23,14 @@ int upos(int i, instance *inst) {
 
 /*-------------------------DISTANCE BETWEEN TWO POINTS-------------------------------*/
 double dist(int i, int j, instance *inst) {
+
+	/*-------------------------EUC_2D DISTANCE--------------------------*/
 	if (inst->dist_type == 0) {
 		double dx = inst->xcoord[i] - inst->xcoord[j];
 		double dy = inst->ycoord[i] - inst->ycoord[j];
 		return (int)(sqrt((dx*dx + dy * dy)) + 0.5);
 	}
+	/*--------------------------ATT DISTANCE----------------------------*/
 	if (inst->dist_type == 1) {
 		double dx = inst->xcoord[i] - inst->xcoord[j];
 		double dy = inst->ycoord[i] - inst->ycoord[j];
