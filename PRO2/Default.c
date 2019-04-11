@@ -1,5 +1,10 @@
 #include "TSP.h"
 
+/*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
+double dist(int i, int j, instance *inst);
+int xpos(int i, int j, instance *inst);
+void print_error(const char *err);
+
 /*********************************** DEFAULT MODEL **********************************/
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
