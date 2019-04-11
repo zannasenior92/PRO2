@@ -31,6 +31,7 @@
     <ClCompile Include="MTZ.c" />
     <ClCompile Include="Parser.c" />
     <ClCompile Include="dist_and_pos.c" />
+    <ClCompile Include="statstic_data_algorithm.c" />
     <ClCompile Include="TSP.c" />
   </ItemGroup>
   <ItemGroup>

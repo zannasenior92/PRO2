@@ -22,6 +22,9 @@
     <Filter Include="Models\Default">
       <UniqueIdentifier>{f21cf11f-4733-48c6-9752-349ab662da1d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MainDataToFile">
+      <UniqueIdentifier>{2c58f1b2-6a55-45ee-bb04-eb42ee5aac0b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.c">
@@ -62,6 +65,9 @@
     </ClCompile>
     <ClCompile Include="loop_method.c">
       <Filter>Models\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="statstic_data_algorithm.c">
+      <Filter>MainDataToFile</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
