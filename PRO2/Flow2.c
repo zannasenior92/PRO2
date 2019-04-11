@@ -262,19 +262,21 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int i = 0; i < inst->nnodes; i++) {
 			char sense = 'E';
 			int izero = 0;
-			int *index = (int *)malloc((2 * inst->nnodes ) * sizeof(int));
-			double *value = (double *)malloc((2 * inst->nnodes ) * sizeof(double));
+			int *index = (int *)malloc((2 * inst->nnodes -2) * sizeof(int));
+			double *value = (double *)malloc((2 * inst->nnodes -2) * sizeof(double));
 			double rhs = inst->nnodes-1;
 			sprintf(cname[0], "SUM_j (z%dj-z%dj)", i + 1, i + 1);
 
 			/*----LAZY INSERTION FUNCTION NEEDS ARRAY OF INDEXES AND ARRAY OF RELATED VALUES------*/
 			int lazy_index = 0;
 			for (int j = 0; j < inst->nnodes; j++) {											//FIRST SUM
+				if (i == j) continue;
 				index[lazy_index] = ypos(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 				value[lazy_index] = 1.0;
 				lazy_index++;
 			}
 			for (int j = 0; j < inst->nnodes; j++) {											//SECOND SUM
+				if (i == j) continue;
 				index[lazy_index] = zpos_flow2(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 				value[lazy_index] = 1.0;
 				lazy_index++;
@@ -283,7 +285,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			{
 				printf("Last number of lazy_index: %d \n", lazy_index);
 			}
-			if (CPXaddlazyconstraints(env, lp, 1, (2 * inst->nnodes ), &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
+			if (CPXaddlazyconstraints(env, lp, 1, (2 * inst->nnodes -2), &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 			free(index);
 			free(value);
 
