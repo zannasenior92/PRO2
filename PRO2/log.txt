@@ -60,16 +60,16 @@ Root relaxation solution time = 0.00 sec. (0.11 ticks)
 *     0+    0                        11737.0000        0.0000           100.00%
 *     0+    0                        10906.0000        0.0000           100.00%
 *     0     0      integral     0     6698.0000     6698.0000       26    0.00%
-Elapsed time = 0.01 sec. (0.67 ticks, tree = 0.00 MB, solutions = 3)
+Elapsed time = 0.02 sec. (0.67 ticks, tree = 0.00 MB, solutions = 3)
 
 Root node processing (before b&c):
-  Real time             =    0.01 sec. (0.68 ticks)
+  Real time             =    0.02 sec. (0.68 ticks)
 Parallel b&c, 8 threads:
   Real time             =    0.00 sec. (0.00 ticks)
   Sync time (average)   =    0.00 sec.
   Wait time (average)   =    0.00 sec.
                           ------------
-Total (root+branch&cut) =    0.01 sec. (0.68 ticks)
+Total (root+branch&cut) =    0.02 sec. (0.68 ticks)
 CPXPARAM_TimeLimit                               15
 1 of 3 MIP starts provided solutions.
 MIP start 'm2' defined initial solution with objective 10906.0000.
@@ -95,16 +95,16 @@ Root relaxation solution time = 0.00 sec. (0.10 ticks)
 
 *     0+    0                        10906.0000        0.0000           100.00%
 *     0     0      integral     0     6743.0000     6743.0000       19    0.00%
-Elapsed time = 0.01 sec. (0.72 ticks, tree = 0.00 MB, solutions = 2)
+Elapsed time = 0.02 sec. (0.72 ticks, tree = 0.00 MB, solutions = 2)
 
 Root node processing (before b&c):
-  Real time             =    0.01 sec. (0.73 ticks)
+  Real time             =    0.02 sec. (0.73 ticks)
 Parallel b&c, 8 threads:
   Real time             =    0.00 sec. (0.00 ticks)
   Sync time (average)   =    0.00 sec.
   Wait time (average)   =    0.00 sec.
                           ------------
-Total (root+branch&cut) =    0.01 sec. (0.73 ticks)
+Total (root+branch&cut) =    0.02 sec. (0.73 ticks)
 CPXPARAM_TimeLimit                               15
 Warning:  No solution found from 2 MIP starts.
 Retaining values of one MIP start for possible repair.
@@ -131,7 +131,7 @@ Root relaxation solution time = 0.00 sec. (0.12 ticks)
 *     0+    0                        15227.0000        0.0000           100.00%
 *     0+    0                        11810.0000        0.0000           100.00%
 *     0     0      integral     0     6777.0000     6777.0000       22    0.00%
-Elapsed time = 0.00 sec. (1.07 ticks, tree = 0.00 MB, solutions = 3)
+Elapsed time = 0.02 sec. (1.07 ticks, tree = 0.00 MB, solutions = 3)
 
 Root node processing (before b&c):
   Real time             =    0.02 sec. (1.08 ticks)
@@ -149,12 +149,12 @@ Tried aggregator 1 time.
 MIP Presolve eliminated 7 rows and 0 columns.
 Reduced MIP has 24 rows, 120 columns, and 416 nonzeros.
 Reduced MIP has 120 binaries, 0 generals, 0 SOSs, and 0 indicators.
-Presolve time = 0.00 sec. (0.22 ticks)
+Presolve time = 0.02 sec. (0.22 ticks)
 Probing time = 0.00 sec. (0.03 ticks)
 Tried aggregator 1 time.
 Reduced MIP has 24 rows, 120 columns, and 416 nonzeros.
 Reduced MIP has 120 binaries, 0 generals, 0 SOSs, and 0 indicators.
-Presolve time = 0.02 sec. (0.18 ticks)
+Presolve time = 0.00 sec. (0.18 ticks)
 Probing time = 0.00 sec. (0.03 ticks)
 MIP emphasis: balance optimality and feasibility.
 MIP search method: dynamic search.

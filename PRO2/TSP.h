@@ -10,6 +10,7 @@
 #include <ilcplex/cplex.h>
 
 #define VERBOSE 50
+#define TOLERANCE 0.5
 
 typedef struct {
 

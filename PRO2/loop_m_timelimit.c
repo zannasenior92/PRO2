@@ -7,11 +7,14 @@
 void update_choosen_edge(instance* inst);
 void add_edge_to_file(instance *inst);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
+void plot_gnuplot(instance *inst);
+int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
+void print_error(const char *err);
+int xpos_compact(int i, int j, instance *inst);
+int xpos(int i, int j, instance *inst);
 
 
-
-
-void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log, double time1){
+void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log, double *time1) {
 
 	int done = 0;
 	double ottimo;
@@ -126,7 +129,6 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 
 
 	}
-
 	/*-------------------------VERY USEFUL ITERATION WITHOUT TIMELIMIT----------------------*/
 	if (CPXsetdblparam(env, CPX_PARAM_TILIM, 1e+75)) print_error("Error on setting parameter");
 	if (CPXsetintparam(env, CPX_PARAM_HEURFREQ, 0)) print_error("Error on setting parameter");
@@ -199,6 +201,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 		}
 	}
 	add_edge_to_file(inst);
+
 
 	if (VERBOSE >= 100) {
 		printf("Selected nodes: %d \n", count);
