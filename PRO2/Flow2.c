@@ -7,6 +7,13 @@ int xpos_compact(int i, int j, instance *inst);
 int ypos(int i, int j, instance *inst);
 int zpos_flow2(int i, int j, instance *inst);
 
+/*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
+double dist(int i, int j, instance *inst);
+void print_error(const char *err);
+int xpos_compact(int i, int j, instance *inst);
+int ypos(int i, int j, instance *inst);
+int zpos_flow2(int i, int j, instance *inst);
+
 /************************************* FLOW2 MODEL **************************************/
 void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
