@@ -1,5 +1,11 @@
 #include "TSP.h"
 
+/*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
+double dist(int i, int j, instance *inst);
+void print_error(const char *err);
+int xpos_compact(int i, int j, instance *inst);
+int upos(int i, instance *inst);
+
 /*********************************** MTZ MODEL *************************************/
 void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 

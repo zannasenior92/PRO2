@@ -1,2 +1,1 @@
-STAT,ulysses16.tsp
-,flow1
+STAT,eil51
