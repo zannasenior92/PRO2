@@ -65,11 +65,12 @@ void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	cname[0] = (char *)calloc(100, sizeof(char));
 
 	for (int h = 0; h < inst->nnodes; h++) {
+
 		if (inst->mycomp[h] != 0) {
+			sprintf(cname[0], "SEC(%d)", h);
 			for (int i = 0; i < inst->nnodes; i++) {
 				if (inst->comp[i] != h) continue;
 				rhs++;
-				sprintf(cname[0], "SEC(%d)", i);
 
 				for (int j = i + 1; j < inst->nnodes; j++) {
 					if (inst->comp[j] == h) {
@@ -80,7 +81,7 @@ void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
 				}
 			}
 			if (CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &matbeg, index, value, NULL, cname)) print_error("wrong CPXaddrow");
-			if (VERBOSE >= 200) {
+			if (VERBOSE >= 10) {
 				CPXwriteprob(env, lp, "model.lp", NULL);
 			}
 		}
