@@ -25,6 +25,7 @@
     <ClCompile Include="Fisch.c" />
     <ClCompile Include="Flow1.c" />
     <ClCompile Include="Flow2.c" />
+    <ClCompile Include="HardFixing.c" />
     <ClCompile Include="Kruskal_and_SEC.c" />
     <ClCompile Include="loop_m_timelimit.c" />
     <ClCompile Include="Main.c" />
