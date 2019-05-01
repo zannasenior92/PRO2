@@ -25,8 +25,36 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 		lb[i] = "L";
 	}
 	
+	CPXchgbds(env, lp, inst->nnodes,index, lb, bounds);//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
+
+}
+
+
+/*FUNZIONE PER SETTARE A RANDOM LE X DELLA SOLUZIONE*/
+void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp)
+{
+	int ncols = CPXgetnumcols(env, lp);
+
+	int *index = (int*)malloc(ncols * sizeof(int));				//ARRAY DI INDICI A CUI CAMBIARE IL BOUND
+	int *bounds = (int*)calloc(ncols, sizeof(int));				//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND				
+	char *lb = (char*)malloc(ncols * sizeof(char));				//ARRAY CHE SPECIFICA QUALE BOUND CAMBIARE PER OGNI VARIABILE
+
 	for (int i = 0; i < inst->nnodes; i++)
 	{
-		CPXchgbds(env, lp, inst->nnodes,index, lb, bounds);//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
+		for (int j = 0; j < inst->nnodes; j++)
+		{
+			index[i + j] = xpos(i, j, inst);
+		}
 	}
+	for (int i = 0; i < ncols; i++)
+	{
+		bounds[i] = rand() % 1;									//SETTO IL LOWER BOUND DI OGNI VARIABILE (0/1)
+	}
+
+	for (int i = 0; i < ncols; i++)
+	{
+		lb[i] = "L";
+	}
+
+	CPXchgbds(env, lp, inst->nnodes, index, lb, bounds);		//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
 }
