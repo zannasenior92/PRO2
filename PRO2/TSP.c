@@ -35,7 +35,6 @@ int TSPopt(instance *inst)
 	if (inst->model_type==0)
 	{
 		loop_method_with_timelimit(env, lp, inst, log, &time1);
-		printf("SONO QUI");
 
 		/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
 		if (CPXgettime(env, &time2)) print_error("time error");

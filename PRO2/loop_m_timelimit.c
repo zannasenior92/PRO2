@@ -42,7 +42,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 			int status = CPXgetstat(env, lp);											//GET STATUS END
 			printf("Status=%d\n", status);
 
-			/*-------------------------------STATUS ENDED BY TIMELIMIT----------------------------*/
+			/*-------------------STATUS ENDED BY TIMELIMIT, INFEASIBLE SOLUTION FUNDED------------*/
 			if (status == CPXMIP_TIME_LIM_INFEAS) {
 				timelimit *= 2;
 				if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit)) print_error("Error on setting parameter");

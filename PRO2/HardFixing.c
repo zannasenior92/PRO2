@@ -30,25 +30,31 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 }
 
 
-/*FUNZIONE PER SETTARE A RANDOM LE X DELLA SOLUZIONE*/
+/*-------------------FUNCTION TO SET THE LOWER BOUND OF THE SOLUTIONS'S VARIABLES--------------------*/
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp)
 {
+
 	int ncols = CPXgetnumcols(env, lp);
 
-	int *index = (int*)malloc(ncols * sizeof(int));				//ARRAY DI INDICI A CUI CAMBIARE IL BOUND
-	int *bounds = (int*)calloc(ncols, sizeof(int));				//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND				
+	int *index = (int*)malloc(ncols * sizeof(int));				//ARRAY DI INDICI DELLE VARIABILI A CUI CAMBIARE IL BOUND
+	int *bounds = (int*)calloc(ncols, sizeof(int));				//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND PER OGNI VARIABILE				
 	char *lb = (char*)malloc(ncols * sizeof(char));				//ARRAY CHE SPECIFICA QUALE BOUND CAMBIARE PER OGNI VARIABILE
 
-	for (int i = 0; i < inst->nnodes; i++)
+	int n = 0;
+	for (int i = 0; i < ncols; i++)//SET AN ARRAY OF INDEX REFERRED TO THE VARIABLES THAT I WANT TO CHANGE
 	{
-		for (int j = 0; j < inst->nnodes; j++)
+		if (inst->best_sol[i] == 1)//SETTO A UNO SOLO SE E' UNA VARIABILE DELLA SOLUZIONE DEL PROBLEMA
 		{
-			index[i + j] = xpos(i, j, inst);
+			index[n] = i;
 		}
+		n++;
 	}
 	for (int i = 0; i < ncols; i++)
 	{
-		bounds[i] = rand() % 1;									//SETTO IL LOWER BOUND DI OGNI VARIABILE (0/1)
+		if (inst->best_sol[i] == 1)//SETTO A UNO SOLO SE E' UNA VARIABILE DELLA SOLUZIONE DEL PROBLEMA
+		{
+			bounds[i] = rand() % 1;									//SETTO IL LOWER BOUND DI OGNI VARIABILE (0/1)
+		}
 	}
 
 	for (int i = 0; i < ncols; i++)
@@ -56,5 +62,5 @@ void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp)
 		lb[i] = "L";
 	}
 
-	CPXchgbds(env, lp, inst->nnodes, index, lb, bounds);		//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
+	CPXchgbds(env, lp, inst->nnodes-1, index, lb, bounds);		//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
 }
