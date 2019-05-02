@@ -46,9 +46,6 @@ int TSPopt(instance *inst)
 	inst->best_sol = (double *)calloc(inst->ncols, sizeof(double));				//best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
 
-	/*---------------------------------------HARD FIXING------------------------------------*/
-	hard_fixing(inst, env, lp);
-	CPXwriteprob(env, lp, "modelchanged.lp", NULL);
 
 	if(VERBOSE>=200){
 		for (int i = 0; i < inst->ncols - 1; i++){

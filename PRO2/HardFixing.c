@@ -8,16 +8,21 @@ int xpos(int i, int j, instance *inst);
 /*FUNZIONE CHE RESETTA TUTTI I LOWER BOUND DI TUTTE LE VARIABILI*/
 void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 {
-	int ncols = CPXgetnumcols(env, lp);
-	int *index0 = (int*)malloc(ncols * sizeof(int));				//ARRAY DI INDICI A CUI CAMBIARE IL BOUND
-	double *bounds0 = (double*)calloc(ncols, sizeof(double));				//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND				
-	char *lb0 = (char*)malloc(ncols * sizeof(char));				//ARRAY CHE SPECIFICA QUALE BOUND CAMBIARE PER OGNI VARIABILE
+	printf("reset bounds \n");
+	int *index0 = (int*)malloc(inst->nnodes * sizeof(int));				//ARRAY DI INDICI A CUI CAMBIARE IL BOUND
+	double *bounds0 = (double*)calloc(inst->nnodes, sizeof(double));				//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND				
+	char *lb0 = (char*)malloc(inst->nnodes * sizeof(char));				//ARRAY CHE SPECIFICA QUALE BOUND CAMBIARE PER OGNI VARIABILE
 
-	for (int i = 0; i < ncols; i++)
+	int n = 0;
+	for (int i = 0; i < inst->ncols; i++)//SET AN ARRAY OF INDEX REFERRED TO THE VARIABLES THAT I WANT TO CHANGE
 	{
-		index0[i] = i;
+		if (inst->best_sol[i] == 1)//SETTO A UNO SOLO SE E' UNA VARIABILE DELLA SOLUZIONE DEL PROBLEMA
+		{
+			index0[n] = i;
+			n++;
+		}
 	}
-	for (int i = 0; i < ncols; i++)
+	for (int i = 0; i < inst->nnodes; i++)
 	{
 		lb0[i] = "L";
 	}
@@ -34,22 +39,22 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp)
 {
 
-	int ncols = CPXgetnumcols(env, lp);
+	printf("hard fix bounds \n");
 
-	int *index_set = (int *)malloc(ncols * sizeof(int));				//ARRAY DI INDICI DELLE VARIABILI A CUI CAMBIARE IL BOUND
-	double *bounds_set = (double *)calloc(ncols, sizeof(double));				//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND PER OGNI VARIABILE				
-	char *lb_set = (char *)malloc(ncols * sizeof(char));				//ARRAY CHE SPECIFICA QUALE BOUND CAMBIARE PER OGNI VARIABILE
+	int *index_set = (int *)malloc(inst->nnodes * sizeof(int));			//ARRAY DI INDICI DELLE VARIABILI A CUI CAMBIARE IL BOUND
+	double *bounds_set = (double *)calloc(inst->nnodes, sizeof(double));		//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND PER OGNI VARIABILE				
+	char *lb_set = (char *)malloc(inst->nnodes * sizeof(char));				//ARRAY CHE SPECIFICA QUALE BOUND CAMBIARE PER OGNI VARIABILE
 
 	int n = 0;
-	for (int i = 0; i < ncols; i++)//SET AN ARRAY OF INDEX REFERRED TO THE VARIABLES THAT I WANT TO CHANGE
+	for (int i = 0; i < inst->ncols; i++)//SET AN ARRAY OF INDEX REFERRED TO THE VARIABLES THAT I WANT TO CHANGE
 	{
 		if (inst->best_sol[i] == 1)//SETTO A UNO SOLO SE E' UNA VARIABILE DELLA SOLUZIONE DEL PROBLEMA
 		{
 			index_set[n] = i;
+			n++;
 		}
-		n++;
 	}
-	for (int i = 0; i < ncols; i++)
+	for (int i = 0; i < inst->nnodes; i++)
 	{
 		if (inst->best_sol[i] == 1)//SETTO A UNO SOLO SE E' UNA VARIABILE DELLA SOLUZIONE DEL PROBLEMA
 		{
@@ -57,12 +62,12 @@ void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp)
 		}
 	}
 
-	for (int i = 0; i < ncols; i++)
+	for (int i = 0; i < inst->nnodes; i++)
 	{
 		lb_set[i] = "L";
 	}
 
-	CPXchgbds(env, lp, inst->nnodes - 1, index_set, lb_set, bounds_set);		//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
+	CPXchgbds(env, lp, inst->nnodes, index_set, lb_set, bounds_set);		//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
 	
 
 	free(index_set);
@@ -70,4 +75,27 @@ void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp)
 	free(lb_set);
 }
 
-/*--------------------------------FUNCTION FRO SETTING THE INITIAL SOLUTION------------------------*/
+/*-----------------------------FUNCTION TO UPDATE THE HEURISTIC SOLUTION-----------------------*/
+
+void update_x_heu(instance *inst, CPXENVptr env, CPXLPptr lp)
+{
+	double *current_sol = (double *)calloc(inst->ncols, sizeof(double));				//CURRENT SOLUTION 
+	double opt_current_val;																//VALUE OPTIMAL SOL
+
+	if (CPXgetobjval(env, lp, &opt_current_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
+	
+	/*MI TROVO LA SOLUZIONE CORRENTE E LA SALVO IN UN ARRAY TEMPORANEO*/
+	if (CPXgetx(env, lp, current_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
+
+	/*SE IL VALORE DELLA FUNZIONE OBIETTIVO CORRENTE E' MIGLIORE DI QUELLA OTTIMA ALLORA LA AGGIORNO*/
+	if (opt_current_val < inst->best_obj_val)
+	{
+		printf("Best HEURISTIC solution founded: %lf", opt_current_val);
+		for (int i = 0; i < inst->nnodes; i++)
+		{
+			inst->best_sol[i] = current_sol[i];
+		}
+	}
+	CPXwriteprob(env, lp, "modelchanged.lp", NULL);
+	free(current_sol);
+}
