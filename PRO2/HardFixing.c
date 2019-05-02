@@ -24,10 +24,12 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 	}
 	for (int i = 0; i < inst->nnodes; i++)
 	{
-		lb0[i] = "L";
+		lb0[i] = 'L';
 	}
-
 	CPXchgbds(env, lp, inst->nnodes, index0, lb0, bounds0);			//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
+
+	CPXwriteprob(env, lp, "modelreset.lp", NULL);
+
 	free(index0);
 	free(bounds0);
 	free(lb0);
@@ -58,17 +60,18 @@ void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp)
 	{
 		if (inst->best_sol[i] == 1)//SETTO A UNO SOLO SE E' UNA VARIABILE DELLA SOLUZIONE DEL PROBLEMA
 		{
-			bounds_set[i] = rand() % 1;									//SETTO IL LOWER BOUND DI OGNI VARIABILE (0/1)
+			bounds_set[i] = rand() % 2;									//SETTO IL LOWER BOUND DI OGNI VARIABILE (0/1)
 		}
 	}
 
 	for (int i = 0; i < inst->nnodes; i++)
 	{
-		lb_set[i] = "L";
+		lb_set[i] = 'L';
 	}
 
 	CPXchgbds(env, lp, inst->nnodes, index_set, lb_set, bounds_set);		//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
 	
+	CPXwriteprob(env, lp, "modelchanged.lp", NULL);
 
 	free(index_set);
 	free(bounds_set);
@@ -98,4 +101,26 @@ void update_x_heu(instance *inst, CPXENVptr env, CPXLPptr lp)
 	}
 	CPXwriteprob(env, lp, "modelchanged.lp", NULL);
 	free(current_sol);
+}
+
+/*FUNZIONE CHE SETTA LA SOLUZIONE DI PARTENZA(LA SOLUZIONE SARA' BANALE OVVERO  1->2->3->....->n)*/
+void start_sol(instance *inst, CPXENVptr env, CPXLPptr lp)
+{
+	printf("Set of the initial Heuristic Best Solution \n\n");
+	inst->best_sol = (double *)calloc(inst->ncols, sizeof(double));
+	for (int i = 0; i < inst->nnodes-1; i++)
+	{
+		inst->best_sol[xpos(i,i+1,inst)] = 1;
+	}
+
+	if (VERBOSE >= 200) {
+		for (int i = 0; i < inst->nnodes; i++) {
+			for (int j = i + 1; j < inst->nnodes; j++) {
+				if (inst->best_sol[xpos(i, j, inst)] > TOLERANCE) 
+				{
+					printf("Node (%d,%d) is selected \n", i + 1, j + 1);
+				}
+			}
+		}
+	}
 }

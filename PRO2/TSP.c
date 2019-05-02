@@ -17,6 +17,7 @@ int xpos_compact(int i, int j, instance *inst);
 void print_error(const char *err);
 void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp);
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp);
+void start_sol(instance *inst, CPXENVptr env, CPXLPptr lp);
 
 
 
@@ -45,7 +46,6 @@ int TSPopt(instance *inst)
 	if (CPXsetlogfile(env, log)) print_error("Error in log file");
 	inst->best_sol = (double *)calloc(inst->ncols, sizeof(double));				//best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
-
 
 	if(VERBOSE>=200){
 		for (int i = 0; i < inst->ncols - 1; i++){
