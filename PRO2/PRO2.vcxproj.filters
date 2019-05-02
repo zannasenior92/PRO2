@@ -22,6 +22,9 @@
     <Filter Include="Models\Default">
       <UniqueIdentifier>{a9d851b2-8c8c-4d90-bb08-379160c0ef32}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Heuristics">
+      <UniqueIdentifier>{6f8293eb-1cf8-4e5d-afd6-508892f3ebc2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.c">
@@ -62,6 +65,9 @@
     </ClCompile>
     <ClCompile Include="myseparation.c">
       <Filter>Models\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="HardFixing.c">
+      <Filter>Heuristics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
