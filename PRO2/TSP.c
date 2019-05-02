@@ -17,7 +17,7 @@ int xpos_compact(int i, int j, instance *inst);
 void print_error(const char *err);
 void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp);
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp);
-void start_sol(instance *inst, CPXENVptr env, CPXLPptr lp);
+void start_sol(instance *inst);
 
 
 

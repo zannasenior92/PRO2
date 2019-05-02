@@ -94,17 +94,16 @@ void update_x_heu(instance *inst, CPXENVptr env, CPXLPptr lp)
 	if (opt_current_val < inst->best_obj_val)
 	{
 		printf("Best HEURISTIC solution founded: %lf", opt_current_val);
-		for (int i = 0; i < inst->nnodes; i++)
+		for (int i = 0; i < inst->ncols; i++)
 		{
 			inst->best_sol[i] = current_sol[i];
 		}
 	}
-	CPXwriteprob(env, lp, "modelchanged.lp", NULL);
 	free(current_sol);
 }
 
 /*FUNZIONE CHE SETTA LA SOLUZIONE DI PARTENZA(LA SOLUZIONE SARA' BANALE OVVERO  1->2->3->....->n)*/
-void start_sol(instance *inst, CPXENVptr env, CPXLPptr lp)
+void start_sol(instance *inst)
 {
 	printf("Set of the initial Heuristic Best Solution \n\n");
 	inst->best_sol = (double *)calloc(inst->ncols, sizeof(double));
