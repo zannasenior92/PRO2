@@ -15,6 +15,8 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 int xpos(int i, int j, instance *inst);
 int xpos_compact(int i, int j, instance *inst);
 void print_error(const char *err);
+void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp);
+void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp);
 
 
 
@@ -44,6 +46,9 @@ int TSPopt(instance *inst)
 	inst->best_sol = (double *)calloc(inst->ncols, sizeof(double));				//best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
 
+	/*---------------------------------------HARD FIXING------------------------------------*/
+	hard_fixing(inst, env, lp);
+	CPXwriteprob(env, lp, "modelchanged.lp", NULL);
 
 	if(VERBOSE>=200){
 		for (int i = 0; i < inst->ncols - 1; i++){
