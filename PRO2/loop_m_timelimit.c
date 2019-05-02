@@ -20,7 +20,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 	double ottimo;
 	int resolved = 0;
 	double ticks1, ticks2, time3, time4;
-	double timelimit = 15.0;															//SET TIMELIMIT 
+	double timelimit = 15;															//SET TIMELIMIT 
 	printf("timelimit: %f second\n", timelimit);
 	int resolved_in_time = 0;															//1 se è stato risolto il modello nel tempo e non è uscito per timelimit
 	while (!done) {
@@ -67,7 +67,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 				if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
 				if (CPXgetobjval(env, lp, &ottimo)) print_error("Error getting optimal value");
 
-				printf("Best solution found:%.0f\n", ottimo);
+				printf("Best solution found(status ended by timelimit):%.0f\n", ottimo);
 				if (kruskal_sst(env, lp, inst) == inst->nnodes) {
 					if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit * 2)) print_error("Error on setting parameter");
 					printf("Ha n=%d comp conn\n", kruskal_sst(env, lp, inst));
@@ -100,7 +100,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 				inst->best_sol = (double *)calloc(ncols, sizeof(double));
 				if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
 				if (CPXgetobjval(env, lp, &ottimo)) print_error("Error getting optimal value");
-				printf("Best solution found:%.0f\n", ottimo);
+				printf("Best solution found(integer or integer with tolerance):%.0f\n", ottimo);
 				resolved = 1;
 				if (kruskal_sst(env, lp, inst) == 1) {
 					done = 1;
@@ -123,7 +123,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 		//if (CPXgetdettime(env, &ticks2)) print_error("Error getting time\n");
 		if (CPXgettime(env, &time4)) print_error("Error getting time\n");
 		//printf("Ticks=%f\n", ticks2-ticks1);
-		printf("Tempo=%f\n", time4 - time3);
+		printf("Time=%f\n", time4 - time3);
 
 		if (CPXsetlogfile(env, log)) print_error("Error in log file");
 
@@ -148,7 +148,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 			else {
 				add_SEC(env, lp, inst);
 				if (VERBOSE >= 10) {
-					printf("Aggiunti vincoli senza limiti di tempo\n");
+					printf("Added constraints without time limits \n");
 				}
 			}
 		}

@@ -25,13 +25,16 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 		lb[i] = "L";
 	}
 	
-	CPXchgbds(env, lp, inst->nnodes,index, lb, bounds);//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
+	CPXchgbds(env, lp, inst->nnodes,index, lb, bounds);			//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
+	free(index);
+	free(bounds);
+	free(lb);
 
 }
 
 
 /*-------------------FUNCTION TO SET THE LOWER BOUND OF THE SOLUTIONS'S VARIABLES--------------------*/
-void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp)
+void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int *ind)
 {
 
 	int ncols = CPXgetnumcols(env, lp);
@@ -63,4 +66,12 @@ void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp)
 	}
 
 	CPXchgbds(env, lp, inst->nnodes-1, index, lb, bounds);		//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
+	free(index);
+	free(bounds);
+	free(lb);
+
+	/*WRITE IN A FILE THE MODIFIED MODEL*/
+	CPXwriteprob(env, lp, "modelchanged.lp", NULL);
 }
+
+/*--------------------------------FUNCTION FRO SETTING THE INITIAL SOLUTION------------------------*/
