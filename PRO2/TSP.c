@@ -18,7 +18,7 @@ void print_error(const char *err);
 void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp);
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp);
 void start_sol(instance *inst);
-
+int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log);
 
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
@@ -50,7 +50,7 @@ int TSPopt(instance *inst)
 	if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
 	*/
 	if (CPXsetdblparam(env, CPX_PARAM_TILIM, 10)) print_error("Error on setting parameter");
-	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
+	loop_method(env, lp, inst, log);
 	printf("Status %d\n", CPXgetstat);
 	
 	if(VERBOSE>=200){
@@ -157,4 +157,34 @@ static int CPXPUBLIC add_SEC_lazy_hard_fix(CPXCENVptr env, void *cbdata, int whe
 		*useraction_p = CPX_CALLBACK_SET; 		// tell CPLEX that cuts have been created
 	}*/
 	return 0;
+}
+
+int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
+
+	int done = 0;
+	while (!done) {
+		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
+		if (CPXsetlogfile(env, log)) print_error("Error in log file");
+		int ncols = CPXgetnumcols(env, lp);
+		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
+		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
+		if (kruskal_sst(env, lp, inst) == 1) {
+			done = 1;
+		}
+
+		else {
+			add_SEC(env, lp, inst);
+			if (VERBOSE >= 100) {
+				printf("Aggiunti vincoli\n");
+			}
+		}
+		update_choosen_edge(inst);
+		add_edge_to_file(inst);
+		plot_gnuplot(inst);
+
+	}
+
+	
+	
+	
 }
