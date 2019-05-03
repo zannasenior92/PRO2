@@ -24,13 +24,7 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 	{
 		lb[i] = "L";
 	}
-	for (int i = 0; i < ncols; i++)
-	{
-		if (inst->best_sol[i] == 1)//SETTO A UNO SOLO SE E' UNA VARIABILE DELLA SOLUZIONE DEL PROBLEMA
-		{
-			bounds[i] = 0;									//SETTO IL LOWER BOUND DI OGNI VARIABILE (0/1)
-		}
-	}
+	
 	CPXchgbds(env, lp, inst->nnodes,index, lb, bounds);			//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
 	free(index);
 	free(bounds);
