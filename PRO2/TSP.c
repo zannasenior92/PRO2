@@ -41,7 +41,6 @@ int TSPopt(instance *inst)
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
 	*/
 	/*------------------------------------USO HARD FIXING CON LAZYCALLBACK---------------------------------------*/
-	int done = 0;
 	inst->ncols = CPXgetnumcols(env, lp);
 	/*
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
@@ -50,14 +49,29 @@ int TSPopt(instance *inst)
 	if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
 	*/
 	if (CPXsetdblparam(env, CPX_PARAM_TILIM, 10)) print_error("Error on setting parameter");
-	loop_method(env, lp, inst, log);
-	printf("Status %d\n", CPXgetstat);
-	
-	if(VERBOSE>=200){
-		for (int i = 0; i < inst->ncols - 1; i++){
-			printf("Best %f\n", inst->best_sol[i]);
+	int done = 0;
+	while (!done) {
+		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
+		if (CPXsetlogfile(env, log)) print_error("Error in log file");
+		int ncols = CPXgetnumcols(env, lp);
+		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
+		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
+		if (kruskal_sst(env, lp, inst) == 1) {
+			done = 1;
 		}
+
+		else {
+			add_SEC(env, lp, inst);
+			if (VERBOSE >= 100) {
+				printf("Aggiunti vincoli\n");
+			}
+		}
+		update_choosen_edge(inst);
+		add_edge_to_file(inst);
+		plot_gnuplot(inst);
+
 	}
+
 	int count = 0;
 	int n = 0;
 	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
@@ -159,31 +173,6 @@ static int CPXPUBLIC add_SEC_lazy_hard_fix(CPXCENVptr env, void *cbdata, int whe
 	return 0;
 }
 
-int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
-
-	int done = 0;
-	while (!done) {
-		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
-		if (CPXsetlogfile(env, log)) print_error("Error in log file");
-		int ncols = CPXgetnumcols(env, lp);
-		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
-		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
-		if (kruskal_sst(env, lp, inst) == 1) {
-			done = 1;
-		}
-
-		else {
-			add_SEC(env, lp, inst);
-			if (VERBOSE >= 100) {
-				printf("Aggiunti vincoli\n");
-			}
-		}
-		update_choosen_edge(inst);
-		add_edge_to_file(inst);
-		plot_gnuplot(inst);
-
-	}
-}
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	int nnz = 0;
 	double rhs = -1.0;
