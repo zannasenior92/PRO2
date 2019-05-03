@@ -29,7 +29,7 @@ int TSPopt(instance *inst)
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
-
+	build_model(inst, env, lp);
 	//select_and_build_model(inst, env, lp);
 	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);									//Per visualizzare a video
 	FILE* log = CPXfopen("log.txt", "w");
@@ -49,9 +49,10 @@ int TSPopt(instance *inst)
 	inst->best_sol = (double *)calloc(inst->ncols, sizeof(double));				//best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
 	*/
-
-	CPX_PARAM_NODELIM
-
+	if (CPXsetdblparam(env, CPX_PARAM_TILIM, 10)) print_error("Error on setting parameter");
+	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
+	printf("Status %d\n", CPXgetstat);
+	
 	if(VERBOSE>=200){
 		for (int i = 0; i < inst->ncols - 1; i++){
 			printf("Best %f\n", inst->best_sol[i]);
