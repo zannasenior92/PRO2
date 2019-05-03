@@ -19,7 +19,7 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp);
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp);
 void start_sol(instance *inst);
 int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log);
-
+void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
@@ -183,8 +183,39 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
 		plot_gnuplot(inst);
 
 	}
+}
+void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
+	int nnz = 0;
+	double rhs = -1.0;
+	char sense = 'L';
+	int ncols = CPXgetnumcols(env, lp);
+	int *index = (int *)malloc(ncols * sizeof(int));
+	double *value = (double *)malloc(ncols * sizeof(double));
+	int matbeg = 0;
+	char **cname = (char **)calloc(1, sizeof(char *));							// (char **) required by cplex...
+	cname[0] = (char *)calloc(100, sizeof(char));
 
-	
-	
-	
+	for (int h = 0; h < inst->nnodes; h++) {
+
+		if (inst->mycomp[h] != 0) {
+			sprintf(cname[0], "SEC(%d)", h);
+			for (int i = 0; i < inst->nnodes; i++) {
+				if (inst->comp[i] != h) continue;
+				rhs++;
+
+				for (int j = i + 1; j < inst->nnodes; j++) {
+					if (inst->comp[j] == h) {
+						index[nnz] = xpos(i, j, inst);
+						value[nnz] = 1;
+						nnz++;
+					}
+				}
+			}
+			if (CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &matbeg, index, value, NULL, cname)) print_error("wrong CPXaddrow");
+			if (VERBOSE >= 10) {
+				CPXwriteprob(env, lp, "model.lp", NULL);
+			}
+		}
+
+	}
 }
