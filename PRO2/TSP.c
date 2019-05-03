@@ -30,15 +30,16 @@ int TSPopt(instance *inst)
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
 
-	select_and_build_model(inst, env, lp);
-
+	//select_and_build_model(inst, env, lp);
 	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);									//Per visualizzare a video
 	FILE* log = CPXfopen("log.txt", "w");
+	/*
 	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
 	CPXsetlazyconstraintcallbackfunc(env, add_SEC_lazy, inst);
 
 	int ncores = 1; CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
+	*/
 	/*------------------------------------METODO LOOP---------------------------------------*/
 	int done = 0;
 	inst->ncols = CPXgetnumcols(env, lp);
