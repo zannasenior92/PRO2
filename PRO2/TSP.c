@@ -40,13 +40,17 @@ int TSPopt(instance *inst)
 	int ncores = 1; CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
 	*/
-	/*------------------------------------METODO LOOP---------------------------------------*/
+	/*------------------------------------USO HARD FIXING CON LAZYCALLBACK---------------------------------------*/
 	int done = 0;
 	inst->ncols = CPXgetnumcols(env, lp);
+	/*
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 	if (CPXsetlogfile(env, log)) print_error("Error in log file");
 	inst->best_sol = (double *)calloc(inst->ncols, sizeof(double));				//best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
+	*/
+
+	CPX_PARAM_NODELIM
 
 	if(VERBOSE>=200){
 		for (int i = 0; i < inst->ncols - 1; i++){
@@ -127,6 +131,29 @@ static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, v
 	//Free space in xstar
 	free(xstar);
 
-	if (ncuts >= 1) *useraction_p = CPX_CALLBACK_SET; 		// tell CPLEX that cuts have been created
+	if (ncuts >= 1) {
+		*useraction_p = CPX_CALLBACK_SET; 		// tell CPLEX that cuts have been created
+	}
+	return 0;
+}
+
+static int CPXPUBLIC add_SEC_lazy_hard_fix(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle, int *useraction_p) {
+	*useraction_p = CPX_CALLBACK_DEFAULT;			//Dico che non ho fatto niente 
+	instance* inst = (instance *)cbhandle; 			// casting of cbhandle to have the instance
+
+	/*-------------GET XSTAR SOLUTION--------------------------*/
+	double *xstar = (double*)calloc(inst->ncols, sizeof(double));
+
+	/*--------------CALL THE CALLBACK--------------------------------------------------------------------------*/
+	if (CPXgetcallbacknodex(env, cbdata, wherefrom, xstar, 0, inst->ncols - 1)) print_error("Error in callback");
+	
+	/*APPLY CUT SEPARATOR-ADD CONSTRAINTS FOR EVERY CONNECTED COMPONENT AND RETURN NUMBER OF ADDED CONSTRAINTS*/
+	/*int ncuts = myseparation(inst, xstar, env, cbdata, wherefrom);
+	//Free space in xstar
+	free(xstar);
+
+	if (ncuts >= 1) {
+		*useraction_p = CPX_CALLBACK_SET; 		// tell CPLEX that cuts have been created
+	}*/
 	return 0;
 }
