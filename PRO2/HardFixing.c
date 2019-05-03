@@ -38,15 +38,30 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 
 
 /*-------------------FUNCTION TO SET THE LOWER BOUND OF THE SOLUTIONS'S VARIABLES--------------------*/
-void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp)
+void hard_fixing(CPXENVptr env, CPXLPptr lp, instance *inst)
 {
-
+	srand(time(NULL));
 	printf("hard fix bounds \n");
-
 	int *index_set = (int *)malloc(inst->nnodes * sizeof(int));			//ARRAY DI INDICI DELLE VARIABILI A CUI CAMBIARE IL BOUND
 	double *bounds_set = (double *)calloc(inst->nnodes, sizeof(double));		//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND PER OGNI VARIABILE				
 	char *lb_set = (char *)malloc(inst->nnodes * sizeof(char));				//ARRAY CHE SPECIFICA QUALE BOUND CAMBIARE PER OGNI VARIABILE
-
+	int count = 0;
+	for (int i = 0; i < inst->ncols; i++){
+		if (inst->best_sol[i] == 1) {
+			double random = (double)rand() / (double)RAND_MAX;
+			if (random > 0.5) {
+				printf("Seleziono lato %d\n",i);
+				index_set[count] = i;
+				bounds_set[count] = 1.0;
+				lb_set[count] = 'L';
+				count++;
+			}
+			
+		}
+	}
+	printf("selezionati %d lati su %d\n", count, inst->nnodes);
+	CPXchgbds(env, lp, count, index_set, lb_set, bounds_set);		//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
+	/*
 	int n = 0;
 	for (int i = 0; i < inst->ncols; i++)//SET AN ARRAY OF INDEX REFERRED TO THE VARIABLES THAT I WANT TO CHANGE
 	{
@@ -68,9 +83,9 @@ void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp)
 	{
 		lb_set[i] = 'L';
 	}
-
-	CPXchgbds(env, lp, inst->nnodes, index_set, lb_set, bounds_set);		//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
 	
+	CPXchgbds(env, lp, inst->nnodes, index_set, lb_set, bounds_set);		//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
+	*/
 	CPXwriteprob(env, lp, "modelchanged.lp", NULL);
 
 	free(index_set);
@@ -91,14 +106,14 @@ void update_x_heu(instance *inst, CPXENVptr env, CPXLPptr lp)
 	if (CPXgetx(env, lp, current_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
 
 	/*SE IL VALORE DELLA FUNZIONE OBIETTIVO CORRENTE E' MIGLIORE DI QUELLA OTTIMA ALLORA LA AGGIORNO*/
-	if (opt_current_val < inst->best_obj_val)
+	//if (opt_current_val < inst->best_obj_val)
+	//{
+		//printf("Best HEURISTIC solution founded: %lf", opt_current_val);
+	for (int i = 0; i < inst->ncols; i++)
 	{
-		printf("Best HEURISTIC solution founded: %lf", opt_current_val);
-		for (int i = 0; i < inst->ncols; i++)
-		{
-			inst->best_sol[i] = current_sol[i];
-		}
+		inst->best_sol[i] = current_sol[i];
 	}
+	//}
 	free(current_sol);
 }
 

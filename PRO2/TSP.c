@@ -20,7 +20,7 @@ void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp);
 void start_sol(instance *inst);
 int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
-
+void update_choosen_edge(instance* inst);
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
 {
@@ -48,30 +48,54 @@ int TSPopt(instance *inst)
 	inst->best_sol = (double *)calloc(inst->ncols, sizeof(double));				//best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
 	*/
-	if (CPXsetdblparam(env, CPX_PARAM_TILIM, 10)) print_error("Error on setting parameter");
+	//if (CPXsetdblparam(env, CPX_PARAM_TILIM, 120)) print_error("Error on setting parameter");
+	//if (CPXsetintparam(env, CPX_PARAM_NODELIM, 0)) print_error("Error on setting parameter");
 	int done = 0;
-	while (!done) {
+	while (done < 5) {
+		done++;
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 		if (CPXsetlogfile(env, log)) print_error("Error in log file");
 		int ncols = CPXgetnumcols(env, lp);
 		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
 		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
-		if (kruskal_sst(env, lp, inst) == 1) {
+		/*if (kruskal_sst(env, lp, inst) == 1) {
 			done = 1;
-		}
+		}*/
 
-		else {
+		//else {
+		int comp = kruskal_sst(env, lp, inst);
+		if(done<5)
 			add_SEC(env, lp, inst);
-			if (VERBOSE >= 100) {
-				printf("Aggiunti vincoli\n");
-			}
-		}
+		//}
 		update_choosen_edge(inst);
 		add_edge_to_file(inst);
 		plot_gnuplot(inst);
+		
+	}
+	double opt_val_start, opt_val;																//VALUE OPTIMAL SOL
+	if (CPXgetobjval(env, lp, &opt_val_start)) print_error("Error getting optimal value");;
+	printf("Valore di partenza della funzione obiettivo: %.0f\n", opt_val_start);
+	int fix = 1;
+	time_t timelimit = time(NULL)+1;
+	while (time(NULL) < timelimit) {
+		if(fix==1){
+			hard_fixing(env, lp, inst);
+			fix = 0;
+		}
+		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
+		if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");
+		printf("Object function optimal value is: %.0f\n", opt_val);
+		if (opt_val == opt_val_start) {
+			reset_lower_bound(inst, env, lp);
+			fix = 1;
+		}
+		else {
+			update_x_heu(inst, env, lp);
+			fix = 0;
+		}
 
 	}
-
+	
 	int count = 0;
 	int n = 0;
 	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
@@ -116,7 +140,7 @@ int TSPopt(instance *inst)
 	}
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
-	double opt_val;																//VALUE OPTIMAL SOL
+	//double opt_val;																//VALUE OPTIMAL SOL
 	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
 	printf("Object function optimal value is: %.0f\n", opt_val);
 	
@@ -206,5 +230,23 @@ void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst) {
 			}
 		}
 
+	}
+}
+void update_choosen_edge(instance* inst) {
+	int n = 0;
+	for (int i = 0; i < inst->nnodes; i++) {
+		for (int j = i + 1; j < inst->nnodes; j++) {
+			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
+
+				if (VERBOSE >= 100) {
+					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
+				}
+				/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
+				inst->choosen_edge[n] = i;
+				inst->choosen_edge[n + 1] = j;
+				n += 2;
+
+			}
+		}
 	}
 }
