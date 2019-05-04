@@ -38,9 +38,9 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 
 
 /*-------------------FUNCTION TO SET THE LOWER BOUND OF THE SOLUTIONS'S VARIABLES--------------------*/
-void hard_fixing(CPXENVptr env, CPXLPptr lp, instance *inst)
+void hard_fixing(CPXENVptr env, CPXLPptr lp, instance *inst, int seed)
 {
-	srand(time(NULL));
+	srand(seed);
 	printf("hard fix bounds \n");
 	int *index_set = (int *)malloc(inst->nnodes * sizeof(int));			//ARRAY DI INDICI DELLE VARIABILI A CUI CAMBIARE IL BOUND
 	double *bounds_set = (double *)calloc(inst->nnodes, sizeof(double));		//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND PER OGNI VARIABILE				

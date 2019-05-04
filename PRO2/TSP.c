@@ -16,7 +16,7 @@ int xpos(int i, int j, instance *inst);
 int xpos_compact(int i, int j, instance *inst);
 void print_error(const char *err);
 void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp);
-void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp);
+void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed);
 void start_sol(instance *inst);
 int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
@@ -76,10 +76,11 @@ int TSPopt(instance *inst)
 	if (CPXgetobjval(env, lp, &opt_val_start)) print_error("Error getting optimal value");;
 	printf("Valore di partenza della funzione obiettivo: %.0f\n", opt_val_start);
 	int fix = 1;
-	time_t timelimit = time(NULL)+1;
+	int seed = 12;
+	time_t timelimit = time(NULL)+5;
 	while (time(NULL) < timelimit) {
 		if(fix==1){
-			hard_fixing(env, lp, inst);
+			hard_fixing(env, lp, inst, seed);
 			fix = 0;
 		}
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
@@ -90,10 +91,11 @@ int TSPopt(instance *inst)
 			fix = 1;
 		}
 		else {
-			update_x_heu(inst, env, lp);
+			//update_x_heu(inst, env, lp);
+			if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
 			fix = 0;
 		}
-
+		seed += seed;
 	}
 	
 	int count = 0;
