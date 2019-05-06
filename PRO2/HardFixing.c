@@ -27,7 +27,7 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 		lb0[i] = 'L';
 	}
 	CPXchgbds(env, lp, inst->nnodes, index0, lb0, bounds0);			//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
-
+	printf("SCRIVO MODEL RESET---------------------\n");
 	CPXwriteprob(env, lp, "modelreset.lp", NULL);
 
 	free(index0);
@@ -38,7 +38,7 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 
 
 /*-------------------FUNCTION TO SET THE LOWER BOUND OF THE SOLUTIONS'S VARIABLES--------------------*/
-void hard_fixing(CPXENVptr env, CPXLPptr lp, instance *inst, int seed)
+void hard_fixing(CPXENVptr env, CPXLPptr lp, instance *inst, int seed, double prob)
 {
 	srand(seed);
 	printf("hard fix bounds \n");
@@ -49,7 +49,7 @@ void hard_fixing(CPXENVptr env, CPXLPptr lp, instance *inst, int seed)
 	for (int i = 0; i < inst->ncols; i++){
 		if (inst->best_sol[i] == 1) {
 			double random = (double)rand() / (double)RAND_MAX;
-			if (random > 0.5) {
+			if (random > prob) {
 				printf("Seleziono lato %d\n",i);
 				index_set[count] = i;
 				bounds_set[count] = 1.0;
