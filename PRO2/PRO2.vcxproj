@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HardFixing.c" />
+    <ClCompile Include="Local_Branching.c" />
     <ClCompile Include="myseparation.c" />
     <ClCompile Include="comandiGnuplot.c" />
     <ClCompile Include="Default.c" />

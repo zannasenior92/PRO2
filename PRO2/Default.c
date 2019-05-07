@@ -65,41 +65,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		}
 	}
 
-	/*---------SUBTOUR ELIMINATION-----------
 	
-	int nnz = 0;
-	double rhs;
-	char sense = 'L';
-	int ncols = CPXgetnumcols(env, lp);
-	
-	int matbeg = 0;
-	cname[0] = (char *)calloc(100, sizeof(char));
-	for (int s = 2; s < inst->nnodes; s++) {
-		rhs = s - 1;
-		sprintf(cname[0], "SEC_Size(%d)", s);
-		int *index = (int *)malloc(s * sizeof(int));
-		double *value = (double *)malloc(s * sizeof(double));
-		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = i+1; j < inst->nnodes; j++)
-			{
-				index[nnz] = xpos(i, j, inst);
-				value[nnz] = 1.0;
-				nnz++;
-				if (nnz == s) {
-					if (CPXaddrows(env, lp, 0, 1, s, &rhs, &sense, &matbeg, index, value, NULL, cname)) print_error("wrong CPXaddrow");
-					nnz = 0;
-					CPXwriteprob(env, lp, "model.lp", NULL);
-
-				}
-
-			}
-
-		}
-		free(index);
-		free(value);
-	}
-	*/
-
 	/*-------------------write the cplex model in file model.lp------------------*/
 	CPXwriteprob(env, lp, "model.lp", NULL);
 }
