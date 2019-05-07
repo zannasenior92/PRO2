@@ -26,7 +26,7 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 	{
 		lb0[i] = 'L';
 	}
-	CPXchgbds(env, lp, inst->nnodes, index0, lb0, bounds0);			//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
+	CPXchgbds(env, lp, n, index0, lb0, bounds0);			//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
 	printf("SCRIVO MODEL RESET---------------------\n");
 	CPXwriteprob(env, lp, "modelreset.lp", NULL);
 
@@ -126,6 +126,7 @@ void start_sol(instance *inst)
 	{
 		inst->best_sol[xpos(i,i+1,inst)] = 1;
 	}
+	inst->best_sol[xpos(0, inst->nnodes - 1, inst)] = 1;
 
 	if (VERBOSE >= 200) {
 		for (int i = 0; i < inst->nnodes; i++) {

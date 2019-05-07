@@ -84,3 +84,22 @@ void add_edge_to_file(instance *inst) {
 	}
 	fclose(file);
 }
+
+void update_choosen_edge(instance* inst) {
+	int n = 0;
+	for (int i = 0; i < inst->nnodes; i++) {
+		for (int j = i + 1; j < inst->nnodes; j++) {
+			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
+
+				if (VERBOSE >= 100) {
+					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
+				}
+				/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
+				inst->choosen_edge[n] = i;
+				inst->choosen_edge[n + 1] = j;
+				n += 2;
+
+			}
+		}
+	}
+}
