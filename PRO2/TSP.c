@@ -61,15 +61,15 @@ int TSPopt(instance *inst)
 	//printf("PARTO CON IL TEMPO=%f\n", (double)time(NULL));
 	//Imposto timelimit e chiamo loop per euristico
 	time_t timelimit1 = time(NULL) + 30;
-	printf("-----------DIST HAMMING 2-----------");
+	printf("-----------DIST HAMMING 2-----------\n");
 	opt_current = loop_local_branching(inst, env, lp, timelimit1, 2, opt_heu);
 	opt_heu = opt_current;
-	printf("-----------DIST HAMMING 5-----------");
+	printf("-----------DIST HAMMING 5-----------\n");
 	time_t timelimit2 = time(NULL) + 30;
 	opt_current = loop_local_branching(inst, env, lp, timelimit2, 5, opt_heu);
-	printf("-----------DIST HAMMING 8-----------");
+	printf("-----------DIST HAMMING 8-----------\n");
 	time_t timelimit3 = time(NULL) + 30;
-	opt_current = loop_local_branching(inst, env, lp, timelimit3, 8, opt_heu);
+	opt_current = loop_local_branching(inst, env, lp, timelimit3, 10, opt_heu);
 	opt_heu = opt_current;
 	
 	//printf("FINISCO CON IL TEMPO=%f\n", (double)time(NULL));
