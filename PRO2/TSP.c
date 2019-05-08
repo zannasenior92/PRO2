@@ -14,7 +14,7 @@ void add_edge_to_file(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
 int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log);
-
+int xpos_compact(int i, int j, instance *inst);
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)

@@ -10,7 +10,7 @@ void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
 int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE *log);
 void plot_gnuplot(instance *inst);
 void update_choosen_edge(instance* inst);
-
+int xpos_compact(int i, int j, instance *inst);
 
 
 /*****************************************************************************************************************/
