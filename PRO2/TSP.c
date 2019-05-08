@@ -55,22 +55,22 @@ int TSPopt(instance *inst)
 	int ncores = 1; CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
 	
-	//printf("PARTO CON IL TEMPO=%f\n", (double)time(NULL));
+	time_t time0 = time(NULL);
 
 	//SET TIMELIMIT AND USE HEURISTIC LOOP
 	time_t timelimit1 = time(NULL) + 20;
 	printf("-----------FISSO 70%%-----------\n");
-	opt_current= loop_hard_fixing(inst, env, lp, (double)timelimit1, 0.3, opt_heu);
+	opt_current= loop_hard_fixing(inst, env, lp, (double)timelimit1, 0.6, opt_heu);
 	opt_heu = opt_current;
 	printf("-----------FISSO 50%%-----------\n");
 	time_t timelimit2 = time(NULL) + 40;
-	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit2, 0.5, opt_heu);
+	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit2, 0.4, opt_heu);
 	opt_heu = opt_current;
 	printf("-----------FISSO 20%%-----------\n");
 	time_t timelimit3 = time(NULL) + 60;
-	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit3, 0.8, opt_heu);
+	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit3, 0.2, opt_heu);
 
-	//printf("FINISCO CON IL TEMPO=%f\n", (double)time(NULL));
+	printf("FINISCO CON IL TEMPO=%f\n", (double)(time(NULL)-time0));
 
 
 	/*---------------PRINT SELECTED EDGES--------------------------------------------*/
