@@ -54,7 +54,7 @@ void plot_gnuplot(instance *inst) {
 
 	for (int i = 0; i < inst->nnodes; i++)
 	{
-		fprintf(temp, "%lf %lf %d %d\n", inst->xcoord[i], inst->ycoord[i], i + 1);  //WRITE DATA TO A TEMPORARY FILE
+		fprintf(temp, "%lf %lf %d \n", inst->xcoord[i], inst->ycoord[i], i + 1);  //WRITE DATA TO A TEMPORARY FILE
 	}
 	fclose(temp);
 	/*----------------------------------------------------------------------------------*/
@@ -151,7 +151,7 @@ void plot_final_gnuplot(instance *inst) {
 
 	for (int i = 0; i < inst->nnodes; i++)
 	{
-		fprintf(temp, "%lf %lf %d %d\n", inst->xcoord[i], inst->ycoord[i], i + 1);  //WRITE DATA TO A TEMPORARY FILE
+		fprintf(temp, "%lf %lf %d \n", inst->xcoord[i], inst->ycoord[i], i + 1);  //WRITE DATA TO A TEMPORARY FILE
 	}
 	fclose(temp);
 	/*----------------------------------------------------------------------------------*/

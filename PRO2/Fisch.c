@@ -1,5 +1,11 @@
 #include "TSP.h"
 
+/*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
+int zpos(int i, int j, instance *inst);
+int xpos(int i, int j, instance *inst);
+void print_error(const char *err);
+double dist(int i, int j, instance *inst);
+
 /*-------------------------------FISCHETTI MODEL----------------------------------*/
 void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
