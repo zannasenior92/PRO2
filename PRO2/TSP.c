@@ -57,18 +57,18 @@ int TSPopt(instance *inst)
 	CPXsetlazyconstraintcallbackfunc(env, add_SEC_lazy, inst);
 	int ncores = 1; CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
-	
+	CPXsetdblparam(env, CPX_PARAM_TILIM, 60);
 	//printf("PARTO CON IL TEMPO=%f\n", (double)time(NULL));
 	//Imposto timelimit e chiamo loop per euristico
-	time_t timelimit1 = time(NULL) + 30;
+	time_t timelimit1 = time(NULL) + 120;
 	printf("-----------DIST HAMMING 2-----------\n");
 	opt_current = loop_local_branching(inst, env, lp, timelimit1, 2, opt_heu);
 	opt_heu = opt_current;
 	printf("-----------DIST HAMMING 5-----------\n");
-	time_t timelimit2 = time(NULL) + 30;
+	time_t timelimit2 = time(NULL) + 120;
 	opt_current = loop_local_branching(inst, env, lp, timelimit2, 5, opt_heu);
 	printf("-----------DIST HAMMING 8-----------\n");
-	time_t timelimit3 = time(NULL) + 30;
+	time_t timelimit3 = time(NULL) + 120;
 	opt_current = loop_local_branching(inst, env, lp, timelimit3, 10, opt_heu);
 	opt_heu = opt_current;
 	
