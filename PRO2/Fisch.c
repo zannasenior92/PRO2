@@ -5,6 +5,7 @@ double dist(int i, int j, instance *inst);
 void print_error(const char *err);
 int xpos(int i, int j, instance *inst);
 int upos(int i, instance *inst);
+int zpos(int i, int j, instance *inst);
 
 /*********************************** FISCH MODEL ************************************/
 void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {

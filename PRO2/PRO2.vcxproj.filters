@@ -69,6 +69,9 @@
     <ClCompile Include="HardFixing.c">
       <Filter>Heuristics</Filter>
     </ClCompile>
+    <ClCompile Include="SelectedEdges.c">
+      <Filter>FileFunzioni</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h">

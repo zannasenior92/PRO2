@@ -18,7 +18,7 @@ void print_error(const char *err);
 void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp);
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp);
 void start_sol(instance *inst);
-
+void selected_edges(instance *inst);
 
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
@@ -52,48 +52,9 @@ int TSPopt(instance *inst)
 			printf("Best %f\n", inst->best_sol[i]);
 		}
 	}
-	int count = 0;
-	int n = 0;
-	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
-	if (inst->compact == 1) {
-		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = 0; j < inst->nnodes; j++) {
-					if (inst->best_sol[xpos_compact(i, j, inst)] > TOLERANCE) {
 
-						if (VERBOSE >= 100) {
-							printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
-						}
-						/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
-						inst->choosen_edge[n] = i;
-						inst->choosen_edge[n + 1] = j;
-						n += 2;
-						count++;
-					}
-			}
-		}
-	}
-	else {
-		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = i+1; j < inst->nnodes; j++) {
-				if (inst->best_sol[xpos(i, j, inst)] > TOLERANCE) {
+	selected_edges(inst);
 
-					if (VERBOSE >= 100) {
-						printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
-					}
-					/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
-					inst->choosen_edge[n] = i;
-					inst->choosen_edge[n + 1] = j;
-					n += 2;
-					count++;
-				}
-			}
-		}
-	}
-	add_edge_to_file(inst);
-
-	if (VERBOSE >= 100) {
-		printf("Selected nodes: %d \n", count);
-	}
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 	double opt_val;																//VALUE OPTIMAL SOL
