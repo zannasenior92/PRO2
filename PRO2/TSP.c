@@ -60,18 +60,23 @@ int TSPopt(instance *inst)
 	CPXsetdblparam(env, CPX_PARAM_TILIM, 60);
 	//printf("PARTO CON IL TEMPO=%f\n", (double)time(NULL));
 	//Imposto timelimit e chiamo loop per euristico
-	time_t timelimit1 = time(NULL) + 120;
+	time_t timelimit1 = time(NULL) + 500;
 	printf("-----------DIST HAMMING 2-----------\n");
 	opt_current = loop_local_branching(inst, env, lp, timelimit1, 2, opt_heu);
 	opt_heu = opt_current;
 	printf("-----------DIST HAMMING 5-----------\n");
-	time_t timelimit2 = time(NULL) + 120;
+	time_t timelimit2 = time(NULL) + 500;
 	opt_current = loop_local_branching(inst, env, lp, timelimit2, 5, opt_heu);
 	printf("-----------DIST HAMMING 8-----------\n");
-	time_t timelimit3 = time(NULL) + 120;
+	
+	time_t timelimit3 = time(NULL) + 500;
 	opt_current = loop_local_branching(inst, env, lp, timelimit3, 10, opt_heu);
 	opt_heu = opt_current;
 	
+	//pr226
+	//hamming 2-5-8 con 300 sec all'uno 81216
+	// hamming 2 con 900 87716
+	// hamming 8 con 900 81128
 	//printf("FINISCO CON IL TEMPO=%f\n", (double)time(NULL));
 	int count = 0;
 	int n = 0;
