@@ -18,10 +18,8 @@ int xpos_compact(int i, int j, instance *inst);
 void print_error(const char *err);
 void selected_edges(instance *inst);
 void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp);
-void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double prob);
 void start_sol(instance *inst);
 void update_choosen_edge(instance* inst);
-double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timelimit, double prob, double opt);
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)

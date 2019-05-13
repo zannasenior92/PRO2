@@ -6,6 +6,8 @@ int xpos(int i, int j, instance *inst);
 void print_error(const char *err);
 void plot_gnuplot(instance *inst);
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double prob);
+double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timelimit, double prob, double opt);
+
 
 /*FUNZIONE CHE RESETTA TUTTI I LOWER BOUND DI TUTTE LE VARIABILI*/
 void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)

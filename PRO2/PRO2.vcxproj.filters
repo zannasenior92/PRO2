@@ -72,6 +72,9 @@
     <ClCompile Include="SelectedEdges.c">
       <Filter>FileFunzioni</Filter>
     </ClCompile>
+    <ClCompile Include="NearestNeighborhood.c">
+      <Filter>Heuristics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h">
