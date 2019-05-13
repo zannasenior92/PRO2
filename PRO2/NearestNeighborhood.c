@@ -9,63 +9,49 @@ int xpos(int i, int j, instance *inst);
 
 
 /*--------------GREEDY ALGORITHM TO FIND A INITIAL SOLUTION FOR THE TSP PROBLEM---------------*/
-void nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node)
+double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node)
 {
-	int rand_initial_v = start_node; //INITIAL NODE
-	printf("Initial Node: %d \n", rand_initial_v + 1);
+	int starting_node = start_node; //INITIAL NODE
+	printf("Initial Node: %d \n", starting_node + 1);
 
-	double distance;//DISTANCE i-TH
+	double distance, nearest_distance;//DISTANCE i-TH
 	int n = 0;//SELECTED EDGES COUNTER
-
-	int *index0 = (int*)malloc(1 * sizeof(int));					//ARRAY OF INDEXES TO CHANGE BOUND
-	double *bounds0 = (double*)calloc(1, sizeof(double));			//ARRAY THAT CONTAIN THE NEW VALUE OF THE BOUND				
-	char *lb0 = (char*)malloc(1 * sizeof(char));					//ARRAY THAT SPECIFIES WHAT BOUND CHANGE FOR EACH VARIABLE
+	double cost = 0;
 	int *selected_nodes = (int*)calloc(inst->nnodes, sizeof(int));	//ARRAY OF SELECTED NODES
-
+	selected_nodes[start_node] = 1;
 	while (n < inst->nnodes-1)
 	{
-		double near_distance = INFINITY;
-		int selected_node;
+		nearest_distance = INFINITY;
+		int selected_node= -1;
 		
 		/*FIND n-1 NODES (n-2 EDGES); FROM ALL DIFFERENT NODES RESPECT TO THE NODE WHERE I'M NOW ;
 		FROM ALL NOT SELECTED NODES*/
-		for (int i = 0; i < inst->nnodes && (i != rand_initial_v) && (selected_nodes[i] != 1); i++)
+		for (int i = 0; i < inst->nnodes; i++)
 		{
-			distance = dist(rand_initial_v, i, inst);
-			if (distance < near_distance)
+			if ((i == starting_node) || (selected_nodes[i] == 1)) {
+				continue;
+			}
+			distance = dist(starting_node, i, inst);
+			if (distance < nearest_distance)
 			{
-				near_distance = distance;
+				nearest_distance = distance;
 				selected_node = i;
 			}
 		}
-		printf("Selected edge: x(%d,%d) \n", rand_initial_v + 1, selected_node + 1);
+		if (selected_node == -1) {
+			continue;
+		}
+		//printf("Selected edge: x(%d,%d) \n", starting_node + 1, selected_node + 1);
 		selected_nodes[selected_node] = 1;//NODE SELECTED AN SO VISITED
-		inst->choosen_edge[n] = xpos(rand_initial_v, selected_node, inst);//SAVE EDGE
-
-		index0[0] = xpos(selected_node,rand_initial_v, inst);
-		bounds0[0] = 1;
-		lb0[0] = 'L';
-
-		/*SELECT THE EDGE IN CPLEX MODEL*/
-		CPXchgbds(env, lp, n, index0, lb0, bounds0);//FUNCTION TO MODIFY BOUNDS TO THE VARIABLES
-
-		rand_initial_v = selected_node;
-		printf("Now i'm in node: %d \n", rand_initial_v + 1);
-
+		cost += nearest_distance;
+		inst->best_sol[xpos(starting_node, selected_node, inst)] = 1;
+		starting_node = selected_node;
+		//printf("Now i'm in node: %d \n", starting_node + 1);
 		n++;
 	}
-	inst->choosen_edge[n] = xpos(rand_initial_v, start_node, inst);//SAVE LAST EDGE
-	/*SELECT THE LAST EDGE*/
-	index0[0] = xpos(rand_initial_v, start_node, inst);
-	bounds0[0] = 1;
-	lb0[0] = 'L';
-	/*SELECT THE LAST EDGE IN CPLEX MODEL*/
-	CPXchgbds(env, lp, n, index0, lb0, bounds0);//FUNCTION TO MODIFY BOUNDS TO THE VARIABLES
-
-	printf("Last edge selected is x(%d,%d)", rand_initial_v + 1, start_node + 1);
-
-	free(index0);
-	free(bounds0);
-	free(lb0);
+	inst->best_sol[xpos(starting_node, start_node, inst)] = 1;
+	cost += dist(starting_node, start_node, inst);
+	//printf("Last edge selected is x(%d,%d)", starting_node + 1, start_node + 1);
 	free(selected_nodes);
+	return cost;
 }
