@@ -18,18 +18,17 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 	selected_nodes[start_node] = 1;
 	int j = 0;
 	srand(time(NULL));
-	double random;
 	while (n < inst->nnodes - 1)
 	{
 		int *nearest_three_nodes = (int*)calloc(3, sizeof(int)); //salvo i 3 nodi più vicini
 		int nearest_selected = 0;
 		int selected_node;
-		random = (double)rand() / (double)RAND_MAX;
-		printf("IL RANDOM VALE %f\n", random);
+		double random = (double)rand() / (double)RAND_MAX;
+		//printf("IL RANDOM VALE %f\n", random);
 		j = 0;
+		selected_node = -1;
 		while (j < 3) {
 			nearest_distance = INFINITY;
-			selected_node = -1;
 			//TROVO IL NODO PIù VICINO AL NODO DI PARTENZA
 			for (int i = 0; i < inst->nnodes; i++)
 			{
@@ -39,10 +38,12 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 				distance = dist(starting_node, i, inst);
 				if (distance < nearest_distance)
 				{
+
 					nearest_distance = distance;
 					selected_node = i;
 				}
 			}
+
 			//CONTROLLARE QUESTO IF (NON CI VA UN BREAK?)
 			if (selected_node == -1) {
 				continue;
@@ -50,12 +51,12 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 
 			if (random < 0.5) {
 				printf("SCELTA NORMALE\n");
-				printf("Selected edge: x(%d,%d) \n", starting_node + 1, selected_node + 1);
+				//printf("Selected edge: x(%d,%d) \n", starting_node + 1, selected_node + 1);
 				selected_nodes[selected_node] = 1;//NODE SELECTED AN SO VISITED
 				cost += nearest_distance;
 				inst->best_sol[xpos(starting_node, selected_node, inst)] = 1;
 				starting_node = selected_node;
-				printf("Now i'm in node: %d \n", starting_node + 1);
+				//printf("Now i'm in node: %d \n", starting_node + 1);
 				nearest_selected = 1;
 				n++;
 				break;
@@ -72,12 +73,12 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 		}
 		printf("SCELTA RANDOM\n");
 		int selected = rand() % 3;
-		printf("IL SELECTED RANDOM VALE %d\n", selected);
-		printf("scelgo %d tra: ", nearest_three_nodes[selected]);
-		for (int stampa = 0; stampa < 3; stampa++) {
+		//printf("IL SELECTED RANDOM VALE %d\n", selected);
+		//printf("scelgo %d tra: ", nearest_three_nodes[selected]);
+		/*for (int stampa = 0; stampa < 3; stampa++) {
 			printf(" %d ", nearest_three_nodes[stampa]);
 		}
-		printf("\n");
+		printf("\n");*/
 		selected_node = nearest_three_nodes[selected];
 		selected_nodes[selected_node] = 1;//NODE SELECTED AN SO VISITED
 		//DESELEZIONO GLI ALTRI 2 NODI
@@ -94,7 +95,6 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 		free(nearest_three_nodes);
 
 	}
-	printf("Sono uscito dal for\n");
 	inst->best_sol[xpos(starting_node, start_node, inst)] = 1;
 	cost += dist(starting_node, start_node, inst);
 	//printf("Last edge selected is x(%d,%d)", starting_node + 1, start_node + 1);

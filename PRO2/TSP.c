@@ -46,7 +46,7 @@ int TSPopt(instance *inst)
 	min_cost = INFINITY;
 	int start_node = 0;
 	min_cost = nearest_neighborhood_GRASP(inst, env, lp, start_node);
-	printf("SONO USCITO");
+	
 	/*for (int i = 0; i < inst->nnodes; i++) {
 		cost = nearest_neighborhood(inst, env, lp, i);
 		if (cost < min_cost) {
