@@ -22,6 +22,7 @@ void start_sol(instance *inst);
 void update_choosen_edge(instance* inst);
 double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double prob);
+double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
 {
@@ -44,13 +45,15 @@ int TSPopt(instance *inst)
 	double cost, min_cost;
 	min_cost = INFINITY;
 	int start_node = 0;
-	for (int i = 0; i < inst->nnodes; i++) {
+	min_cost = nearest_neighborhood_GRASP(inst, env, lp, start_node);
+	printf("SONO USCITO");
+	/*for (int i = 0; i < inst->nnodes; i++) {
 		cost = nearest_neighborhood(inst, env, lp, i);
 		if (cost < min_cost) {
 			min_cost = cost;
 			start_node = i;
 		}
-	}
+	}*/
 	printf("\nCOSTO INIZIALE MIGLIORE %f\n", min_cost);
 	inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
 	cost = nearest_neighborhood(inst, env, lp, start_node);
@@ -63,7 +66,7 @@ int TSPopt(instance *inst)
 	update_choosen_edge(inst);
 	add_edge_to_file(inst);
 	plot_gnuplot(inst);
-	//exit(0);
+	exit(0);
 	//SET INITIAL OPTIMAL VALUE TO INFINITE
 	opt_heu = opt_current;
 	//SETTING OF CALLBACKS
