@@ -78,6 +78,9 @@
     <ClCompile Include="NearestNeighborhoodGRASP.c">
       <Filter>Heuristics</Filter>
     </ClCompile>
+    <ClCompile Include="TwoOpt.c">
+      <Filter>Heuristics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h">

@@ -36,6 +36,7 @@
     <ClCompile Include="Parser.c" />
     <ClCompile Include="SelectedEdges.c" />
     <ClCompile Include="TSP.c" />
+    <ClCompile Include="TwoOpt.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h" />
