@@ -30,6 +30,7 @@ double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 	int* nodes_edge1 = (int*)calloc(2, sizeof(int));
 	int* nodes_edge2 = (int*)calloc(2, sizeof(int));
 	int done = 0;
+
 	while (done!=1){
 		for (int i = 0; i < inst->nnodes; i++) {
 			reverse_xpos(edges[i], inst, nodes_edge1);

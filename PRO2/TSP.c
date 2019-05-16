@@ -55,10 +55,10 @@ int TSPopt(instance *inst)
 			start_node = i;
 		}
 	}*/
-	printf("\nCOSTO INIZIALE MIGLIORE %f\n", min_cost);
+	printf("\nBest Initial Cost %f\n", min_cost);
 	inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
 	cost = nearest_neighborhood(inst, env, lp, start_node);
-	hard_fixing(inst, env, lp, 1, 1);//FISSO TUTTI I LATI
+	hard_fixing(inst, env, lp, 1, 1);//SET ALL EDGES
 	if (CPXmipopt(env, lp)) print_error("Error resolving model");
 	if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
 	printf("Object function optimal value is: %.0f\n", opt_current);
@@ -81,9 +81,9 @@ int TSPopt(instance *inst)
 	while (time(NULL) < timelimit) {
 		
 		double delta = two_opt(inst, env, lp);
-		printf("Delta vale: %f\n", delta);
+		printf("Delta: %f\n", delta);
 		opt_current += delta;
-		printf("Nuova funzione obiettivo %f\n", opt_current);
+		printf("New objective function: %f\n", opt_current);
 		
 
 	}
@@ -97,18 +97,18 @@ int TSPopt(instance *inst)
 
 	//SET TIMELIMIT AND USE HEURISTIC LOOP
 	time_t timelimit1 = time(NULL) + 90;
-	printf("-----------FISSO 70%%-----------\n");
+	printf("-----------SET 70%%-----------\n");
 	opt_current= loop_hard_fixing(inst, env, lp, (double)timelimit1, 0.6, opt_heu);
 	opt_heu = opt_current;
-	printf("-----------FISSO 50%%-----------\n");
+	printf("-----------SET 50%%-----------\n");
 	time_t timelimit2 = time(NULL) + 90;
 	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit2, 0.4, opt_heu);
 	opt_heu = opt_current;
-	printf("-----------FISSO 20%%-----------\n");
+	printf("-----------SET 20%%-----------\n");
 	time_t timelimit3 = time(NULL) + 90;
 	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit3, 0.2, opt_heu);
 
-	printf("FINISCO CON IL TEMPO=%f\n", (double)(time(NULL)-time0));
+	printf("FINISH WITH TIME=%f\n", (double)(time(NULL)-time0));
 
 
 	/*---------------PRINT SELECTED EDGES--------------------------------------------*/
