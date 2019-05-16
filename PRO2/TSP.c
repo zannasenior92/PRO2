@@ -77,19 +77,19 @@ int TSPopt(instance *inst)
 	CPXsetlazyconstraintcallbackfunc(env, add_SEC_lazy, inst);
 	int ncores = 1; CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
-	time_t timelimit = time(NULL) + 200;
+	time_t timelimit = time(NULL) + 10;
 	while (time(NULL) < timelimit) {
 		
 		double delta = two_opt(inst, env, lp);
 		printf("Delta vale: %f\n", delta);
 		opt_current += delta;
 		printf("Nuova funzione obiettivo %f\n", opt_current);
-		update_choosen_edge(inst);
-		add_edge_to_file(inst);
-		plot_gnuplot(inst);
+		
 
 	}
-	
+	update_choosen_edge(inst);
+	add_edge_to_file(inst);
+	plot_gnuplot(inst);
 	exit(0);
 
 
