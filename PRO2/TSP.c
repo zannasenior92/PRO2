@@ -23,6 +23,7 @@ void update_choosen_edge(instance* inst);
 double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double prob);
 double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
+double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
 {
@@ -66,7 +67,8 @@ int TSPopt(instance *inst)
 	update_choosen_edge(inst);
 	add_edge_to_file(inst);
 	plot_gnuplot(inst);
-	exit(0);
+	
+	
 	//SET INITIAL OPTIMAL VALUE TO INFINITE
 	opt_heu = opt_current;
 	//SETTING OF CALLBACKS
@@ -75,7 +77,22 @@ int TSPopt(instance *inst)
 	CPXsetlazyconstraintcallbackfunc(env, add_SEC_lazy, inst);
 	int ncores = 1; CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
+	time_t timelimit = time(NULL) + 200;
+	while (time(NULL) < timelimit) {
+		
+		double delta = two_opt(inst, env, lp);
+		printf("Delta vale: %f\n", delta);
+		opt_current += delta;
+		printf("Nuova funzione obiettivo %f\n", opt_current);
+		update_choosen_edge(inst);
+		add_edge_to_file(inst);
+		plot_gnuplot(inst);
+
+	}
 	
+	exit(0);
+
+
 	time_t time0 = time(NULL);
 
 	//SET TIMELIMIT AND USE HEURISTIC LOOP

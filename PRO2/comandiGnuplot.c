@@ -1,5 +1,7 @@
 #include "TSP.h"
 #include <string.h>
+
+void add_edge_to_file(instance *inst);
 /*-------------------------------GNUPLOT PLOT-------------------------------------------*/
 void plot_gnuplot(instance *inst) {
 
