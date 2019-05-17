@@ -10,28 +10,8 @@
 #include <ilcplex/cplex.h>
 
 #define VERBOSE 50
-#define TSP 50
-#define GNUPLOT 50
-#define DIST_AND_POS 50
-#define MODELS 50
-#define PARSER 50
-#define SELECTED_EDGES 50
-//------------------HEURISTIC
-#define HARD_FIXING 50
-#define NEAREST_NEIGH 50
-#define NEAREST_NEIGH_GRASP 50
-#define TWO_OPT 50
-//------------------MODELS
-#define DEFAULT_MODEL 50
-#define KRUSKAL 50
-#define MYSEPARATION 50
-#define FISCH 50
-#define FLOW1 50
-#define FLOW2 50
-#define MTZ 50
-
-
 #define TOLERANCE 0.5
+
 typedef struct {
 
 
@@ -57,12 +37,10 @@ typedef struct {
 	int n_connected_comp;
 	int *comp;		//COMPONENTI CONNESSE
 	int *mycomp;
-	int ncols;
-	CPXLPptr lp;
-	CPXENVptr env;
+	int sec;
 	/*-----------------LAST VARIABLE CPLEX INDEX--------------------*/
 	int last_x_index;											//LATS INDEX OF x VARIABLES (LAST COLUMN IN CPLEX)
-	double starting_solution_cost;
+	
 
 } instance;														//NAME OF THE INSTANCE
 
