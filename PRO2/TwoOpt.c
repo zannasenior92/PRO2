@@ -101,7 +101,8 @@ double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 					}
 					else {
 						
-						printf("NON CAMBIO NULLA\n");
+						if(VERBOSE>200)
+							printf("NON CAMBIO NULLA\n");
 						inst->best_sol[old_edge1] = 1.0;
 						inst->best_sol[old_edge2] = 1.0;
 						inst->best_sol[min_new_edge1] = 0.0;
@@ -142,6 +143,23 @@ double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 	
 }
 
+void vns(instance *inst, CPXENVptr env, CPXLPptr lp) {
+	int* edges = (int*)calloc(inst->nnodes, sizeof(int));
+	int n = 0;
+	for (int i = 0; i < inst->ncols; i++) {
+		if (inst->best_sol[i] > TOLERANCE) {
+			edges[n] = i;
+			//printf("edge[%d]=%d\n", n, i);
+			n++;
+		}
+	}
+	srand(time(NULL));
+
+	int rand_edge1 = edges[rand() % inst->nnodes];
+	int rand_edge2 = edges[rand() % inst->nnodes];
+	int rand_edge3 = edges[rand() % inst->nnodes];
+
+}
 
 void reverse_xpos(int x, instance* inst, int* nodes) {
 	for (int i = 0; i < inst->nnodes; i++) {

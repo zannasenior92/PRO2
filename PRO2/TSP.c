@@ -24,6 +24,7 @@ double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int star
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double prob);
 double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
 double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
+void vns(instance *inst, CPXENVptr env, CPXLPptr lp);
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
 {
@@ -45,9 +46,19 @@ int TSPopt(instance *inst)
 	inst->best_sol= (double*)calloc(inst->ncols, sizeof(double));
 	double cost, min_cost;
 	min_cost = INFINITY;
+	double *minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
 	int start_node = 0;
-	min_cost = nearest_neighborhood_GRASP(inst, env, lp, start_node);
-	
+	for (int i = 0; i < 100; i++) {
+		for (int j = 0; j < inst->nnodes; j++) {
+			inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
+			cost = nearest_neighborhood_GRASP(inst, env, lp, j);
+			if (cost < min_cost) {
+				min_cost = cost;
+				minimum_solution = inst->best_sol;
+			}
+		}
+	}
+	//CODICE PER TROVARE NEAREST NEIGHBOORHOOD CHE SCORRE TUTTI I NODI
 	/*for (int i = 0; i < inst->nnodes; i++) {
 		cost = nearest_neighborhood(inst, env, lp, i);
 		if (cost < min_cost) {
@@ -55,14 +66,17 @@ int TSPopt(instance *inst)
 			start_node = i;
 		}
 	}*/
-	printf("\nBest Initial Cost %f\n", min_cost);
-	inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
+
+	printf("\nBest Initial Cost After Nearest Neighborhood %f\n", min_cost);
+	inst->best_sol = minimum_solution;
+	/*inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
 	cost = nearest_neighborhood(inst, env, lp, start_node);
 	hard_fixing(inst, env, lp, 1, 1);//SET ALL EDGES
 	if (CPXmipopt(env, lp)) print_error("Error resolving model");
 	if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
 	printf("Object function optimal value is: %.0f\n", opt_current);
 	reset_lower_bound(inst, env, lp);
+	*/
 	/*-------PRINT INITIAL SOLUTION--------*/
 	update_choosen_edge(inst);
 	add_edge_to_file(inst);
@@ -70,20 +84,29 @@ int TSPopt(instance *inst)
 	
 	
 	//SET INITIAL OPTIMAL VALUE TO INFINITE
-	opt_heu = opt_current;
+	//opt_heu = min_cost;
+	opt_current = min_cost;
 	//SETTING OF CALLBACKS
 	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
 	CPXsetdblparam(env, CPX_PARAM_TILIM, 30);
 	CPXsetlazyconstraintcallbackfunc(env, add_SEC_lazy, inst);
 	int ncores = 1; CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
-	time_t timelimit = time(NULL) + 10;
+	int local_minimum = 0;
+	time_t timelimit = time(NULL) + 30;
 	while (time(NULL) < timelimit) {
 		
 		double delta = two_opt(inst, env, lp);
 		printf("Delta: %f\n", delta);
 		opt_current += delta;
 		printf("New objective function: %f\n", opt_current);
+		if (delta == 0.0) {
+			local_minimum++;
+		}
+		if (local_minimum == 10) {
+			vns(inst, env, lp);
+			local_minimum = 0;
+		}
 		
 
 	}
