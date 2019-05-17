@@ -28,7 +28,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			double ub = (i == j) ? 0.0 : 1.0;
 
 			/*--------------------PRINT DISTANCE d(i,j)-------------------*/
-			if (VERBOSE >= 500) {
+			if (FLOW1 >= 500) {
 				printf("Distance d(%d,%d): %f \n", i + 1, j + 1, dist(i, j, inst));
 			}
 
@@ -37,14 +37,14 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			/*--------------------CHECK VARIABLE POSITION-----------------*/
 			if (CPXgetnumcols(env, lp) - 1 != xpos_compact(i, j, inst)) print_error(" wrong position for x var.s");
 
-			if (VERBOSE >= 500)
+			if (FLOW1 >= 500)
 			{
 				printf("The column with i=%d e j=%d is in position %d and xpos is %d\n", i, j, CPXgetnumcols(env, lp), xpos_compact(i, j, inst));
 			}
 		}
 	}
 	inst->last_x_index = CPXgetnumcols(env, lp) - 1;									//LAST x INDEX(INDEXES START FROM 0)
-	if (VERBOSE >= 200)
+	if (FLOW1 >= 200)
 	{
 		printf("Last x index in CPLEX is: %d (Remember indexes start from 0)\n", inst->last_x_index);
 	}
@@ -63,7 +63,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			/*--------------------CHECK VARIABLE POSITION-----------------*/
 			if (CPXgetnumcols(env, lp) - 1 != ypos(i, j, inst))	print_error(" wrong position for y var.s");
 
-			if (VERBOSE >= 200)
+			if (FLOW1 >= 200)
 			{
 				printf("The column with i=%d e j=%d is in position %d and ypos is %d\n", i, j, CPXgetnumcols(env, lp), ypos(i, j, inst));
 			}
@@ -78,7 +78,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	{
 		int lastrow = CPXgetnumrows(env, lp);
-		if (VERBOSE >= 300)																//print every indeg
+		if (FLOW1 >= 300)																//print every indeg
 		{
 			printf("indeg(%d) \n", h + 1);
 		}
@@ -99,7 +99,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	for (int h = 0; h < inst->nnodes; h++)
 	{
 		int lastrow = CPXgetnumrows(env, lp);
-		if (VERBOSE >= 300)																//print every outdeg
+		if (FLOW1 >= 300)																//print every outdeg
 		{
 			printf("outdeg(%d) \n", h + 1);
 		}
@@ -183,7 +183,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			value[lazy_index] = -1.0;
 			lazy_index++;
 		}
-		if (VERBOSE >= 1 && (j == inst->nnodes - 1))
+		if (FLOW1 >= 1 && (j == inst->nnodes - 1))
 		{
 			printf("Last number of lazy_index: %d \n", lazy_index);
 		}

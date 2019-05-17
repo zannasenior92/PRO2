@@ -88,7 +88,7 @@ void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double pr
 		if (inst->best_sol[i] == 1) {
 			double random = (double)rand() / (double)RAND_MAX;
 			if (random <= prob) {
-				if (VERBOSE >=400)
+				if (HARD_FIXING >=400)
 				{
 					printf("Selected edge %d\n", i);
 				}
@@ -145,7 +145,7 @@ void start_sol(instance *inst)
 	}
 	inst->best_sol[xpos(0, inst->nnodes - 1, inst)] = 1;
 
-	if (VERBOSE >= 200) {
+	if (HARD_FIXING >= 200) {
 		for (int i = 0; i < inst->nnodes; i++) {
 			for (int j = i + 1; j < inst->nnodes; j++) {
 				if (inst->best_sol[xpos(i, j, inst)] > TOLERANCE) 

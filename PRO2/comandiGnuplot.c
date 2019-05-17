@@ -45,7 +45,7 @@ void plot_gnuplot(instance *inst) {
 
 	/*--------------------NUMBER OF GNUPLOT COMMANDS------------------------------------*/
 	int n_commands = sizeof(commandsForGnuplot) / sizeof(commandsForGnuplot[0]);
-	if (VERBOSE > 200)
+	if (GNUPLOT > 200)
 	{
 		printf("Numero comandi gnuplot: %d \n", n_commands);
 	}
@@ -93,7 +93,7 @@ void update_choosen_edge(instance* inst) {
 		for (int j = i + 1; j < inst->nnodes; j++) {
 			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
 
-				if (VERBOSE >= 100) {
+				if (GNUPLOT >= 100) {
 					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
 				}
 				/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/

@@ -9,8 +9,7 @@ int xpos(int i, int j, instance *inst);
 double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node)
 {
 	int starting_node = start_node; //INITIAL NODE
-	if(VERBOSE>200)
-		printf("Initial Node: %d \n", starting_node + 1);
+	printf("Initial Node: %d \n", starting_node + 1);
 
 	double distance, nearest_distance;									//DISTANCE i-TH
 	int n = 0;															//SELECTED EDGES COUNTER
@@ -55,16 +54,16 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 
 			/*---------NORMAL CHOICE THAT CHOOSE ONE NODE(THE NEAREST)---------*/
 			if (random < 0.5) {
-				if (VERBOSE > 400)
+				printf("NORMAL CHOICE\n");
+				if (NEAREST_NEIGH_GRASP > 400)
 				{
-					printf("NORMAL CHOICE\n");
 					printf("Selected edge: x(%d,%d) \n", starting_node + 1, selected_node + 1);
 				}
 				selected_nodes[selected_node] = 1;							//NODE SELECTED AN SO VISITED
 				cost += nearest_distance;
 				inst->best_sol[xpos(starting_node, selected_node, inst)] = 1;
 				starting_node = selected_node;								//UPDATE THE STARTING NODE
-				if (VERBOSE > 400)
+				if (NEAREST_NEIGH_GRASP > 400)
 				{
 					printf("Now i'm in node: %d \n", starting_node + 1);
 				}
@@ -76,7 +75,7 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 			FROM ALL NOT SELECTED NODES*/
 			nearest_three_nodes[j] = selected_node;
 			selected_nodes[selected_node] = 1;								//NODE SELECTED AN SO VISITED
-			if (VERBOSE > 400)
+			if (NEAREST_NEIGH_GRASP > 400)
 			{
 				printf("Now i'm in node: %d \n", starting_node + 1);
 			}
@@ -85,10 +84,9 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 		if (nearest_selected == 1) {
 			continue;
 		}
-		if (VERBOSE>200)
-			printf("SCELTA RANDOM\n");
+		printf("SCELTA RANDOM\n");
 		int selected = rand() % 3;
-		if (VERBOSE > 400)
+		if (NEAREST_NEIGH_GRASP > 400)
 		{
 			printf("scelgo %d tra: ", nearest_three_nodes[selected]);
 			for (int stampa = 0; stampa < 3; stampa++) {
@@ -108,7 +106,7 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 		cost += dist(selected_node, starting_node, inst);
 		inst->best_sol[xpos(starting_node, selected_node, inst)] = 1;
 		starting_node = selected_node;										//UPDATE THE STARTING NODE
-		if (VERBOSE > 400)
+		if (NEAREST_NEIGH_GRASP > 400)
 		{
 			printf("Now i'm in node: %d \n", starting_node + 1);
 		}
@@ -117,7 +115,7 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 	}
 	inst->best_sol[xpos(starting_node, start_node, inst)] = 1;
 	cost += dist(starting_node, start_node, inst);
-	if (VERBOSE > 400)
+	if (NEAREST_NEIGH_GRASP > 400)
 	{
 		printf("Last edge selected is x(%d,%d)", starting_node + 1, start_node + 1);
 	}

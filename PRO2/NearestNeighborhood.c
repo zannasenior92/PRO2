@@ -41,7 +41,7 @@ double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int star
 		if (selected_node == -1) {
 			continue;
 		}
-		if (VERBOSE >400)
+		if (NEAREST_NEIGH >400)
 		{
 			printf("Selected edge: x(%d,%d) \n", starting_node + 1, selected_node + 1);
 		}
@@ -49,7 +49,7 @@ double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int star
 		cost += nearest_distance;
 		inst->best_sol[xpos(starting_node, selected_node, inst)] = 1;	//SAVE SELECTED NODE IN BEST SOLUTION
 		starting_node = selected_node;									//NOW UPDATE THE NEXT STARTING NODE
-		if (VERBOSE >400)
+		if (NEAREST_NEIGH >400)
 		{
 			printf("Now i'm in node: %d \n", starting_node + 1);
 		}
@@ -57,7 +57,7 @@ double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int star
 	}
 	inst->best_sol[xpos(starting_node, start_node, inst)] = 1;			//SELECT THE LAST EDGE TO CLOSE THE CIRCUIT
 	cost += dist(starting_node, start_node, inst);
-	if (VERBOSE >400)
+	if (NEAREST_NEIGH >400)
 	{
 		printf("Last edge selected is x(%d,%d)", starting_node + 1, start_node + 1);
 	}
