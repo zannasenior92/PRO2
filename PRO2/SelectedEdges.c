@@ -17,7 +17,7 @@ void selected_edges(instance *inst)
 			for (int j = 0; j < inst->nnodes; j++) {
 				if (inst->best_sol[xpos_compact(i, j, inst)] > TOLERANCE) {
 
-					if (VERBOSE >= 100) {
+					if (SELECTED_EDGES >= 100) {
 						printf("Node (%d,%d) selected\n", i + 1, j + 1);
 					}
 					/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
@@ -34,7 +34,7 @@ void selected_edges(instance *inst)
 			for (int j = i + 1; j < inst->nnodes; j++) {
 				if (inst->best_sol[xpos(i, j, inst)] > TOLERANCE) {
 
-					if (VERBOSE >= 100) {
+					if (SELECTED_EDGES >= 100) {
 						printf("Node (%d,%d) selected\n", i + 1, j + 1);
 					}
 					/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
@@ -48,7 +48,7 @@ void selected_edges(instance *inst)
 	}
 	add_edge_to_file(inst);
 
-	if (VERBOSE >= 100) {
+	if (SELECTED_EDGES >= 100) {
 		printf("Selected nodes: %d \n", count);
 	}
 }

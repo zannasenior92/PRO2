@@ -27,7 +27,7 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			sprintf(cname[0], "x(%d,%d)", i + 1, j + 1);//print variables on cplex 
 
 			/*--------------------PRINT DISTANCE d(i,j)-------------------*/
-			if (VERBOSE >= 500) {
+			if (FISCH >= 500) {
 				printf("Distance d(%d,%d): %f \n", i + 1, j + 1, dist(i, j, inst));
 			}
 			if (CPXnewcols(env, lp, 1, &obj, &lb, &ub, &binary, cname)) print_error(" wrong CPXnewcols on x var.s");
@@ -56,7 +56,7 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	for (int h = 0; h < inst->nnodes; h++)  // degree ciclo esterno per ogni vincolo che voglio aggiungere per nodo h
 	{
 		int lastrow = CPXgetnumrows(env, lp);	//chiedo a cplex ultima riga cambiata chiedendo numero di righe
-		if (VERBOSE >= 200) {
+		if (FISCH >= 200) {
 			printf("lastrow %d\n", lastrow);
 		}
 		double maxdeg = 2.0; 	 	//NOI vogliamo 2 uno entrante e uno uscente

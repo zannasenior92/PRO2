@@ -100,8 +100,10 @@ double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 						
 					}
 					else {
-						
-						printf("NON CAMBIO NULLA\n");
+						if (TWO_OPT > 400)
+						{
+							printf("NON CAMBIO NULLA\n");
+						}
 						inst->best_sol[old_edge1] = 1.0;
 						inst->best_sol[old_edge2] = 1.0;
 						inst->best_sol[min_new_edge1] = 0.0;

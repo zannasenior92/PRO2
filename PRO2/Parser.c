@@ -79,7 +79,7 @@ void parse_command_line(int argc, char** argv, instance *inst) {
 		strcat(name_file, in_file);														//ADD NAME FILE TO THE PATH STRING
 		strcat(name_file, ".tsp");
 		printf("\n");
-		if (VERBOSE >= 100)
+		if (PARSER >= 100)
 		{
 			printf("Input file selected: %s \n\n", name_file);
 		}
@@ -138,7 +138,7 @@ void read_input(instance *inst) {
 		if (strlen(line) <= 1) continue;									// SKIP BLANK LINES
 		par_name = strtok(line, " :");										// " :" as delimiter
 
-		if (VERBOSE >= 300)
+		if (PARSER >= 300)
 		{
 			printf("par_name= %s \n", par_name);
 		}
@@ -154,7 +154,7 @@ void read_input(instance *inst) {
 		{
 			token1 = strtok(NULL, " :");									//NULL gives the following word
 			inst->nnodes = atoi(token1);									//string argument to integer
-			if (VERBOSE >= 100) printf("nnodes %d\n", inst->nnodes);
+			if (PARSER >= 100) printf("nnodes %d\n", inst->nnodes);
 			inst->xcoord = (double *)calloc(inst->nnodes, sizeof(double));
 			inst->ycoord = (double *)calloc(inst->nnodes, sizeof(double));
 			inst->choosen_edge = (int *)calloc(inst->nnodes * 2, sizeof(int));

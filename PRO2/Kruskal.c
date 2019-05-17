@@ -33,7 +33,7 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 
 	/*--------------------COUNT COMPONENTS---------------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
-		if (VERBOSE >= 100) {
+		if (KRUSKAL >= 100) {
 			printf("Componente %d\n", inst->comp[i]);
 		}
 		inst->mycomp[inst->comp[i]] = 1;
@@ -44,7 +44,7 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 			n++;
 		}
 	}
-	if (VERBOSE >= 100) {
+	if (KRUSKAL >= 100) {
 		printf("Componenti connesse %d\n", n);
 	}
 	inst->n_connected_comp = n;

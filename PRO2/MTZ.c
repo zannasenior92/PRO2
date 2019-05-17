@@ -22,7 +22,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			double ub = (i == j) ? 0.0 : 1.0;
 
 			/*--------------------PRINT DISTANCE d(i,j)-------------------*/
-			if (VERBOSE >= 500) {
+			if (MTZ >= 500) {
 				printf("Distance d(%d,%d): %f \n", i + 1, j + 1, dist(i, j, inst));
 			}
 
@@ -31,7 +31,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			/*--------------------CHECK VARIABLE POSITION-----------------*/
 			if (CPXgetnumcols(env, lp) - 1 != xpos_compact(i, j, inst)) print_error(" wrong position for x var.s");
 
-			if (VERBOSE >= 500)
+			if (MTZ >= 500)
 			{
 				printf("The column with i=%d e j=%d is in position %d and xpos is %d\n", i, j, CPXgetnumcols(env, lp), xpos_compact(i, j, inst));
 			}
@@ -39,7 +39,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	}
 
 	inst->last_x_index = CPXgetnumcols(env, lp) - 1;									//LAST x INDEX(INDEXES START FROM 0)
-	if (VERBOSE >= 500)
+	if (MTZ >= 500)
 	{
 		printf("Last x index in CPLEX is: %d \n", inst->last_x_index);
 	}
@@ -68,7 +68,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	{
 		int lastrow = CPXgetnumrows(env, lp);
-		if (VERBOSE >= 300)																//print every indeg
+		if (MTZ >= 300)																//print every indeg
 		{
 			printf("indeg(%d) \n", h + 1);
 		}
@@ -89,7 +89,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	for (int h = 0; h < inst->nnodes; h++)
 	{
 		int lastrow = CPXgetnumrows(env, lp);
-		if (VERBOSE >= 300)																//print every outdeg
+		if (MTZ >= 300)																//print every outdeg
 		{
 			printf("outdeg(%d) \n", h + 1);
 		}

@@ -25,7 +25,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			sprintf(cname[0], "x(%d,%d)", i + 1, j + 1);								//PRINT VARIABLES IN CPLEX IN .lp FILE 
 
 			/*--------------------PRINT DISTANCE d(i,j)-------------------*/
-			if (VERBOSE >= 500) {
+			if (DEFAULT_MODEL >= 500) {
 				printf("Distance d(%d,%d): %f \n", i + 1, j + 1, dist(i, j, inst));
 			}
 
@@ -35,7 +35,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 			/*--------------------CHECK VARIABLE POSITION-----------------*/
 			if (CPXgetnumcols(env, lp) - 1 != xpos(i, j, inst)) print_error(" wrong position for x var.s");
-			if (VERBOSE >= 500)
+			if (DEFAULT_MODEL >= 500)
 			{
 				printf("The column with i=%d e j=%d is in position %d and xpos is %d\n", i, j, CPXgetnumcols(env, lp), xpos(i, j, inst));
 			}
@@ -47,7 +47,7 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	for (int h = 0; h < inst->nnodes; h++)
 	{
 		int lastrow = CPXgetnumrows(env, lp);										//LAST ROW NUMBER(to insert the new constraint)
-		if (VERBOSE >= 200) {
+		if (DEFAULT_MODEL >= 200) {
 			printf("lastrow %d\n", lastrow);
 		}
 		double maxdeg = 2.0; 	 													//DEGREE OF EVERY NODE
