@@ -21,6 +21,7 @@ double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 			n++;
 		}
 	}
+
 	double min_delta = 0;
 	double edge1_length, edge2_length;
 	double new_dist1, new_dist2;
@@ -63,32 +64,40 @@ double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 					}
 					old_edge1 = edges[i];
 					old_edge2 = edges[j];
-					/*printf("best_sol[%d]=%f\n", old_edge1, inst->best_sol[old_edge1]);
-					printf("best_sol[%d]=%f\n", old_edge2, inst->best_sol[old_edge2]);
-					printf("best_sol[%d]=%f\n", min_new_edge1, inst->best_sol[min_new_edge1]);
-					printf("best_sol[%d]=%f\n", min_new_edge2, inst->best_sol[min_new_edge2]);
-					*/
+					if (TWO_OPT > 400)
+					{
+						printf("best_sol[%d]=%f\n", old_edge1, inst->best_sol[old_edge1]);
+						printf("best_sol[%d]=%f\n", old_edge2, inst->best_sol[old_edge2]);
+						printf("best_sol[%d]=%f\n", min_new_edge1, inst->best_sol[min_new_edge1]);
+						printf("best_sol[%d]=%f\n", min_new_edge2, inst->best_sol[min_new_edge2]);
+
+					}
+					
 					inst->best_sol[old_edge1] = 0.0;
 					inst->best_sol[old_edge2] = 0.0;
 					inst->best_sol[min_new_edge1] = 1.0;
 					inst->best_sol[min_new_edge2] = 1.0;
-					/*printf("DOPO\n");
-					printf("best_sol[%d]=%f\n", old_edge1, inst->best_sol[old_edge1]);
-					printf("best_sol[%d]=%f\n", old_edge2, inst->best_sol[old_edge2]);
-					printf("best_sol[%d]=%f\n", min_new_edge1, inst->best_sol[min_new_edge1]);
-					printf("best_sol[%d]=%f\n", min_new_edge2, inst->best_sol[min_new_edge2]);
-					*/
+					if (TWO_OPT > 400)
+					{
+						printf("DOPO\n");
+						printf("best_sol[%d]=%f\n", old_edge1, inst->best_sol[old_edge1]);
+						printf("best_sol[%d]=%f\n", old_edge2, inst->best_sol[old_edge2]);
+						printf("best_sol[%d]=%f\n", min_new_edge1, inst->best_sol[min_new_edge1]);
+						printf("best_sol[%d]=%f\n", min_new_edge2, inst->best_sol[min_new_edge2]);
+
+					}
+					
 					if (kruskal_sst(env, lp, inst) == 1) {
-						/*printf("AZZERO %d, %d e %d, %d, e aggiungo %d, %d e %d %d \n",
-							nodes_edge1[0]+1, nodes_edge1[1] + 1, nodes_edge2[0] + 1, nodes_edge2[1] + 1,
-							nodes_edge1[0]+1, nodes_edge2[1] + 1, nodes_edge1[1] + 1, nodes_edge2[0] + 1);
-						printf("PASSO DA %d e %d A %d, %d\n",
-							old_edge1, old_edge2, min_new_edge1, min_new_edge2);
-						*/
-						/*for (int k = 0; k < inst->ncols; k++){
-							if (inst->best_sol[k] > 0.5)
-								printf("%d\n ", k);
-						}*/
+						if (TWO_OPT > 400)
+						{
+							printf("AZZERO %d, %d e %d, %d, e aggiungo %d, %d e %d %d \n",
+								nodes_edge1[0] + 1, nodes_edge1[1] + 1, nodes_edge2[0] + 1, nodes_edge2[1] + 1,
+								nodes_edge1[0] + 1, nodes_edge2[1] + 1, nodes_edge1[1] + 1, nodes_edge2[0] + 1);
+							printf("PASSO DA %d e %d A %d, %d\n",
+								old_edge1, old_edge2, min_new_edge1, min_new_edge2);
+						}
+						
+
 						/*update_choosen_edge(inst);
 						add_edge_to_file(inst);
 						plot_gnuplot(inst);

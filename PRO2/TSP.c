@@ -24,7 +24,10 @@ double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int star
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double prob);
 double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
 double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
-void vns(instance *inst, CPXENVptr env, CPXLPptr lp);
+double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
+
+
+//void vns(instance *inst, CPXENVptr env, CPXLPptr lp);
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
 {
@@ -96,7 +99,7 @@ int TSPopt(instance *inst)
 	time_t timelimit = time(NULL) + 30;
 	while (time(NULL) < timelimit) {
 		
-		double delta = two_opt(inst, env, lp);
+		double delta = three_opt(inst, env, lp);
 		printf("Delta: %f\n", delta);
 		opt_current += delta;
 		printf("New objective function: %f\n", opt_current);
@@ -104,7 +107,7 @@ int TSPopt(instance *inst)
 			local_minimum++;
 		}
 		if (local_minimum == 10) {
-			vns(inst, env, lp);
+			//vns(inst, env, lp);
 			local_minimum = 0;
 		}
 		
