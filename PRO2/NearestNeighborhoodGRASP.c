@@ -54,9 +54,9 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 
 			/*---------NORMAL CHOICE THAT CHOOSE ONE NODE(THE NEAREST)---------*/
 			if (random < 0.5) {
-				printf("NORMAL CHOICE\n");
 				if (NEAREST_NEIGH_GRASP > 400)
 				{
+					printf("NORMAL CHOICE\n");
 					printf("Selected edge: x(%d,%d) \n", starting_node + 1, selected_node + 1);
 				}
 				selected_nodes[selected_node] = 1;							//NODE SELECTED AN SO VISITED
@@ -84,10 +84,10 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 		if (nearest_selected == 1) {
 			continue;
 		}
-		printf("SCELTA RANDOM\n");
 		int selected = rand() % 3;
 		if (NEAREST_NEIGH_GRASP > 400)
 		{
+			printf("SCELTA RANDOM\n");
 			printf("scelgo %d tra: ", nearest_three_nodes[selected]);
 			for (int stampa = 0; stampa < 3; stampa++) {
 				printf(" %d ", nearest_three_nodes[stampa]);
