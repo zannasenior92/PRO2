@@ -52,7 +52,7 @@ int TSPopt(instance *inst)
 	min_cost = INFINITY;
 	double *minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
 	int start_node = 0;
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 5; i++) {
 		for (int j = 0; j < inst->nnodes; j++) {
 			inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
 			cost = nearest_neighborhood_GRASP(inst, env, lp, j);
@@ -97,7 +97,7 @@ int TSPopt(instance *inst)
 	int ncores = 1; CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
 	int local_minimum = 0;
-	time_t timelimit = time(NULL) + 30;
+	time_t timelimit = time(NULL) + 10;
 	while (time(NULL) < timelimit) {
 		
 		double delta = three_opt(inst, env, lp);
