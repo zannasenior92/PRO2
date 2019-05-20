@@ -210,3 +210,131 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 
 }
 
+
+double vns(instance *inst, CPXENVptr env, CPXLPptr lp) {
+	double edge1_length, edge2_length, edge3_length;
+	double new_dist1, new_dist2, new_dist3;
+	int new_edge1, new_edge2, new_edge3;
+	int old_edge1, old_edge2, old_edge3;
+
+	//EDGES OF THE OPTIMAL SOLUTION STORED INTO AN ARRAY
+	int* edges = (int*)calloc(inst->nnodes, sizeof(int));
+	int n = 0;
+	for (int i = 0; i < inst->ncols; i++) {
+		if (inst->best_sol[i] > TOLERANCE) {
+			edges[n] = i;
+			if (THREE_OPT > 400)
+			{
+				printf("edge[%d]=%d\n", n, i);
+			}
+			n++;
+		}
+	}
+	srand(time(NULL));
+	int random_edge1 = edges[rand() % inst->nnodes];
+	int random_edge2 = edges[rand() % inst->nnodes];
+	int random_edge3 = edges[rand() % inst->nnodes];
+	int *random_edge1_nodes = (int*)calloc(2, sizeof(int));
+	int *random_edge2_nodes = (int*)calloc(2, sizeof(int));
+	int *random_edge3_nodes = (int*)calloc(2, sizeof(int));
+	reverse_xpos(random_edge1, inst, random_edge1_nodes);
+	reverse_xpos(random_edge2, inst, random_edge2_nodes);
+	reverse_xpos(random_edge3, inst, random_edge3_nodes);
+	if ((random_edge1_nodes[0] == random_edge2_nodes[0]) || (random_edge1_nodes[0] == random_edge2_nodes[1]) ||
+		(random_edge1_nodes[0] == random_edge3_nodes[0]) || (random_edge1_nodes[0] == random_edge3_nodes[1]) ||
+		(random_edge1_nodes[1] == random_edge2_nodes[0]) || (random_edge1_nodes[1] == random_edge2_nodes[1]) ||
+		(random_edge1_nodes[1] == random_edge3_nodes[0]) || (random_edge1_nodes[1] == random_edge3_nodes[1]) ||
+		(random_edge2_nodes[0] == random_edge3_nodes[0]) || (random_edge2_nodes[0] == random_edge3_nodes[1]) ||
+		(random_edge2_nodes[1] == random_edge3_nodes[0]) || (random_edge2_nodes[1] == random_edge3_nodes[1])) {
+		
+		free(random_edge1_nodes);
+		free(random_edge2_nodes);
+		free(random_edge3_nodes);
+		return -1;
+	}
+
+	/*-------------------------TAKE THE LENGTH OF OLD EDGES-----------------------*/
+	edge1_length = dist(random_edge1_nodes[0], random_edge1_nodes[1], inst);
+	edge2_length = dist(random_edge2_nodes[0], random_edge2_nodes[1], inst);
+	edge3_length = dist(random_edge3_nodes[0], random_edge3_nodes[1], inst);
+	
+	old_edge1 = xpos(random_edge1_nodes[0], random_edge1_nodes[1], inst);
+	old_edge2 = xpos(random_edge2_nodes[0], random_edge2_nodes[1], inst);
+	old_edge3 = xpos(random_edge3_nodes[0], random_edge3_nodes[1], inst);
+
+	new_dist1 = dist(random_edge1_nodes[0], random_edge2_nodes[1], inst);
+	new_dist2 = dist(random_edge2_nodes[0], random_edge3_nodes[1], inst);
+	new_dist3 = dist(random_edge3_nodes[0], random_edge1_nodes[1], inst);
+
+	new_edge1 = xpos(random_edge1_nodes[0], random_edge2_nodes[1], inst);
+	new_edge2 = xpos(random_edge2_nodes[0], random_edge3_nodes[1], inst);
+	new_edge3 = xpos(random_edge3_nodes[0], random_edge1_nodes[1], inst);
+
+	//---------SEE THE DIFFERENCE
+	double delta = new_dist1 + new_dist2 + new_dist3 - edge1_length - edge2_length - edge3_length;
+	if ((inst->best_sol[new_edge1] == 1) || (inst->best_sol[new_edge2] == 1)
+		|| (inst->best_sol[new_edge3] == 1)) {
+		free(random_edge1_nodes);
+		free(random_edge2_nodes);
+		free(random_edge3_nodes);
+		return -1;
+	}
+	
+	if (THREE_OPT > 400)
+	{
+		printf("best_sol[%d]=%f\n", old_edge1, inst->best_sol[old_edge1]);
+		printf("best_sol[%d]=%f\n", old_edge2, inst->best_sol[old_edge2]);
+		printf("best_sol[%d]=%f\n", old_edge3, inst->best_sol[old_edge3]);
+
+		printf("best_sol[%d]=%f\n", new_edge1, inst->best_sol[new_edge1]);
+		printf("best_sol[%d]=%f\n", new_edge2, inst->best_sol[new_edge2]);
+		printf("best_sol[%d]=%f\n", new_edge3, inst->best_sol[new_edge3]);
+
+	}
+	/*-----------------UPDATE SELECTION----------------------*/
+	inst->best_sol[old_edge1] = 0.0;
+	inst->best_sol[old_edge2] = 0.0;
+	inst->best_sol[old_edge3] = 0.0;
+
+	inst->best_sol[new_edge1] = 1.0;
+	inst->best_sol[new_edge2] = 1.0;
+	inst->best_sol[new_edge3] = 1.0;
+
+	/*-----------------CHECK IF CONNECTED COMPONENTS ARE PRESENT-------------*/
+	if (kruskal_sst(env, lp, inst) == 1) {
+		if (THREE_OPT > 400)
+		{
+			printf("RESET %d;%d , %d;%d e %d;%d, AND ADD %d;%d , %d;%d e %d;%d \n",
+				random_edge1_nodes[0] + 1, random_edge1_nodes[1] + 1, random_edge2_nodes[0] + 1, random_edge2_nodes[1] + 1,
+				random_edge3_nodes[0] + 1, random_edge3_nodes[1],
+				random_edge1_nodes[0] + 1, random_edge2_nodes[1] + 1, random_edge2_nodes[0] + 1, random_edge3_nodes[1] + 1,
+				random_edge3_nodes[0] + 1, random_edge1_nodes[1] + 1);
+			printf("STEP BY %d,%d AND %d TO %d,%d e %d\n",
+				old_edge1, old_edge2, old_edge3, new_edge1, new_edge2, new_edge3);
+		}
+
+		free(random_edge1_nodes);
+		free(random_edge2_nodes);
+		free(random_edge3_nodes);
+		free(edges);
+		return delta;
+	}
+	else {
+		if (THREE_OPT > 400)
+		{
+			printf("CHANGE NOTHING \n");
+		}
+		inst->best_sol[old_edge1] = 1.0;
+		inst->best_sol[old_edge2] = 1.0;
+		inst->best_sol[old_edge3] = 1.0;
+
+		inst->best_sol[new_edge1] = 0.0;
+		inst->best_sol[new_edge2] = 0.0;
+		inst->best_sol[new_edge3] = 0.0;
+		free(random_edge1_nodes);
+		free(random_edge2_nodes);
+		free(random_edge3_nodes);
+		return -1;
+	}
+	
+}

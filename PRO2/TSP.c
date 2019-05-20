@@ -26,6 +26,8 @@ double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int star
 double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
 double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
 double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
+double vns(instance *inst, CPXENVptr env, CPXLPptr lp);
+double cost_alg(instance* inst);
 
 
 //void vns(instance *inst, CPXENVptr env, CPXLPptr lp);
@@ -97,19 +99,54 @@ int TSPopt(instance *inst)
 	int ncores = 1; CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
 	int local_minimum = 0;
-	time_t timelimit = time(NULL) + 10;
+	time_t timelimit = time(NULL) + 100;
+	double delta_vns;
+	min_cost = INFINITY;
+	minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
 	while (time(NULL) < timelimit) {
 		
-		double delta = three_opt(inst, env, lp);
+		double delta = two_opt(inst, env, lp);
 		printf("Delta: %f\n", delta);
 		opt_current += delta;
 		printf("New objective function: %f\n", opt_current);
+		printf("COSTO CALCOLATO:%f\n", cost_alg(inst));
 		if (delta == 0.0) {
 			local_minimum++;
+			printf("delta=0\n");
 		}
-		if (local_minimum == 10) {
-			//vns(inst, env, lp);
+		
+		if (local_minimum == 5) {
+			printf("MINIMO LOCALE: %f\n", opt_current);
+			if (opt_current < min_cost) {
+				printf("Soluzione migliore\n");
+				minimum_solution = inst->best_sol;
+				min_cost = opt_current;
+				update_choosen_edge(inst);
+				add_edge_to_file(inst);
+				plot_gnuplot(inst);
+			}
+			else {
+				printf("Soluzione peggiore, prendo la precedente\n");
+				inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
+				inst->best_sol = minimum_solution;
+				opt_current = min_cost;
+			}
+			
+			int done = 0;
+			while (done==0) {
+				delta_vns = vns(inst, env, lp);
+				if (delta_vns == -1) continue;
+				else {
+					opt_current += delta_vns;
+					done = 1;
+				}
+			}
+			printf("CALCIO 3-OPT\n");
+			update_choosen_edge(inst);
+			add_edge_to_file(inst);
+			plot_gnuplot(inst);
 			local_minimum = 0;
+
 		}
 		
 
@@ -117,6 +154,7 @@ int TSPopt(instance *inst)
 	update_choosen_edge(inst);
 	add_edge_to_file(inst);
 	plot_gnuplot(inst);
+	free(minimum_solution);
 	exit(0);
 
 
@@ -173,4 +211,17 @@ static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, v
 		*useraction_p = CPX_CALLBACK_SET; 		// tell CPLEX that cuts have been created
 	}
 	return 0;
+}
+
+
+double cost_alg(instance* inst) {
+	double cost = 0;
+	for (int i = 0; i < inst->nnodes; i++) {
+		for (int j = 0; j < inst->nnodes; j++) {
+			if (inst->best_sol[xpos(i, j, inst)] > TOLERANCE) {
+				cost += dist(i, j, inst);
+			}
+		}
+	}
+	return cost;
 }
