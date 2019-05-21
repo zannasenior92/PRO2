@@ -3,13 +3,13 @@
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 double dist(int i, int j, instance *inst);
 int xpos(int i, int j, instance *inst);
-
+double cost_alg(instance* inst);
 
 /*--------------GREEDY ALGORITHM TO FIND A INITIAL SOLUTION FOR THE TSP PROBLEM---------------*/
 double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node)
 {
 	int starting_node = start_node; //INITIAL NODE
-	if (NEAREST_NEIGH_GRASP > 20)
+	if (NEAREST_NEIGH_GRASP > 400)
 	{
 		printf("Initial Node: %d \n", starting_node + 1);
 	}
@@ -123,5 +123,8 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 		printf("Last edge selected is x(%d,%d)", starting_node + 1, start_node + 1);
 	}
 	free(selected_nodes);
+	/*double cost_calc = cost_alg(inst);
+	printf("IL COSTO CALCOLATO è %f, quello con algoritmo %f\n", cost, cost_calc);
+	*/
 	return cost;
 }
