@@ -2,7 +2,6 @@
 /*-------------------------------------------3-OPT FUNCTION-------------------------------------------------*/
 
 #include "TSP.h"
-
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 double dist(int i, int j, instance *inst);
 int xpos(int i, int j, instance *inst);
@@ -20,7 +19,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 	for (int i = 0; i < inst->ncols; i++) {
 		if (inst->best_sol[i] > TOLERANCE) {
 			edges[n] = i;
-			if (THREE_OPT > 400)
+			if (THREE_OPT > 500)
 			{
 				printf("edge[%d]=%d\n", n, i);
 			}
@@ -47,11 +46,11 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 	{
 		reverse_xpos(edges[i], inst, nodes_edge1);						//TAKE FIRST EDGE
 		
-		for (int j = i + 1; j < inst->nnodes-2; j++)
+		for (int j = i + 1; j < inst->nnodes-1; j++)
 		{
 			reverse_xpos(edges[j],inst, nodes_edge2);					//TAKE SECOND EDGE
 		
-			for (int k = j + 1; k < inst->nnodes-1; k++)
+			for (int k = j + 1; k < inst->nnodes-2; k++)
 			{
 				reverse_xpos(edges[k], inst, nodes_edge3);				//TAKE THIRD EDGE
 
@@ -67,13 +66,13 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				/*-------------------------TAKE THE LENGTH OF OLD EDGES-----------------------*/
 				edge1_length = dist(nodes_edge1[0], nodes_edge1[1], inst);
 				edge2_length = dist(nodes_edge2[0], nodes_edge2[1], inst);
-				edge3_length = dist(nodes_edge3[0], nodes_edge3[1], inst);
+				edge3_length = dist(nodes_edge3[0], nodes_edge3[01], inst);
 				/*MIN NEW EDGES = OLD EDGES*/
 				min_new_edge1 = xpos(nodes_edge1[0], nodes_edge1[1], inst);
 				min_new_edge2 = xpos(nodes_edge2[0], nodes_edge2[1], inst);
 				min_new_edge3 = xpos(nodes_edge3[0], nodes_edge3[1], inst);
 				/******************************************************************************/
-				
+
 				//---------1) TAKE LENGTH OF FIRST NEW PRESUMED EGDES
 				new_distA1 = dist(nodes_edge1[0], nodes_edge2[1], inst);
 				new_distA2 = dist(nodes_edge2[0], nodes_edge3[1], inst);
@@ -170,9 +169,9 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				if (kruskal_sst(env, lp, inst) == 1) {
 					if (THREE_OPT > 400)
 						{
-							printf("RESET %d;%d , %d;%d e %d;%d, AND ADD %d;%d , %d;%d e %d;%d \n",
+							printf("RESET %d;%d , %d;%d and %d;%d, and add %d;%d , %d;%d e %d;%d \n",
 								nodes_edge1[0] + 1, nodes_edge1[1] + 1, nodes_edge2[0] + 1, nodes_edge2[1] + 1,
-								nodes_edge3[0] + 1, nodes_edge3[1], 
+								nodes_edge3[0] + 1, nodes_edge3[1] + 1, 
 								nodes_edge1[0] + 1, nodes_edge2[1] + 1, nodes_edge2[0] + 1, nodes_edge3[1] + 1,
 								nodes_edge3[0] + 1, nodes_edge1[1] + 1);
 							printf("STEP BY %d,%d AND %d TO %d,%d e %d\n",
@@ -183,6 +182,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 					free(nodes_edge2);
 					free(nodes_edge3);
 					free(edges);
+
 					return min_delta;
 				}
 				else {

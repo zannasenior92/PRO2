@@ -9,7 +9,7 @@ int xpos(int i, int j, instance *inst);
 double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node)
 {
 	int starting_node = start_node; //INITIAL NODE
-	if (NEAREST_NEIGH_GRASP > 20)
+	if (NEAREST_NEIGH_GRASP > 400)
 	{
 		printf("Initial Node: %d \n", starting_node + 1);
 	}

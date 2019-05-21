@@ -12,7 +12,10 @@ int xpos(int i, int j, instance *inst);
 double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node)
 {
 	int starting_node = start_node; //INITIAL NODE
-	printf("Initial Node: %d \n", starting_node + 1);
+	if (NEAREST_NEIGH > 400)
+	{
+		printf("Initial Node: %d \n", starting_node + 1);
+	}
 
 	double distance, nearest_distance;//DISTANCE i-TH
 	int n = 0;//SELECTED EDGES COUNTER
