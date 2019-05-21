@@ -9,6 +9,9 @@ void add_edge_to_file(instance *inst);
 void plot_gnuplot(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
 double cost_alg(instance* inst);
+void reset_old_edges2(instance *inst, int old1, int old2, int new1, int new2);
+void set_new_edges2(instance *inst, int old1, int old2, int new1, int new2);
+
 
 /*-----------------------------2-OPT ALGORITHM---------------------------------------*/
 double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
@@ -73,10 +76,8 @@ double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 					printf("best_sol[%d]=%f\n", min_new_edge2, inst->best_sol[min_new_edge2]);
 				}
 				/*-----------------UPDATE SELECTION----------------------*/
-				inst->best_sol[old_edge1] = 0.0;
-				inst->best_sol[old_edge2] = 0.0;
-				inst->best_sol[min_new_edge1] = 1.0;
-				inst->best_sol[min_new_edge2] = 1.0;
+				set_new_edges2(inst, old_edge1, old_edge2, min_new_edge1, min_new_edge2);
+				
 				if (TWO_OPT > 400)
 				{
 					printf("AFTER SELECTION \n");
@@ -106,10 +107,9 @@ double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 					
 				}
 				else {
-					inst->best_sol[old_edge1] = 1.0;
-					inst->best_sol[old_edge2] = 1.0;
-					inst->best_sol[min_new_edge1] = 0.0;
-					inst->best_sol[min_new_edge2] = 0.0;
+					/*-----------------------RESET EDGES IN BEST SOL-----------*/
+					reset_old_edges2(inst, old_edge1, old_edge2, min_new_edge1, min_new_edge2);
+					
 					//---------TAKE LENGTH OF NEW PRESUMED EGDES
 					new_dist1 = dist(nodes_edge1[0], nodes_edge2[0], inst);
 					new_dist2 = dist(nodes_edge1[1], nodes_edge2[1], inst);
@@ -132,10 +132,8 @@ double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 							printf("best_sol[%d]=%f\n", min_new_edge2, inst->best_sol[min_new_edge2]);
 						}
 						/*-----------------UPDATE SELECTION----------------------*/
-						inst->best_sol[old_edge1] = 0.0;
-						inst->best_sol[old_edge2] = 0.0;
-						inst->best_sol[min_new_edge1] = 1.0;
-						inst->best_sol[min_new_edge2] = 1.0;
+						set_new_edges2(inst, old_edge1, old_edge2, min_new_edge1, min_new_edge2);
+
 						if (TWO_OPT > 400)
 						{
 							printf("AFTER SELECTION \n");
@@ -195,4 +193,22 @@ void reverse_xpos(int x, instance* inst, int* nodes) {
 			}
 		}
 	}
+}
+
+void reset_old_edges2(instance *inst, int old1, int old2, int new1, int new2)
+{
+	inst->best_sol[old1] = 1.0;
+	inst->best_sol[old2] = 1.0;
+
+	inst->best_sol[new1] = 0.0;
+	inst->best_sol[new2] = 0.0;
+}
+
+void set_new_edges2(instance *inst, int old1, int old2, int new1, int new2)
+{
+	inst->best_sol[old1] = 0.0;
+	inst->best_sol[old2] = 0.0;
+
+	inst->best_sol[new1] = 1.0;
+	inst->best_sol[new2] = 1.0;
 }
