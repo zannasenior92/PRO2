@@ -26,6 +26,8 @@ double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int star
 double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
 double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
 double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
+double vns(instance *inst, CPXENVptr env, CPXLPptr lp);
+int cost_alg(instance* inst);
 
 
 //void vns(instance *inst, CPXENVptr env, CPXLPptr lp);
@@ -53,13 +55,19 @@ int TSPopt(instance *inst)
 	double *minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
 	int start_node = 0;
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 50; i++) {
 		for (int j = 0; j < inst->nnodes; j++) {
 			inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
+			
+
 			cost = nearest_neighborhood_GRASP(inst, env, lp, j);
 			if (cost < min_cost) {
 				min_cost = cost;
-				minimum_solution = inst->best_sol;
+				for (int k = 0; k < inst->ncols; k++) {
+					minimum_solution[k] = inst->best_sol[k];
+
+				}
+				//minimum_solution = inst->best_sol;
 			}
 		}
 	}
@@ -73,7 +81,12 @@ int TSPopt(instance *inst)
 	}*/
 
 	printf("\nBest Initial Cost After Nearest Neighborhood %f\n", min_cost);
-	inst->best_sol = minimum_solution;
+	for (int k = 0; k < inst->ncols; k++) {
+		inst->best_sol[k]= minimum_solution[k];
+
+	}
+	//inst->best_sol = minimum_solution;
+	
 	/*inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
 	cost = nearest_neighborhood(inst, env, lp, start_node);
 	hard_fixing(inst, env, lp, 1, 1);//SET ALL EDGES
@@ -91,6 +104,7 @@ int TSPopt(instance *inst)
 	//SET INITIAL OPTIMAL VALUE TO INFINITE
 	//opt_heu = min_cost;
 	opt_current = min_cost;
+	printf("Opt current %f   opt calc %d\n", opt_current, cost_alg(inst));
 	//SETTING OF CALLBACKS
 	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
 	CPXsetdblparam(env, CPX_PARAM_TILIM, 30);
@@ -98,42 +112,122 @@ int TSPopt(instance *inst)
 	int ncores = 1; CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
 	int local_minimum = 0;
-	time_t timelimit = time(NULL) + 5;
-
+	time_t timelimit = time(NULL) + 120;
+	double delta, delta_vns;
+	//min_cost = INFINITY;
+	//minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
 	while (time(NULL) < timelimit) {
 		
-		double delta = three_opt(inst, env, lp);
+		delta = two_opt(inst, env, lp);
 		printf("Delta: %f\n", delta);
 		opt_current += delta;
+		int cost_with_alg = cost_alg(inst);
+		/*if (opt_current != cost_with_alg) {
+			opt_current = cost_with_alg;
+		}*/
 		printf("New objective function: %f\n", opt_current);
+		printf("COSTO CALCOLATO:%d\n", cost_alg(inst));
 		if (delta == 0.0) {
 			local_minimum++;
+			//printf("delta=0\n");
 		}
-		if (local_minimum == 10) {
-			//vns(inst, env, lp);
+		
+		if (local_minimum == 5) {
+			//printf("MINIMO LOCALE: %f\n", opt_current);
+			if (opt_current < min_cost) {
+				//printf("Soluzione migliore\n");
+				minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
+				for (int k = 0; k < inst->ncols; k++) {
+					minimum_solution[k] = inst->best_sol[k];
+
+				}
+				//minimum_solution = inst->best_sol;
+				/*for (int k = 0; k < inst->ncols; k++) {
+					if (inst->best_sol[k] != minimum_solution[k])
+						exit(-32);
+				}*/
+				min_cost = opt_current;
+				printf("PRENDO IL MINIMO %f\n", min_cost);
+				
+				/*update_choosen_edge(inst);
+				add_edge_to_file(inst);
+				plot_gnuplot(inst);*/
+			}
+			else {
+				//printf("Soluzione peggiore, prendo la precedente\n");
+				int cost_before = cost_alg(inst);
+				inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
+				for (int k = 0; k < inst->ncols; k++) {
+					inst->best_sol[k] = minimum_solution[k];
+						
+				}
+				//inst->best_sol = minimum_solution;
+				int cost_after = cost_alg(inst);
+				printf("COSTO PRIMA %d      COSTO DOPO %d\n", cost_before, cost_after);
+				opt_current = min_cost;
+				
+			}
+			int done = 0;
+			while (done == 0) {
+				delta_vns = vns(inst, env, lp);
+				if (delta_vns == -1) continue;
+				else {
+					printf("DELTA VNS=%f\n", delta_vns);
+					opt_current += delta_vns;
+					done = 1;
+				}
+			}
+			
+			printf("---------------------------------------------------CALCIO 3-OPT min=%f\n", min_cost);
+			printf("Object function %f\n", opt_current);
+			printf("Object calculated %d\n", cost_alg(inst));
+			/*update_choosen_edge(inst);
+			add_edge_to_file(inst);
+			plot_gnuplot(inst);*/
 			local_minimum = 0;
+
 		}
+		
+
+	}
+	if (opt_current < min_cost) {
+		printf("FINAL Object function %f\n", opt_current);
+		int cost_with_alg = cost_alg(inst);
+		printf("FINAL Object function calculated %d\n", cost_with_alg);
+	}
+	else {
+		printf("FINAL Object function %f\n", min_cost);
+		inst->best_sol = minimum_solution;
+		int cost_with_alg = cost_alg(inst);
+		printf("FINAL Object function calculated %d\n", cost_with_alg);
 	}
 	
+	hard_fixing(inst, env, lp, 1, 1);//SET ALL EDGES
+	if (CPXmipopt(env, lp)) print_error("Error resolving model");
+	if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
+	printf("Object function optimal value is: %.0f\n", opt_current);
+	reset_lower_bound(inst, env, lp);
+
+
 	update_choosen_edge(inst);
 	add_edge_to_file(inst);
 	plot_gnuplot(inst);
-	exit(0);
-
-
+	free(minimum_solution);
+	//exit(0);
+	
 	time_t time0 = time(NULL);
-
+	opt_heu = opt_current;
 	//SET TIMELIMIT AND USE HEURISTIC LOOP
-	time_t timelimit1 = time(NULL) + 90;
+	time_t timelimit1 = time(NULL) + 30;
 	printf("-----------SET 70%%-----------\n");
 	opt_current= loop_hard_fixing(inst, env, lp, (double)timelimit1, 0.6, opt_heu);
 	opt_heu = opt_current;
 	printf("-----------SET 50%%-----------\n");
-	time_t timelimit2 = time(NULL) + 90;
+	time_t timelimit2 = time(NULL) + 30;
 	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit2, 0.4, opt_heu);
 	opt_heu = opt_current;
 	printf("-----------SET 20%%-----------\n");
-	time_t timelimit3 = time(NULL) + 90;
+	time_t timelimit3 = time(NULL) + 30;
 	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit3, 0.2, opt_heu);
 
 	printf("FINISH WITH TIME=%f\n", (double)(time(NULL)-time0));
@@ -144,6 +238,10 @@ int TSPopt(instance *inst)
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 	printf("Object function optimal value is: %.0f\n", opt_current);
+	/*update_choosen_edge(inst);
+	add_edge_to_file(inst);
+	plot_gnuplot(inst);
+	*/
 	CPXfclose(log);																//CLOSE LOG FILE
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
 	CPXfreeprob(env, &lp);
@@ -174,4 +272,17 @@ static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, v
 		*useraction_p = CPX_CALLBACK_SET; 		// tell CPLEX that cuts have been created
 	}
 	return 0;
+}
+
+
+int cost_alg(instance* inst) {
+	double cost = 0;
+	for (int i = 0; i < inst->nnodes; i++) {
+		for (int j = i+1; j < inst->nnodes; j++) {
+			if (inst->best_sol[xpos(i, j, inst)] > TOLERANCE) {
+				cost += dist(i, j, inst);
+			}
+		}
+	}
+	return cost;
 }
