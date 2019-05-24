@@ -84,6 +84,9 @@
     <ClCompile Include="ThreeOpt.c">
       <Filter>Heuristics</Filter>
     </ClCompile>
+    <ClCompile Include="GeneticAlgorithm.c">
+      <Filter>Heuristics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h">

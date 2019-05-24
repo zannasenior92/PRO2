@@ -11,6 +11,7 @@ int xpos(int i, int j, instance *inst);
 /*--------------GREEDY ALGORITHM TO FIND A INITIAL SOLUTION FOR THE TSP PROBLEM---------------*/
 double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node)
 {
+	inst->choosen_nodes = (int *)malloc(inst->nnodes * sizeof(int));
 	int starting_node = start_node; //INITIAL NODE
 	if (NEAREST_NEIGH > 400)
 	{
@@ -22,6 +23,8 @@ double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int star
 	double cost = 0;
 	int *selected_nodes = (int*)calloc(inst->nnodes, sizeof(int));	//ARRAY OF SELECTED NODES
 	selected_nodes[start_node] = 1;
+	inst->choosen_nodes[n] = start_node;//INITIAL NODE
+
 	while (n < inst->nnodes-1)
 	{
 		nearest_distance = INFINITY;
@@ -57,9 +60,10 @@ double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int star
 			printf("Now i'm in node: %d \n", starting_node + 1);
 		}
 		n++;
+		inst->choosen_nodes[n] = selected_node;//SAVE THE NODE IN THE INSTANCE
 	}
 	inst->best_sol[xpos(starting_node, start_node, inst)] = 1;			//SELECT THE LAST EDGE TO CLOSE THE CIRCUIT
-	cost += dist(starting_node, start_node, inst);
+	cost += dist(starting_node, start_node, inst); 
 	if (NEAREST_NEIGH >400)
 	{
 		printf("Last edge selected is x(%d,%d)", starting_node + 1, start_node + 1);
