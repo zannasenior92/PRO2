@@ -9,9 +9,10 @@ void update_choosen_edge(instance* inst);
 void add_edge_to_file(instance *inst);
 void plot_gnuplot(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
-void reset_old_edges3(instance *inst, int old1, int old2, int old3, int new1, int new2, int new3);
-void set_new_edges3(instance *inst, int old1, int old2, int old3, int new1, int new2, int new3);
 double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
+int worst_cost_tsp(instance *inst, double *opt_cost, int num_sel_tsp);
+double cost_tsp(instance *inst, int* tsp);
+int* cross_over(instance *inst, int *tspFather, int *tspMother);
 
 
 void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
@@ -20,14 +21,14 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	int cols = inst->nnodes;
 	
 	//MATRIX OF SOLUTIONS OF NEIGHBORHOODS TO CREATE SONS (EVERY ROW RAPPRESENT A SET OF NODES OF THE SOLUTION)
-	double **TSP_solutions = (double *)malloc(rows * cols * sizeof(int));	
+	int **TSP_solutions = (int **)malloc(rows * cols * sizeof(int));	
 	double *opt_cost = (double *)malloc(inst->nnodes * sizeof(double));		//ARRAY NEIGHBORHOOD'S COSTS
 	double opt_VAL = INFINITY;												//VALORE DELLA SOLUZIONE OTTIMA
 	int done = 1;
 	double worst_cost = INFINITY;											//COSTO DEL PEGGIOR TSP PADRE
 	int index_worst_tsp_parent = 0;											//INDICE PEGGIOR TSP PADRE
-	int num_sel_tsp = inst->nnodes;											//NUMERO DI TSP PRESI IN CONSIDERAZIONE OGNI VOLTA
-											  
+	int num_sel_tsp = 2;											//NUMERO DI TSP PRESI IN CONSIDERAZIONE OGNI VOLTA
+	int num_of_populations = 0;
 	/*COMPUTE INITIAL POPULATION WITH NEIGHBORHOOD*/
 	for (int i = 0; i < num_sel_tsp; i++)
 	{
@@ -43,48 +44,57 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 		}
 	}
 
-	while (done == 1)
+	/*------------------------------NEXT POPULATIONS-----------------------------------*/
+	while (num_of_populations < 1)
 	{
 		for (int i = 0; i < num_sel_tsp; i++)//COUPLE PARENTS AND VERIFY IF THE SON IS A GOOD BOY
 		{
-			for (int j = 0; j < num_sel_tsp; j++)
+			for (int j = i + 1; j < num_sel_tsp; j++)
 			{
-				double* current_son = cross_over(inst, TSP_solutions[i], TSP_solutions[j]);	//EDGES CURRENT SON
+				int* current_son = cross_over(inst, TSP_solutions[i], TSP_solutions[j]);	//EDGES CURRENT SON
 				double current_cost = cost_tsp(inst, current_son);							//COST CURRENT SON
-				
+
 				//SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
 				if (current_cost < worst_cost)
 				{
 					TSP_solutions[index_worst_tsp_parent] = current_son;
 					opt_cost[i] = current_cost;
 				}
+				free(current_son);
 			}
+			
 		}
+
 		index_worst_tsp_parent = worst_cost_tsp(inst, opt_cost, num_sel_tsp);	//WORST TSPS COST
+		num_of_populations++;
+
 	}
+
+	free(TSP_solutions);
+	free(opt_cost);
 }
 
 
 /*CROSS-OVER TO MERGE TWO TSPs*/
-double* cross_over(instance *inst, double* tspFather, double* tspMother)
+int* cross_over(instance *inst, int *tspFather, int *tspMother)
 {
 	if (GENETIC_ALG > 500)
 	{
 		printf("Nodes of the father are:\n");
 		for(int i = 0; i < inst->nnodes; i++)
 		{
-			printf("%d \n", tspFather[i]);
+			printf("%d ", tspFather[i] + 1);
 		}
-
+		printf("\n");
 		printf("Nodes of the mother are:\n");
 		for (int i = 0; i < inst->nnodes; i++)
 		{
-			printf("%d \n", tspMother[i]);
+			printf("%d ", tspMother[i] + 1);
 		}
-
+		printf("\n");
 	}
-	int count_duplicate;	//DUPLICATE ELEMENT IN FATHER AND MOTHER
-	double* son = (double*)calloc(inst->nnodes, sizeof(double));
+	int count_duplicate = 0;	//DUPLICATE ELEMENT IN FATHER AND MOTHER
+	int* son = (int*)calloc(inst->nnodes, sizeof(int));
 	int son_index = 0;			//INDEX OF SON'S ELEMENTS
 
 	for (int i = 0; i < inst->nnodes / 2; i++)//ADD FATHER ELEMENTS
@@ -114,14 +124,17 @@ double* cross_over(instance *inst, double* tspFather, double* tspMother)
 
 		}
 	}
+	int last_son_index = son_index;
 	/*----------------ADD MISSING NODES-------------*/
-	for (int l = 0; l < inst->nnodes - son_index; l++)
+	for (int l = 0; l < inst->nnodes - last_son_index; l++)
 	{
 		int rand_node; //CHOOSE A RANDOM NODE
 		int done = 0;
 		while (done==0)
 		{
 			rand_node = rand() % inst->nnodes;
+			printf("rand_node: %d \n",rand_node + 1);
+			printf("Son index = %d \n", son_index);
 			int control = 0;
 			for (int i = 0; i < son_index; i++)//CONTROL IF THE NEW RANDOM NODE IS ALREADY IN THE SON
 			{
@@ -142,23 +155,27 @@ double* cross_over(instance *inst, double* tspFather, double* tspMother)
 		printf("Nodes of the son are:\n");
 		for (int i = 0; i < inst->nnodes; i++)
 		{
-			printf("%d \n", son[i]);
+			printf("%d ", son[i] + 1);
 		}
+		printf("\n");
 	}
-
 	return son;
 }
 
 /*OPT VAL OF A TSP*/
-double cost_tsp(instance *inst, double* tsp)
+double cost_tsp(instance *inst, int* tsp)
 {
+
 	double cost = 0;
-	for (int i = 0; i < inst->nnodes-1; i+2) 
+	int n = 0;
+	while (n < inst->nnodes -1)
 	{
-		int n1 = tsp[i];
-		int n2 = tsp[i + 1];
+		int n1 = tsp[n];
+		int n2 = tsp[n + 1];
 		cost += dist(n1, n2, inst);
+		n++;
 	}
+
 	cost += dist(tsp[inst->nnodes - 1], tsp[0], inst);
 	return cost;
 }

@@ -22,7 +22,7 @@
 #define NEAREST_NEIGH_GRASP 50
 #define TWO_OPT 50
 #define THREE_OPT 50
-#define GENETIC_ALG 50
+#define GENETIC_ALG 600
 //------------------MODELS
 #define DEFAULT_MODEL 50
 #define KRUSKAL 50
