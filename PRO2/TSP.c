@@ -5,7 +5,6 @@
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
-void add_edge_to_plot(int i, int j, instance *inst);
 void add_edge_to_file(instance *inst);
 
 
