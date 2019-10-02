@@ -117,7 +117,7 @@ void update_x_heu(instance *inst, CPXENVptr env, CPXLPptr lp)
 	double *current_sol = (double *)calloc(inst->ncols, sizeof(double));				//CURRENT SOLUTION 
 	double opt_current_val;																//VALUE OPTIMAL SOL
 
-	if (CPXgetobjval(env, lp, &opt_current_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
+	if (CPXgetobjval(env, lp, &opt_current_val)) print_error("Error getting optimal value");//OPTIMAL SOLUTION FOUND
 	
 	/*FIND CURRENT SOLUTION AND SAVE IN A TEMPORARY ARRAY*/
 	if (CPXgetx(env, lp, current_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");

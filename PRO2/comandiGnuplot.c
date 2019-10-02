@@ -11,22 +11,6 @@ void plot_gnuplot(instance *inst) {
 
 	char * commandsForGnuplot[] = {
 
-		/*-------------------------PLOTTING COMMANDS TO PRINT NODES---------------------*/
-		/*
-		"set terminal windows",
-		title,													//set title from input file
-		"set output 'nodes.eps'",
-		"set style line 1 \
-    linecolor rgb '#0060ad' ",									//set the color line
-		"unset border",											//remove the bordes
-		"unset xtics",											//remove axis x
-		"unset ytics",											//remove axis y
-		"unset key",											//remove path legend
-
-		"plot 'coordinateAtt48.txt' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
-		/*------------------------------------------------------------------------------*/
-
-
 		/*----------------PLOTTING COMMANDS TO PRINT SELECTED EDGES---------------------*/
 
 		"set terminal windows 1", // set a different window to plot with gnuplot

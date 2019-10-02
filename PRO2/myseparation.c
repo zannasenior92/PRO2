@@ -10,7 +10,9 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 	int max = -1;
 	int *comp = (int*)calloc(inst->nnodes, sizeof(int));
 	int *mycomp = (int*)calloc(inst->nnodes, sizeof(int));
-	/*---------------------COUNTING CONNECTED COMPONENTS-----------*/
+
+	/*---------------------COUNTING CONNECTED COMPONENTS------------------*/
+
 	/*---------------------INIZIALIZATION----------------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		comp[i] = i;
@@ -41,14 +43,15 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 			n++;
 		}
 	}
-	//Se ha una sola componente connesse non aggiungo vincoli ed esco
-	if (n == 1) {
+
+	if (n == 1)//IF IT HAS A SINGLE CONNECTED COMPONENT I DON'T ADD CONSTRAINTS AND EXIT
+	{
 		if (MYSEPARATION >=1){printf("%d componenti connesse qui\n", n);}
 		return 0;
 	}
 	if (MYSEPARATION >=1){printf("%d componenti connesse", n);}
 
-	/*add constraints*/
+	/*-----------------------ADD CONSTRAINTS-------------------------*/
 	int nnz = 0;
 	double rhs = -1.0;
 	char sense = 'L';
@@ -69,8 +72,9 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 					}
 				}
 			}
-			//Aggiungo i vincoli
 			count++;
+
+			/*ADD CONSTRAINTS*/
 			if (CPXcutcallbackadd(env, cbdata, wherefrom, nnz, rhs, sense, index, value, 0)) print_error("USER_separation: CPXcutcallbackadd error");
 		}
 	}

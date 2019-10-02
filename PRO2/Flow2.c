@@ -90,8 +90,6 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			/*--------------------INSERT VARIABLE IN CPLEX----------------*/
 			if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on z(i,j) var.s");
 			/*--------------------CHECK VARIABLE POSITION-----------------*/
-			//printf("Ultimo indice ypos: %d", ypos(inst->nnodes-1, inst->nnodes-1,inst));
-			//printf("Primo indice: %d", zpos_flow2(i, j, inst));
 			if (CPXgetnumcols(env, lp) - 1 != zpos_flow2(i, j, inst))	print_error(" wrong position for z var.s");
 
 			if (FLOW2 >= 200)

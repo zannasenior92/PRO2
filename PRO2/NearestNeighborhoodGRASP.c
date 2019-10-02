@@ -100,6 +100,7 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 		
 		selected_node = nearest_three_nodes[selected];
 		selected_nodes[selected_node] = 1;									//ONE NODE (OF THE THREES) SELECTED AN SO VISITED
+
 		/*---------------DESELECT THE OTHER TWO NODES---------------------*/
 		for (int k = 0; k < 3; k++) {
 			if (nearest_three_nodes[k] != selected_node) {
@@ -123,8 +124,6 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 		printf("Last edge selected is x(%d,%d)", starting_node + 1, start_node + 1);
 	}
 	free(selected_nodes);
-	/*double cost_calc = cost_alg(inst);
-	printf("IL COSTO CALCOLATO è %f, quello con algoritmo %f\n", cost, cost_calc);
-	*/
+	
 	return cost;
 }

@@ -76,7 +76,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				edge2_length = dist(nodes_edge2[0], nodes_edge2[1], inst);
 				edge3_length = dist(nodes_edge3[0], nodes_edge3[01], inst);
 				/*---------------------------MIN NEW EDGES = OLD EDGES------------------------*/
-				min_new_edge1 = xpos(nodes_edge1[0], nodes_edge1[1], inst);//POSSO METTERE DIRETTAMENTE = edges[i]; ?
+				min_new_edge1 = xpos(nodes_edge1[0], nodes_edge1[1], inst);
 				min_new_edge2 = xpos(nodes_edge2[0], nodes_edge2[1], inst);
 				min_new_edge3 = xpos(nodes_edge3[0], nodes_edge3[1], inst);
 				/******************************************************************************/

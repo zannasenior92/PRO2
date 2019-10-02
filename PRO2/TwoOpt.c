@@ -16,7 +16,8 @@ void set_new_edges2(instance *inst, int old1, int old2, int new1, int new2);
 /*-----------------------------2-OPT ALGORITHM---------------------------------------*/
 double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 	double initial_cost = cost_alg(inst);
-	//scrivo gli archi della soluzione ottima in un array
+
+	/*--------------WRITE EDGES OF OPTIMAL SOLUTION IN AN ARRAY--------------*/
 	int* edges = (int*)calloc(inst->nnodes, sizeof(int));
 	int n = 0;
 	for (int i = 0; i < inst->ncols; i++) {
@@ -35,7 +36,8 @@ double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 	double new_dist1, new_dist2;
 	int min_new_edge1, min_new_edge2;
 	int old_edge1, old_edge2;
-	//INIZIALIZZO 2 vettori dove mettere i nodi relativi agli archi
+
+	/*------INIZIALIZE TWO VECTOR WHERE PUT NODES RELATED TO EDGES------*/
 	int* nodes_edge1 = (int*)calloc(2, sizeof(int));
 	int* nodes_edge2 = (int*)calloc(2, sizeof(int));
 	int done = 0;
@@ -102,7 +104,6 @@ double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 					free(nodes_edge2);
 					free(edges);
 					double final_cost = cost_alg(inst);
-					//printf("DIFFERENZA COSTI=%f\n", final_cost-initial_cost);
 					return delta;
 					
 				}
@@ -158,7 +159,6 @@ double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 							free(nodes_edge2);
 							free(edges);
 							double final_cost = cost_alg(inst);
-							//printf("DIFFERENZA COSTI=%f\n", final_cost-initial_cost);
 							return delta;
 
 						}
@@ -186,7 +186,6 @@ void reverse_xpos(int x, instance* inst, int* nodes) {
 	for (int i = 0; i < inst->nnodes; i++) {
 		for (int j = i + 1; j < inst->nnodes; j++) {
 			if (xpos(i, j, inst) == x) {
-				//printf("arco %d fatto da (%d,%d)\n", x, i + 1, j + 1);
 				nodes[0] = i;
 				nodes[1] = j;
 				return;

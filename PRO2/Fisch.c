@@ -12,9 +12,8 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	double lb = 0.0; //lower bound
 	double ub = 1.0; //upper bound
 	char binary = 'B'; //binary variable (0 OR 1)
-	//char continuous = 'C';
 
-	//Definisco cname per scrivere il modello in modo più chiaro
+	/*-----------------------DEFINE cname TO WRITE WELL THE MODEL-------------------*/
 	char **cname = (char **)calloc(1, sizeof(char *));		// (char **) required by cplex...
 	cname[0] = (char *)calloc(100, sizeof(char));
 
@@ -24,7 +23,7 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int j = i + 1; j < inst->nnodes; j++)
 		{
 			double obj = dist(i, j, inst);
-			sprintf(cname[0], "x(%d,%d)", i + 1, j + 1);//print variables on cplex 
+			sprintf(cname[0], "x(%d,%d)", i + 1, j + 1);//PRINT VARIABLES ON CPLEX 
 
 			/*--------------------PRINT DISTANCE d(i,j)-------------------*/
 			if (FISCH >= 500) {
@@ -35,7 +34,7 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 		}
 	}
-	/*----------------INSERISCO LE Z: zvh=1 se vertice v si trova in posizione h*/
+	/*----------------INSERT Z: zvh=1 IF VERTEX v IS LOCATED IN POSITION h------------------------*/
 	for (int i = 0; i < inst->nnodes; i++)
 	{
 		double lb = 0.0; //lower bound
@@ -44,7 +43,7 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int j = 0; j < inst->nnodes; j++)
 		{
 			double obj = 0;
-			sprintf(cname[0], "z(%d,%d)", i + 1, j + 1);//print variables on cplex 
+			sprintf(cname[0], "z(%d,%d)", i + 1, j + 1);//PRINT VARIABLES ON CPLEX
 
 			if (CPXnewcols(env, lp, 1, &obj, &lb, &ub, &binary, cname)) print_error(" wrong CPXnewcols on v variables");
 
@@ -53,18 +52,17 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 
 	/*--------------------------------ADD CONSTRAINTS----------------------------*/
-	for (int h = 0; h < inst->nnodes; h++)  // degree ciclo esterno per ogni vincolo che voglio aggiungere per nodo h
+	for (int h = 0; h < inst->nnodes; h++)  //DEGREE EXTERNAL CYCLE FOR ALL CONSTRAINT THAT I WANT TO ADD FOR NODE h
 	{
-		int lastrow = CPXgetnumrows(env, lp);	//chiedo a cplex ultima riga cambiata chiedendo numero di righe
+		int lastrow = CPXgetnumrows(env, lp);	//ASK TO CPLEX LAST CHANGED ROW ASKING NUMBER OF ROWS
 		if (FISCH >= 200) {
 			printf("lastrow %d\n", lastrow);
 		}
-		double maxdeg = 2.0; 	 	//NOI vogliamo 2 uno entrante e uno uscente
-		char sense = 'E'; 			//// E equazione
-		sprintf(cname[0], "degree(%d)", h + 1);   // DO un nome NOI degree 
-		if (CPXnewrows(env, lp, 1, &maxdeg, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");  //Nuova riga vuota con coeff diversi da 0 e con informazioni nella posizione last row 																posizione last row
-		for (int i = 0; i < inst->nnodes; i++)		//cambio coefficienti non 0 mettendoli a 1 NOI se i=h salto istruzione, se i!=h faccio chgcoef change coeff a 1
-									// non importa se i>h perché xpos fa inversione
+		double maxdeg = 2.0; 	 	//TWO EDGES, ONE INCOMING AND ONE OUTGOING
+		char sense = 'E'; 			//// E = EQUATION
+		sprintf(cname[0], "degree(%d)", h + 1);   //GIVE A NAME TO DEGREE  
+		if (CPXnewrows(env, lp, 1, &maxdeg, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");  //NEW EMPTY ROW WITH COEFFICIENTS DIFFERENT FROM 0 AND WITH INFORMATIONS IN THE LAST ROW'S POSITION 																posizione last row
+		for (int i = 0; i < inst->nnodes; i++)		//CHANGE COEFFICIENT NON 0 PUTTING THEY TO 1 , IF i=h SKIP INSTRUCTION, IF i!=h I DO chgcoef (CHANGE COEFFICIENT TO 1)
 		{
 			if (i == h)
 				continue;
@@ -74,7 +72,7 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		}
 	}
 	/*---------------VINCOLI PER Z-------------*/
-	/* INSERISCO z11=1*/
+	
 	int izero = 0;
 	int *index = (int *)malloc(1 * sizeof(int));
 	double *value = (double *)malloc(1 * sizeof(double));
@@ -82,13 +80,13 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	char sense = 'E';
 	index[0] = zpos(0, 0, inst);
 	value[0] = 1.0;
-	sprintf(cname[0], "z11");
+	sprintf(cname[0], "z11");//INSERT z11 = 1
 	if (CPXaddlazyconstraints(env, lp, 1, 1, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 
-	/*-------------ogni vertice deve avere una posizione---*/
+	/*-------------EVERY VERTEX MUST HAVE A POSITION------------*/
 	for (int v = 0; v < inst->nnodes; v++)
 	{
-		int lastrow = CPXgetnumrows(env, lp);	//chiedo a cplex ultima riga cambiata chiedendo numero di righe
+		int lastrow = CPXgetnumrows(env, lp);	//ASK TO CPLEX LAST CHANGED ROW ASKING NUMBER OF ROWS
 		double rhs = 1.0;
 		char sense = 'E';
 		sprintf(cname[0], "somme_z((%d),h)", v + 1);
@@ -99,7 +97,7 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (CPXchgcoef(env, lp, lastrow, zpos(v, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
-	/*-------------ogni posizione deve avere un vertice---*/
+	/*-------------EVERY POSITION MUST HAVE A VERTEX------------*/
 	for (int h = 0; h < inst->nnodes; h++)
 	{
 		int lastrow = CPXgetnumrows(env, lp);
@@ -113,7 +111,7 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (CPXchgcoef(env, lp, lastrow, zpos(v, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
-	/*---------------Vincolo forte somme(zit)+xij+somme(jt)<=2*/
+	/*---------------HARD CONSTRAINT SUMS(zit)+xij+SUMS(jt)<=2-------------------*/
 
 	for (int i = 1; i < inst->nnodes; i++) {
 		for (int j = 1; j < inst->nnodes; j++) {
