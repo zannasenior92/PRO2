@@ -5,11 +5,7 @@
 void print_main_data(instance *inst) {
 
 	FILE * main_data = fopen("data_instance.txt", "w");
-
-
 	fprintf(main_data,"STAT,%s",inst->input_file_name);
-
-
 	fclose(main_data);
 }
 

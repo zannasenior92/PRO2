@@ -60,7 +60,6 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		double obj = 0;
 		sprintf(cname[0], "u(%d)", i + 1);												//PRINT VARIABLES IN CPLEX IN .lp FILE 
 		double ub = (i == 0) ? 1.0 : inst->nnodes;
-		//double ub = inst->nnodes;
 
 		/*--------------------INSERT VARIABLE IN CPLEX----------------*/
 		if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on u var.s");
@@ -125,7 +124,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int j = i + 1; j < inst->nnodes; j++) {
 
 			if (i == j) continue;
-			index[0] = xpos_compact(i, j, inst);										//VARIABLE'S  INDEX
+			index[0] = xpos_compact(i, j, inst);								//VARIABLE'S  INDEX
 			value[0] = 1.0;														//VARIABLE'S VALUE  
 			index[1] = xpos_compact(j, i, inst);
 			value[1] = 1.0;

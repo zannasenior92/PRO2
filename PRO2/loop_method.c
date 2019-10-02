@@ -43,7 +43,7 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
 		update_choosen_edge(inst);
 		add_edge_to_file(inst);
 		fprintf(gnuplotPipe, "%s \n", "plot 'connected_components.txt' with lp ls 1 lc variable, ''  with point pointtype 7 lc variable");
-		/*----------------PER ISTANZE PICCOLE---------*/
+		/*----------------FOR SMALL INSTANCES--------------*/
 		Sleep(1000);
 		printf(gnuplotPipe, "%s \n", "pause 1");
 		fflush(gnuplotPipe);
@@ -101,8 +101,8 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
 	}
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
-	double opt_val;																//VALUE OPTIMAL SOL
-	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
+	double opt_val;																		//VALUE OPTIMAL SOL
+	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;	//OPTIMAL SOLUTION FOUND
 	printf("Object function optimal value is: %.0f\n", opt_val);
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
 	CPXfreeprob(env, &lp);

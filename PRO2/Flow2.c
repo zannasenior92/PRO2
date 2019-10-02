@@ -83,8 +83,6 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			/*--------------------INSERT VARIABLE IN CPLEX----------------*/
 			if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on z(i,j) var.s");
 			/*--------------------CHECK VARIABLE POSITION-----------------*/
-			//printf("Ultimo indice ypos: %d", ypos(inst->nnodes-1, inst->nnodes-1,inst));
-			//printf("Primo indice: %d", zpos_flow2(i, j, inst));
 			if (CPXgetnumcols(env, lp) - 1 != zpos_flow2(i, j, inst))	print_error(" wrong position for z var.s");
 
 			if (VERBOSE >= 200)
@@ -211,12 +209,12 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		/*----LAZY INSERTION FUNCTION NEEDS ARRAY OF INDEXES AND ARRAY OF RELATED VALUES------*/
 		int lazy_index2 = 0;
 		for (int j = 1; j < inst->nnodes; j++) {											//FIRST SUM
-			index2[lazy_index2] = zpos_flow2(0, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+			index2[lazy_index2] = zpos_flow2(0, j, inst);									//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 			value2[lazy_index2] = 1.0;
 			lazy_index2++;
 		}
 		for (int j = 1; j < inst->nnodes; j++) {											//SECOND SUM
-			index2[lazy_index2] = zpos_flow2(j, 0, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+			index2[lazy_index2] = zpos_flow2(j, 0, inst);									//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 			value2[lazy_index2] = -1.0;
 			lazy_index2++;
 		}
@@ -238,13 +236,13 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			int lazy_index = 0;
 			for (int j = 0; j < inst->nnodes; j++) {											//FIRST SUM
 				if (i == j) continue;
-				index[lazy_index] = zpos_flow2(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+				index[lazy_index] = zpos_flow2(i, j, inst);										//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 				value[lazy_index] = 1.0;
 				lazy_index++;
 			}
 			for (int j = 0; j < inst->nnodes; j++) {											//SECOND SUM
 				if (i == j) continue;
-				index[lazy_index] = zpos_flow2(j, i, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+				index[lazy_index] = zpos_flow2(j, i, inst);										//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 				value[lazy_index] = -1.0;
 				lazy_index++;
 			}
@@ -277,7 +275,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			}
 			for (int j = 0; j < inst->nnodes; j++) {											//SECOND SUM
 				if (i == j) continue;
-				index[lazy_index] = zpos_flow2(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+				index[lazy_index] = zpos_flow2(i, j, inst);										//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 				value[lazy_index] = 1.0;
 				lazy_index++;
 			}
@@ -301,13 +299,13 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 				int izero = 0;
 				int *index = (int *)malloc((inst->nnodes - 1) * sizeof(int));
 				double *value = (double *)malloc((inst->nnodes - 1) * sizeof(double));
-				double rhs = 0;																		//(n-1)
+				double rhs = 0;															//(n-1)
 				sprintf(cname[0], "y%d%d - z%d%d = (n-1)x%d%d", i + 1, j + 1, i + 1, j + 1, i + 1, j + 1);
 
 				index[0] = ypos(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 				value[0] = 1.0;
 			
-				index[1] = zpos_flow2(i, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+				index[1] = zpos_flow2(i, j, inst);										//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 				value[1] = 1.0;
 
 				index[2] = xpos_compact(i, j, inst);									//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE

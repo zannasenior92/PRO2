@@ -91,8 +91,6 @@ void plot_gnuplot(instance *inst, FILE * gnuplotPipe) {
 
 
 	/*----------------USING A PIPE FOR GNUPLOT TO PRINT POINTS--------------------------*/
-	//FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe", "w");	//"-persistent" KEEPS THE PLOT OPEN EVEN AFTER YOUR C PROGRAM QUIT
-
 	for (int i = 0; i < n_commands; i++)
 	{
 		fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]);					//Send commands to gnuplot one by one.
