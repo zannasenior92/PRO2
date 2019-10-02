@@ -16,7 +16,6 @@ int upos(int i, instance *inst) {
 }
 
 
-
 /*-------------------------DISTANCE BETWEEN TWO POINTS-------------------------------*/
 double dist(int i, int j, instance *inst){
 	if(inst->dist_type==0) {
@@ -61,8 +60,6 @@ double dist(int i, int j, instance *inst){
 		}
 		else print_error("Something go wrong in distance");
 }
-
-
 
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
@@ -172,7 +169,6 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		double obj = 0;
 		sprintf(cname[0], "u(%d)", i + 1);												//PRINT VARIABLES IN CPLEX IN .lp FILE 
 		double ub = (i == 0) ? 1.0 : inst->nnodes;
-		//double ub = inst->nnodes;
 
 		/*--------------------INSERT VARIABLE IN CPLEX----------------*/
 		if (CPXnewcols(env, lp, 1, &obj, &lbu, &ub, &integer, cname)) print_error(" wrong CPXnewcols on u var.s");
@@ -245,12 +241,6 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 
 			if (CPXaddlazyconstraints(env, lp, 1, 2, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
-
-			/*STATICO INSERT
-			if (CPXnewrows(env, lp, 1, &rhs, &sense, NULL, cname)) print_error(" wrong CPXnewrows [l3]");
-			if (CPXchgcoef(env, lp, lastrow, xpos(i, j, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
-			if (CPXchgcoef(env, lp, lastrow, xpos(j, i, inst), 1.0)) print_error(" wrong CPXchgcoef [l3]");
-			*/
 		}
 		free(index);
 		free(value);
@@ -289,7 +279,6 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			value[1] = -1.0;
 			index[2] = xpos(i, j, inst);
 			value[2] = big_M;
-			//inst->u[i] - inst->u[i] + big_M * xpos(i, j, inst);
 			if (CPXaddlazyconstraints(env, lp, 1, 3, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 
 		}
