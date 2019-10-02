@@ -93,11 +93,10 @@ int TSPopt(instance *inst)
 				if(VERBOSE>=100){
 					printf("Il nodo (%d,%d) e' selezionato\n", i+1, j+1);
 				}
-				//Aggiungo i nodi a due a due, cosi so che ad ogni coppia corrisponde un arco
-				inst->choosen_edge[n] = i;	//Uso un vettore lungo 2*nnodes per salvare i nodi corrispondenti agli archi
-				inst->choosen_edge[n+1] = j; //scelti. Cosi aggiorno il file per il plot una sola volta e lo sovrascrivo.
+				/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
+				inst->choosen_edge[n] = i;	
+				inst->choosen_edge[n+1] = j;
 				n += 2;
-				//add_edge_to_plot(i, j, inst);//add in a file selected edges
 				count++;
 			}
 		}
@@ -122,9 +121,8 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	double lb = 0.0; //lower bound
 	double ub = 1.0; //upper bound
 	char binary = 'B'; //binary variable (0 OR 1)
-	//char continuous = 'C';
 
-	//Definisco cname per scrivere il modello in modo più chiaro
+	//define cname to write the model clearly
 	char **cname = (char **)calloc(1, sizeof(char *));		// (char **) required by cplex...
 	cname[0] = (char *)calloc(100, sizeof(char));
 
@@ -141,16 +139,14 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 				printf("Distance d(%d,%d): %f \n",i+1,j+1, dist(i, j,inst));
 			}
 
-			//Metodo per inserire colonna: env=environment, lp=problema, obj=funzione obiettivo, 
-			// lb=lower bound, ub=upper bound, binary=tipo della variabile, cname=nome della colonna
+			//Method to insert a column: env=environment, lp=problema, obj=funzione obiettivo, 
 			if (CPXnewcols(env, lp, 1, &obj, &lb, &ub, &binary, cname)) print_error(" wrong CPXnewcols on x var.s");
-			//confronto se la posizione della colonna aggiunta sia uguale a quella della xpos
-			//printf("La colonna con i=%d e j=%d e' in posizione %d e xpos e' %d\n", i, j, CPXgetnumcols(env, lp), xpos(i,j,inst));
+			//compare if the position of added column is equal to that of xpos
 			if (CPXgetnumcols(env, lp) - 1 != xpos(i, j, inst)) print_error(" wrong position for x var.s");
 
 		}
 	}
-	/*----------------INSERISCO LE Z: zvh=1 se vertice v si trova in posizione h*/
+	/*----------------INSERT Z VARIABLES: zvh=1 if vertex v is in position h*/
 	for (int i = 0; i < inst->nnodes; i++)
 	{
 		double lb = 0.0; //lower bound
@@ -175,11 +171,10 @@ void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			printf("lastrow %d\n", lastrow);
 		}
 		double maxdeg = 2.0; 	 	//NOI vogliamo 2 uno entrante e uno uscente
-		char sense = 'E'; 			//// E equazione
+		char sense = 'E'; 			//E equazione
 		sprintf(cname[0], "degree(%d)", h + 1);   // DO un nome NOI degree 
 		if (CPXnewrows(env, lp, 1, &maxdeg, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");  //Nuova riga vuota con coeff diversi da 0 e con informazioni nella posizione last row 																posizione last row
 		for (int i = 0; i < inst->nnodes; i++)		//cambio coefficienti non 0 mettendoli a 1 NOI se i=h salto istruzione, se i!=h faccio chgcoef change coeff a 1
-									// non importa se i>h perché xpos fa inversione
 		{
 			if (i == h)
 				continue;

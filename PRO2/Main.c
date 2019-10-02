@@ -6,7 +6,6 @@
 void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
 void plot_gnuplot(instance *inst);
-//void plot_edge(instance *inst);
 int TSPopt(instance *inst);
 double dist(int i, int j, instance *inst);
 void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(NULL); exit(1); } 
@@ -20,14 +19,6 @@ void free_instance(instance *inst) {
 
 /*----------------------------------------MAIN-------------------------------------------*/
 int main(int argc, char **argv) {
-
-	/*------------------------VERBOSE FROM TERMINAL INPUT--------------------------------*/
-	/*
-	int VERBOSE = 0;
-	printf("SET VERBOSE LEVEL: ");
-	scanf("%d",&VERBOSE);
-	*/
-	/*-----------------------------------------------------------------------------------*/
 
 	instance inst; //we create the variable inst of type instance
 
@@ -45,7 +36,6 @@ int main(int argc, char **argv) {
 		printf("Distanza tra 32 e 40 : %.2f\n", dProva);
 	}
 
-	//plot_edge(&inst); //plot selected edges in a gnuplot window 
 	if (TSPopt(&inst)) print_error(" error within TSPopt()");
 	plot_gnuplot(&inst); //plot coord in a gnuplot window
 	free_instance(&inst);//libero la memoria occupata dall'istanza creata nel file TSP
