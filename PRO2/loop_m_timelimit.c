@@ -1,3 +1,4 @@
+/**************************************************************************************************/
 /*-------------------------------LOOP METHOD WITH TIMELIMIT---------------------------------------*/
 /**************************************************************************************************/
 
@@ -27,8 +28,6 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 
 		if (CPXgettime(env, &time3)) print_error("Error getting time\n");				//GET TIME
 		if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit)) print_error("Error on setting parameter");
-		//if (CPXgetdettime(env, &ticks1)) print_error("Error getting time\n");
-		//if (CPXsetintparam(env, CPX_PARAM_HEURFREQ, 20)) print_error("Error on setting parameter");
 
 		/******************************************************************************************/
 		/*------------------------------------USE OF TIMELIMITS-----------------------------------*/
@@ -208,8 +207,8 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 	}
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
-	double opt_val;																//VALUE OPTIMAL SOL
-	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
+	double opt_val;																		//VALUE OPTIMAL SOL
+	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;	//OPTIMAL SOLUTION FOUND
 	printf("Object function optimal value is: %.0f\n", opt_val);
 }
 

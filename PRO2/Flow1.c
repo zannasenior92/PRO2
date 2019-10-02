@@ -152,7 +152,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	for (int j = 1; j < inst->nnodes; j++) {
 
-		index[j - 1] = ypos(0, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+		index[j - 1] = ypos(0, j, inst);										//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 		value[j - 1] = 1.0;
 	}
 

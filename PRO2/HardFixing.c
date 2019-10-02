@@ -73,5 +73,3 @@ void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int *ind)
 	/*WRITE IN A FILE THE MODIFIED MODEL*/
 	CPXwriteprob(env, lp, "modelchanged.lp", NULL);
 }
-
-/*--------------------------------FUNCTION FRO SETTING THE INITIAL SOLUTION------------------------*/

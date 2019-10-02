@@ -58,8 +58,8 @@ int TSPopt(instance *inst)
 		selected_edges(inst);
 		/*-------------------------------------------------------------------------------*/
 		/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
-		double opt_val;																//VALUE OPTIMAL SOL
-		if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
+		double opt_val;																		//VALUE OPTIMAL SOL
+		if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;	//OPTIMAL SOLUTION FOUND
 		printf("Object function optimal value is: %.0f\n", opt_val);
 		/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
 		CPXfreeprob(env, &lp);

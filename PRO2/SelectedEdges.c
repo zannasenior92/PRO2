@@ -1,6 +1,6 @@
 #include "TSP.h"
 
-/*FUNCTION TO WRITE IN A FILE SELECTED EDGES THAT MUST BE PRINTED*/
+/*---------FUNCTION TO WRITE IN A FILE SELECTED EDGES THAT MUST BE PRINTED-----------*/
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 int xpos(int i, int j, instance *inst);
