@@ -128,7 +128,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (i == j) continue;
 			index[0] = ypos(i, j, inst);										//VARIABLE'S  INDEX
 			value[0] = 1.0;														//VARIABLE'S VALUE  
-			index[1] = xpos_compact(i, j, inst);										//VARIABLE'S  INDEX
+			index[1] = xpos_compact(i, j, inst);								//VARIABLE'S  INDEX
 			value[1] = -(inst->nnodes - 1);
 			sprintf(cname[0], "y(%d,%d)", i + 1, j + 1);
 
@@ -152,7 +152,7 @@ void build_modelFlow1(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	for (int j = 1; j < inst->nnodes; j++) {
 
-		index[j - 1] = ypos(0, j, inst);											//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
+		index[j - 1] = ypos(0, j, inst);										//INDEX OF THE COLUMN CORRESPOND TO THE VARIABLE
 		value[j - 1] = 1.0;
 	}
 

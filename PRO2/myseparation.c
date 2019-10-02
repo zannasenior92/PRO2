@@ -41,7 +41,7 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 			n++;
 		}
 	}
-	//Se ha una sola componente connesse non aggiungo vincoli ed esco
+	//IF HE HAS ONLY ONE CONNECTED COMPONENT I DON'T ADD CONSTRAINTS AND EXIT
 	if (n == 1) {
 		if (VERBOSE>=1){printf("%d componenti connesse qui\n", n);}
 		return 0;

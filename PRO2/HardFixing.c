@@ -10,7 +10,7 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 {
 	printf("reset bounds \n");
 	int *index0 = (int*)malloc(inst->nnodes * sizeof(int));				//ARRAY DI INDICI A CUI CAMBIARE IL BOUND
-	double *bounds0 = (double*)calloc(inst->nnodes, sizeof(double));				//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND				
+	double *bounds0 = (double*)calloc(inst->nnodes, sizeof(double));	//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND				
 	char *lb0 = (char*)malloc(inst->nnodes * sizeof(char));				//ARRAY CHE SPECIFICA QUALE BOUND CAMBIARE PER OGNI VARIABILE
 
 	int n = 0;
@@ -43,8 +43,8 @@ void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp)
 
 	printf("hard fix bounds \n");
 
-	int *index_set = (int *)malloc(inst->nnodes * sizeof(int));			//ARRAY DI INDICI DELLE VARIABILI A CUI CAMBIARE IL BOUND
-	double *bounds_set = (double *)calloc(inst->nnodes, sizeof(double));		//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND PER OGNI VARIABILE				
+	int *index_set = (int *)malloc(inst->nnodes * sizeof(int));				//ARRAY DI INDICI DELLE VARIABILI A CUI CAMBIARE IL BOUND
+	double *bounds_set = (double *)calloc(inst->nnodes, sizeof(double));	//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND PER OGNI VARIABILE				
 	char *lb_set = (char *)malloc(inst->nnodes * sizeof(char));				//ARRAY CHE SPECIFICA QUALE BOUND CAMBIARE PER OGNI VARIABILE
 
 	int n = 0;
@@ -85,7 +85,7 @@ void update_x_heu(instance *inst, CPXENVptr env, CPXLPptr lp)
 	double *current_sol = (double *)calloc(inst->ncols, sizeof(double));				//CURRENT SOLUTION 
 	double opt_current_val;																//VALUE OPTIMAL SOL
 
-	if (CPXgetobjval(env, lp, &opt_current_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
+	if (CPXgetobjval(env, lp, &opt_current_val)) print_error("Error getting optimal value");;	//OPTIMAL SOLUTION FOUND
 	
 	/*MI TROVO LA SOLUZIONE CORRENTE E LA SALVO IN UN ARRAY TEMPORANEO*/
 	if (CPXgetx(env, lp, current_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");

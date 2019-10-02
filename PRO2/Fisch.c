@@ -13,7 +13,6 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	double lb = 0.0; //lower bound
 	double ub = 1.0; //upper bound
 	char binary = 'B'; //binary variable (0 OR 1)
-	//char continuous = 'C';
 
 	//Definisco cname per scrivere il modello in modo più chiaro
 	char **cname = (char **)calloc(1, sizeof(char *));		// (char **) required by cplex...
@@ -61,7 +60,7 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			printf("lastrow %d\n", lastrow);
 		}
 		double maxdeg = 2.0; 	 	//NOI vogliamo 2 uno entrante e uno uscente
-		char sense = 'E'; 			//// E equazione
+		char sense = 'E'; 			// E equazione
 		sprintf(cname[0], "degree(%d)", h + 1);   // DO un nome NOI degree 
 		if (CPXnewrows(env, lp, 1, &maxdeg, &sense, NULL, cname)) print_error(" wrong CPXnewrows [x1]");  //Nuova riga vuota con coeff diversi da 0 e con informazioni nella posizione last row 																posizione last row
 		for (int i = 0; i < inst->nnodes; i++)		//cambio coefficienti non 0 mettendoli a 1 NOI se i=h salto istruzione, se i!=h faccio chgcoef change coeff a 1
