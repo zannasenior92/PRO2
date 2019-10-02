@@ -1,28 +1,13 @@
 #include "TSP.h"
 #include <string.h>
 /*-------------------------------GNUPLOT PLOT-------------------------------------------*/
-void plot_gnuplot(instance *inst) {
+void plot_gnuplot_start(instance *inst, FILE* gnuplotPipe) {
 
 	char title[100];										//NAME FILE
 	strcpy(title, "set title \"Punti TSP ");
 	strcat(title, inst->input_file_name);
 
 	char * commandsForGnuplot[] = {
-
-		/*-------------------------PLOTTING COMMANDS TO PRINT NODES---------------------*/
-		/*
-		"set terminal windows",
-		title,													//set title from input file
-		"set output 'nodes.eps'",
-		"set style line 1 \
-	linecolor rgb '#0060ad' ",									//set the color line
-		"unset border",											//remove the bordes
-		"unset xtics",											//remove axis x
-		"unset ytics",											//remove axis y
-		"unset key",											//remove path legend
-		"plot 'coordinateAtt48.txt' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
-		/*------------------------------------------------------------------------------*/
-
 
 		/*----------------PLOTTING COMMANDS TO PRINT SELECTED EDGES---------------------*/
 
@@ -33,7 +18,52 @@ void plot_gnuplot(instance *inst) {
 		"unset border",											//remove the bordes
 		"unset xtics",											//remove axis x
 		"unset ytics",											//remove axis y
+		"exit"
+	};
+	/*----------------------------------------------------------------------------------*/
+
+	/*--------------------NUMBER OF GNUPLOT COMMANDS------------------------------------*/
+	int n_commands = sizeof(commandsForGnuplot) / sizeof(commandsForGnuplot[0]);
+	if (VERBOSE > 200)
+	{
+		printf("Numero comandi gnuplot: %d \n", n_commands);
+	}
+	/*----------------------------------------------------------------------------------*/
+
+
+	/*---------------------------PRINTING POINTS IN FILE--------------------------------*/
+	FILE * temp = fopen("coordinateAtt48.txt", "w");
+
+	for (int i = 0; i < inst->nnodes; i++)
+	{
+		fprintf(temp, "%lf %lf %d %d\n", inst->xcoord[i], inst->ycoord[i], i + 1);  //WRITE DATA TO A TEMPORARY FILE
+	}
+	fclose(temp);
+	/*----------------------------------------------------------------------------------*/
+
+
+	/*----------------USING A PIPE FOR GNUPLOT TO PRINT POINTS--------------------------*/
+
+	for (int i = 0; i < n_commands; i++)
+	{
+		fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]);					//Send commands to gnuplot one by one.
+	}
+	
+}
+/*--------------------------------------------------------------------------------------*/
+void plot_gnuplot(instance *inst, FILE * gnuplotPipe) {
+
+	char title[100];										//NAME FILE
+	strcpy(title, "set title \"Punti TSP ");
+	strcat(title, inst->input_file_name);
+
+	char * commandsForGnuplot[] = {
+
+		/*----------------PLOTTING COMMANDS TO PRINT SELECTED EDGES---------------------*/
+
+		
 		/*------------------TO STAMP CONNECTED COMPONENTS-------------------------------*/
+		"set terminal windows 1",
 		"plot 'connected_components.txt' with lp ls 1 lc variable, '' with point pointtype 7 lc variable",
 		"pause 1",
 		"exit"
@@ -61,15 +91,14 @@ void plot_gnuplot(instance *inst) {
 
 
 	/*----------------USING A PIPE FOR GNUPLOT TO PRINT POINTS--------------------------*/
-	FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe", "w");	//"-persistent" KEEPS THE PLOT OPEN EVEN AFTER YOUR C PROGRAM QUIT
+	//FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe", "w");	//"-persistent" KEEPS THE PLOT OPEN EVEN AFTER YOUR C PROGRAM QUIT
 
 	for (int i = 0; i < n_commands; i++)
 	{
 		fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]);					//Send commands to gnuplot one by one.
 	}
-	_pclose(gnuplotPipe);
+	
 }
-/*--------------------------------------------------------------------------------------*/
 
 
 

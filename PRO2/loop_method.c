@@ -1,4 +1,6 @@
 #include "TSP.h"
+#include <Windows.h>
+#include <time.h>
 /*-------------------------------------------LOOP METHOD FOR DEFAULT MODEL---------------------------------------*/
 
 
@@ -8,16 +10,20 @@ void add_edge_to_file(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
 int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE *log);
-void plot_gnuplot(instance *inst);
+void plot_gnuplot_start(instance *inst, FILE * gnuplotPipe);
+void plot_gnuplot(instance *inst, FILE * gnuplotPipe);
 void update_choosen_edge(instance* inst);
 
 
 
 /*****************************************************************************************************************/
 int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
-
+	FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe", "w");	//"-persistent" KEEPS THE PLOT OPEN EVEN AFTER YOUR C PROGRAM QUIT
+	fprintf(gnuplotPipe, "%s \n", "set terminal windows 1");
+	fprintf(gnuplotPipe, "%s \n", "set title \"Punti TSP ");
 	int done = 0;
 	while (!done) {
+		
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 		if (CPXsetlogfile(env, log)) print_error("Error in log file");
 		int ncols = CPXgetnumcols(env, lp);
@@ -35,9 +41,14 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
 		}
 		update_choosen_edge(inst);
 		add_edge_to_file(inst);
-		plot_gnuplot(inst);
-
+		fprintf(gnuplotPipe, "%s \n", "plot 'connected_components.txt' with lp ls 1 lc variable, ''  with point pointtype 7 lc variable");
+		/*----------------PER ISTANZE PICCOLE---------*/
+		Sleep(1000);
+		printf(gnuplotPipe, "%s \n", "pause 1");
+		fflush(gnuplotPipe);
+		printf("Componente connesse %d\n", inst->n_connected_comp);
 	}
+	_pclose(gnuplotPipe);
 
 	int ncols = CPXgetnumcols(env, lp);
 	if (VERBOSE >= 200) {
