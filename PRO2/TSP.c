@@ -180,7 +180,7 @@ int TSPopt(instance *inst)
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 	double *opt_val = 0;																//VALUE OPTIMAL SOL
-	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
+	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;	//OPTIMAL SOLUTION FOUND
 	printf("Object function optimal value is: %.0f\n", opt_val);
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
 	CPXfreeprob(env, &lp);
@@ -194,11 +194,11 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	int max = -1;
 	inst->mycomp = (int*)calloc(inst->nnodes, sizeof(int));
 
-	/*INIZIALIZZAZIONE*/
+	/*INITIALIZATION*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		inst->comp[i] = i;
 	}
-	/*UNIONE COMPONENTI CONNESSE*/
+	/*CONNECTED COMPONENT'S UNION*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		for (int j = i + 1; j < inst->nnodes; j++) {
 			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
