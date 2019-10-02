@@ -5,7 +5,6 @@
 /*---------------------------DEFINITION OF METHODS---------------------------------------*/
 void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
-void plot_gnuplot(instance *inst);
 void plot_final_gnuplot(instance *inst);
 int xpos(int i, int j, instance *inst);
 int TSPopt(instance *inst);

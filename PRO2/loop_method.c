@@ -14,6 +14,7 @@ void plot_gnuplot_start(instance *inst, FILE * gnuplotPipe);
 void plot_gnuplot(instance *inst, FILE * gnuplotPipe);
 void update_choosen_edge(instance* inst);
 int xpos_compact(int i, int j, instance *inst);
+int xpos(int i, int j, instance *inst);
 
 
 /*****************************************************************************************************************/
