@@ -33,6 +33,6 @@ typedef struct {
 	int *choosen_edge;						// Nodi scelti 
 
 
-} instance; //"instance" sarebbe il nome che diamo ad una istanza della nostra struttura
+} instance; //"instance" would be the name that we give to an instance of our structure
 
 #endif   /* TSP_H_ */

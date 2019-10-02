@@ -14,10 +14,9 @@ void plot_gnuplot(instance *inst) {
 		"unset border", //remove the bordes
 		"unset xtics", //remove axis x
 		"unset ytics", //remove axis y
-		"unset key", //toglie legenda path
+		"unset key", //remove legenda path
 
 		//-----------------------------PATH COLLABORATORS--------------------------------------------
-		//BASTA MODIFICARE modificare il pezzo di path da "marco" a "Luca" e viceversa
 		"plot 'coordinateAtt48.txt' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
 		/*------------------------------------------------------------------------------*/
 
@@ -32,7 +31,7 @@ void plot_gnuplot(instance *inst) {
 		"unset border", //remove the bordes
 		"unset xtics", //remove axis x
 		"unset ytics", //remove axis y
-		"unset key", //toglie legenda path
+		"unset key", //remove legenda path
 		"plot 'edge_to_plot.txt' with lp ls 1, '' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
 		"exit"
 	};
