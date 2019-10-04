@@ -30,6 +30,6 @@ typedef struct {
 	int *choosen_edge;						// Nodi scelti 
 	double best_obj_val;
 
-} instance; //"instance" sarebbe il nome che diamo ad una istanza della nostra struttura
+} instance;														//NAME OF THE INSTANCE
 
 #endif   /* TSP_H_ */
