@@ -10,17 +10,17 @@ void add_edge_to_file(instance *inst);
 void plot_gnuplot(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
 double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
-int index_worst_cost_tsp(instance *inst, double *opt_cost, int num_sel_tsp);
+int update_index_worst_cost_tsp(instance *inst, double *opt_cost, int num_sel_tsp);
 double cost_tsp(instance *inst, int* tsp);
 int* cross_over(instance *inst, int *tspFather, int *tspMother);
-double worst_cost_tsp(instance *inst, double *opt_cost, int num_sel_tsp);
+double update_worst_cost_population(instance *inst, double *opt_cost, int num_sel_tsp);
 int index_best_cost_tsp(instance *inst, double *tsp_fitness, int num_sel_tsp);
 void update_bestsol(instance *inst, int *tsp_opt);
 
 
 void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 {
-	int max_num_pop = 100;								//END AFTER ANALYZE THIS NUMBER OF POPULATIONS
+	int max_num_pop = 100;								//LIMIT THE NUMBER OF CREATED POPULATION, END AFTER ANALYZE THIS NUMBER OF POPULATIONS
 	int num_sel_tsp = inst->nnodes/2;					//NUMBER OF TSPs OF THE POPULATION
 	int rows = num_sel_tsp;								//NUMBER OF POPULATION MEMBERS
 	int cols = inst->nnodes;							//NUMBER OF SELECTED NODES (N BECAUSE IS A TSP PROBLEM)
@@ -28,32 +28,34 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	//MATRIX OF SOLUTIONS OF NEIGHBORHOODS TO CREATE SONS (EVERY ROW RAPPRESENT THE SOLUTION'S SET OF NODES)
 	int **TSP_solutions = (int **)malloc(rows * cols * sizeof(int));
 	
-	double *tsp_fitness = (double *)malloc(inst->nnodes * sizeof(double));		//NEIGHBORHOOD'S FITNESSES(COSTS) ARRAY
+	double *tsp_fitness = (double *)malloc(inst->nnodes * sizeof(double));		//NEIGHBORHOOD'S FITNESSES(COSTS) ARRAY (CONTAIN TSP COSTS OF TSP FINDED WITH HEURISTIC NEAREST NEIGHBORHOOD)
 	int index_best_fitness;														//FITNESS BEST SOLUTION INDEX
 	double worst_fitness = 0;													//FITNESS(COST) WORST FATHER
 	int index_worst_tsp_parent = 0;												//WORST FATHER INDEX
-	int num_of_populations = 0;													//NUMBER OF POPULATIONS THAT I WANT TO ANALYZE
+	int num_of_populations = 0;													//COUNTER REGARDING NUMBER OF POPULATION THAT I'M ANALIZING
 	int done = 1;
 
 	for (int i = 0; i < num_sel_tsp; i++)/*COMPUTE INITIAL POPULATION WITH NEAREST NEIGHBORHOOD*/
 	{
-		for (int h = 0; h < inst->ncols; h++)//RESET BESTSOL
+		for (int h = 0; h < inst->ncols; h++)//RESET BEST SOLUTION
 		{
 			inst->best_sol[h] = 0.0;
 		}
+
 		tsp_fitness[i] = nearest_neighborhood(inst, env, lp, i);	//TSP COST
 		TSP_solutions[i] = inst->choosen_nodes;						//OPTIMAL TSP SOLUTION
+		
 		if (GENETIC_ALG >400)
 		{
 			printf("Tsp%d Solution: ",i);
-
 			for (int k = 0; k < inst->nnodes; k++)
 			{
 				printf("%d ", TSP_solutions[i][k] + 1);
 			}
 			printf("\n");
 		}
-		if (tsp_fitness[i] > worst_fitness)							//WORST PARENTS COST
+
+		if (tsp_fitness[i] > worst_fitness)							//FIND WORST PARENT'S COST
 		{
 			index_worst_tsp_parent = i;
 			worst_fitness = tsp_fitness[i];
@@ -67,23 +69,26 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 			printf("\n");
 			printf("Worst cost: %lf \n", worst_fitness);
 		}
-		int **newTSP_solutions = TSP_solutions;	//NEW POPULATION
-		double *new_opt_cost = tsp_fitness;			//NEW SOLUTION COST
+		int **newTSP_solutions = TSP_solutions;	//NEW POPULATION (NEW POPULATION FORMED BY SUBSTITUTING BETTER TSPs CREATED WITH CROSSOVER WITH OLD TSPs OF PREVIOUS POPULATION)
+		double *new_tsp_cost = tsp_fitness;		//NEW SOLUTIONS COST
 		for (int i = 0; i < num_sel_tsp; i++)	//COUPLE PARENTS AND VERIFY IF THE SON IS A GOOD BOY
 		{
 			for (int j = i + 1; j < num_sel_tsp; j++)
 			{
 				int* current_son = cross_over(inst, TSP_solutions[i], TSP_solutions[j]);	//EDGES CURRENT SON
 				double current_cost = cost_tsp(inst, current_son);							//COST CURRENT SON
-				//SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
+
 				if (GENETIC_ALG > 400)
 				{
 					printf("Current Cost: %lf \n", current_cost);
 				}
+				//SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
 				if (current_cost < worst_fitness)
 				{
 					newTSP_solutions[index_worst_tsp_parent] = current_son;
-					new_opt_cost[index_worst_tsp_parent] = current_cost;
+					new_tsp_cost[index_worst_tsp_parent] = current_cost;
+					index_worst_tsp_parent = update_index_worst_cost_tsp(inst, new_tsp_cost, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+					worst_fitness = update_worst_cost_population(inst, new_tsp_cost, num_sel_tsp);						//UPDATE WORST COST
 				}
 			}
 		}
@@ -101,10 +106,9 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 				printf("\n");
 			}
 		}
-		index_worst_tsp_parent = index_worst_cost_tsp(inst, new_opt_cost, num_sel_tsp);	//WORST TSPS COST
+
 		TSP_solutions = newTSP_solutions;	//THE NEW UPDATED POPULATION
-		tsp_fitness = new_opt_cost;
-		worst_fitness = worst_cost_tsp(inst, tsp_fitness, num_sel_tsp);//UPDATE WORST COST
+		tsp_fitness = new_tsp_cost;			//THE NEW UPDATED COST
 		index_best_fitness = index_best_cost_tsp(inst, tsp_fitness, num_sel_tsp);
 		update_bestsol(inst, TSP_solutions[index_best_fitness]);
 		num_of_populations++;
@@ -144,9 +148,9 @@ int* cross_over(instance *inst, int *tspFather, int *tspMother)
 
 	for (int i = 0; i < inst->nnodes / 2; i++)//ADD FATHER ELEMENTS
 	{
-		son[son_index++] = tspFather[i];	//CHOOSE FATHER NODE
+		son[son_index++] = tspFather[i];		//CHOOSE FATHER NODE
 
-		for (int j = 0; j < inst->nnodes; j++)//SCAN MOTHER ELEMENTS
+		for (int j = 0; j < inst->nnodes; j++)	//SCAN MOTHER ELEMENTS
 		{
 			if (tspFather[i] == tspMother[j])
 			{
@@ -156,21 +160,21 @@ int* cross_over(instance *inst, int *tspFather, int *tspMother)
 	}
 	for (int m = inst->nnodes / 2; m < inst->nnodes; m++)//ADD MOTHER ELEMENTS
 	{
-		if (mother_flags[m] != 1)//DON'T TAKE ELEMENTS ALREADY PRESENT IN THE SON
+		if (mother_flags[m] != 1)//DON'T TAKE ELEMENTS ALREADY SELECTED FROM FATHER
 		{
-			son[son_index++] = tspMother[m];	//CHOOSE MOTHER NODE
-			for (int f = inst->nnodes / 2; f < inst->nnodes; f++)//SCAN FATHER ELEMENTS
+			son[son_index++] = tspMother[m];						//CHOOSE MOTHER NODE
+			for (int f = inst->nnodes / 2; f < inst->nnodes; f++)	//SCAN FATHER ELEMENTS AND ACTIVE FLAG IF ARE PRESENT IN MOTHER 
 			{
 				if (tspMother[m] == tspFather[f])
 				{
 					father_flags[f] = 1;		//NODE ALREADY INSERTED (WILL NOT BE CHOOSE ANOTHER TIME)
 				}
 			}
-
 		}
 	}
 	int last_son_index = son_index;
-	/*----------------ADD MISSING NODES-------------*/
+
+	/*----------------ADD MISSING NODES(IF THERE WERE DUPLICATES)-------------*/
 	for (int l = 0; l < inst->nnodes - last_son_index; l++)
 	{
 		int rand_node; //CHOOSE A RANDOM NODE
@@ -186,7 +190,7 @@ int* cross_over(instance *inst, int *tspFather, int *tspMother)
 					control = 1;
 				}
 			}
-			if (control == 0)
+			if (control == 0)//IF THE NODE ISN'T ALREADY IN THE SON THEN PUT IT IN AND RESTART FOR ADDING A NEW NODE
 			{
 				son[son_index++] = rand_node;
 				done = 1;
@@ -205,12 +209,12 @@ int* cross_over(instance *inst, int *tspFather, int *tspMother)
 	free(mother_flags);
 	free(father_flags);
 	return son;
+	//RICORDARSI DI LIBERARE son CON free(son)
 }
 
 /*OPT VAL OF A TSP*/
 double cost_tsp(instance *inst, int* tsp)
 {
-
 	double cost = 0;
 	int n = 0;
 	while (n < inst->nnodes -1)
@@ -225,23 +229,24 @@ double cost_tsp(instance *inst, int* tsp)
 	return cost;
 }
 
-/*WORST SOLUTION OF TSPS PARENTS*/
-int index_worst_cost_tsp(instance *inst, double *opt_cost, int num_sel_tsp)
+/*COMPUTE THE WORST SOLUTION INDEX OF TSPs PARENTS*/
+int update_index_worst_cost_tsp(instance *inst, double *tsp_fitness, int num_sel_tsp)
 {
 	double worst_cost = 0;
 	int index_worst = 0;
 	for (int i = 0; i < num_sel_tsp; i++)
 	{
-		if (opt_cost[i] > worst_cost)
+		if (tsp_fitness[i] > worst_cost)
 		{
-			worst_cost = opt_cost[i];
+			worst_cost = tsp_fitness[i];
 			index_worst = i;
 		}
 	}
 	return index_worst;
 }
 
-double worst_cost_tsp(instance *inst, double *tsp_fitness, int num_sel_tsp)
+/*COMPUTE THE WORST COST OF THE POPULATION OF TSPs*/
+double update_worst_cost_population(instance *inst, double *tsp_fitness, int num_sel_tsp)
 {
 	double worst_cost = 0;
 	for (int i = 0; i < num_sel_tsp; i++)
@@ -254,6 +259,21 @@ double worst_cost_tsp(instance *inst, double *tsp_fitness, int num_sel_tsp)
 	return worst_cost;
 }
 
+/*UPDATE BEST SOLUTION*/
+void update_bestsol(instance *inst, int *tsp_opt)
+{
+	for (int h = 0; h < inst->ncols; h++)//RESET BEST SOLUTION
+	{
+		inst->best_sol[h] = 0.0;
+	}
+	for (int i = 0; i < inst->nnodes-1; i++)
+	{
+		inst->best_sol[xpos(tsp_opt[i], tsp_opt[i + 1], inst)] = 1.0;
+	}
+	inst->best_sol[xpos(tsp_opt[inst->nnodes - 1], tsp_opt[0], inst)] = 1.0;
+}
+
+/**********************************************************************************************/
 int index_best_cost_tsp(instance *inst, double *tsp_fitness, int num_sel_tsp)
 {
 	double best_cost = INFINITY;
@@ -267,18 +287,5 @@ int index_best_cost_tsp(instance *inst, double *tsp_fitness, int num_sel_tsp)
 		}
 	}
 	return index_best;
-}
-
-void update_bestsol(instance *inst, int *tsp_opt)
-{
-	for (int h = 0; h < inst->ncols; h++)//RESET BESTSOL
-	{
-		inst->best_sol[h] = 0.0;
-	}
-	for (int i = 0; i < inst->nnodes-1; i++)
-	{
-		inst->best_sol[xpos(tsp_opt[i], tsp_opt[i + 1], inst)] = 1.0;
-	}
-	inst->best_sol[xpos(tsp_opt[inst->nnodes - 1], tsp_opt[0], inst)] = 1.0;
 }
 
