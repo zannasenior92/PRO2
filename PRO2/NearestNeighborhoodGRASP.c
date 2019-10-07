@@ -8,6 +8,7 @@ double cost_alg(instance* inst);
 /*--------------GREEDY ALGORITHM TO FIND A INITIAL SOLUTION FOR THE TSP PROBLEM---------------*/
 double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node)
 {
+	inst->choosen_nodes = (int *)malloc(inst->nnodes * sizeof(int));
 	int starting_node = start_node; //INITIAL NODE
 	if (NEAREST_NEIGH_GRASP > 400)
 	{
@@ -19,6 +20,7 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 	double cost = 0;													//COST OF THE SOLUTION
 	int *selected_nodes = (int*)calloc(inst->nnodes, sizeof(int));		//ARRAY OF SELECTED NODES
 	selected_nodes[start_node] = 1;										//START NODE SELECTED
+	inst->choosen_nodes[n] = start_node;								//INITIAL NODE
 	int j = 0;
 	srand(time(NULL));
 	double random;														//START NODE
@@ -72,6 +74,7 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 				}
 				nearest_selected = 1;
 				n++;
+				inst->choosen_nodes[n] = selected_node;						//SAVE THE NODE IN THE INSTANCE
 				break;
 			}
 			/*FIND n-1 NODES (n-2 EDGES); FROM ALL DIFFERENT NODES RESPECT TO THE NODE WHERE I'M NOW ;
@@ -99,7 +102,8 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 		}
 		
 		selected_node = nearest_three_nodes[selected];
-		selected_nodes[selected_node] = 1;									//ONE NODE (OF THE THREES) SELECTED AN SO VISITED
+		selected_nodes[selected_node] = 1;								//ONE NODE (OF THE THREES) SELECTED AN SO VISITED
+
 
 		/*---------------DESELECT THE OTHER TWO NODES---------------------*/
 		for (int k = 0; k < 3; k++) {
@@ -115,6 +119,7 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 			printf("Now i'm in node: %d \n", starting_node + 1);
 		}
 		n++;
+		inst->choosen_nodes[n] = selected_node;							//SAVE THE NODE IN THE INSTANCE
 		free(nearest_three_nodes);
 	}
 	inst->best_sol[xpos(starting_node, start_node, inst)] = 1;
