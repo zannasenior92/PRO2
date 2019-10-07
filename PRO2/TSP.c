@@ -24,7 +24,7 @@ double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int star
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double prob);
 double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
 double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
-void vns(instance *inst, CPXENVptr env, CPXLPptr lp);
+double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp, int size);
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
 {
@@ -94,6 +94,8 @@ int TSPopt(instance *inst)
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
 	int local_minimum = 0;
 	time_t timelimit = time(NULL) + 30;
+
+	//ESEGUO 2-OPT per trovare minimo locale
 	while (time(NULL) < timelimit) {
 		
 		double delta = two_opt(inst, env, lp);
@@ -103,13 +105,34 @@ int TSPopt(instance *inst)
 		if (delta == 0.0) {
 			local_minimum++;
 		}
+		//Se soluzione non migliora per 10 volte consecutive allora ho trovato minimo locale
 		if (local_minimum == 10) {
-			vns(inst, env, lp);
-			local_minimum = 0;
+			break;
 		}
 		
 
 	}
+	//ESEGUO ORA TABU SEARCH
+	time_t timelimit = time(NULL) + 30;
+	int size = 0;
+	inst->tabu_list = (int*)calloc(100, sizeof(int));
+	while (time(NULL) < timelimit) {
+
+		double delta = tabu_search(inst, env, lp, size);
+		printf("Delta: %f\n", delta);
+		opt_current += delta;
+		printf("New objective function: %f\n", opt_current);
+		if (delta == 0.0) {
+			local_minimum++;
+		}
+		//Se soluzione non migliora per 10 volte consecutive allora ho trovato minimo locale
+		if (local_minimum == 10) {
+			break;
+		}
+
+
+	}
+
 	update_choosen_edge(inst);
 	add_edge_to_file(inst);
 	plot_gnuplot(inst);

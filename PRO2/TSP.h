@@ -63,6 +63,8 @@ typedef struct {
 	/*-----------------LAST VARIABLE CPLEX INDEX--------------------*/
 	int last_x_index;											//LATS INDEX OF x VARIABLES (LAST COLUMN IN CPLEX)
 	double starting_solution_cost;
+	/*-----------------TABU ARRAY-----------------------------------*/
+	int *tabu_list;
 
 } instance;														//NAME OF THE INSTANCE
 
