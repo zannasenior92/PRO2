@@ -65,6 +65,8 @@ typedef struct {
 	double starting_solution_cost;
 	/*-----------------TABU ARRAY-----------------------------------*/
 	int *tabu_list;
+	int tabu_index;
+	int tabu_flag;
 
 } instance;														//NAME OF THE INSTANCE
 

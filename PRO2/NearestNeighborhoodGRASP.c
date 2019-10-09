@@ -9,7 +9,7 @@ int xpos(int i, int j, instance *inst);
 double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node)
 {
 	int starting_node = start_node; //INITIAL NODE
-	printf("Initial Node: %d \n", starting_node + 1);
+	//printf("Initial Node: %d \n", starting_node + 1);
 
 	double distance, nearest_distance;									//DISTANCE i-TH
 	int n = 0;															//SELECTED EDGES COUNTER
@@ -54,7 +54,7 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 
 			/*---------NORMAL CHOICE THAT CHOOSE ONE NODE(THE NEAREST)---------*/
 			if (random < 0.5) {
-				printf("NORMAL CHOICE\n");
+				//printf("NORMAL CHOICE\n");
 				if (NEAREST_NEIGH_GRASP > 400)
 				{
 					printf("Selected edge: x(%d,%d) \n", starting_node + 1, selected_node + 1);
@@ -84,7 +84,7 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 		if (nearest_selected == 1) {
 			continue;
 		}
-		printf("SCELTA RANDOM\n");
+		//printf("SCELTA RANDOM\n");
 		int selected = rand() % 3;
 		if (NEAREST_NEIGH_GRASP > 400)
 		{

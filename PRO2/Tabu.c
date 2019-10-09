@@ -10,7 +10,7 @@ void plot_gnuplot(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
 
 /*-----------------------------2-OPT ALGORITHM---------------------------------------*/
-double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp, int size) {
+double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	//scrivo gli archi della soluzione ottima in un array
 	int* edges = (int*)calloc(inst->nnodes, sizeof(int));
 	int n = 0;
@@ -30,22 +30,14 @@ double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp, int size) {
 	int* nodes_edge1 = (int*)calloc(2, sizeof(int));
 	int* nodes_edge2 = (int*)calloc(2, sizeof(int));
 	int done = 0;
-
+	int in_tabu = 0;
+	int candidate_edge1, candidate_edge2, candidate_old_edge1, candidate_old_edge2;
 	while (done != 1) {
 		for (int i = 0; i < inst->nnodes; i++) {
-			//controllo che l'arco non sia nella tabu_list
-			for (int k = 0; k < size; k++) {
-				if (edges[i] == inst->tabu_list[k])
-					continue;
-			}
 
 			reverse_xpos(edges[i], inst, nodes_edge1);
 			for (int j = i + 1; j < inst->nnodes; j++) {
-				//controllo che l'arco non sia nella tabu_list
-				for (int k = 0; k < size; k++) {
-					if (edges[j] == inst->tabu_list[k])
-						continue;
-				}
+				
 				//prendo i nodi dagli archi
 				reverse_xpos(edges[j], inst, nodes_edge2);
 				//controllo che non abbiano nodi in comune altrimenti non si puo fare lo scambio
@@ -65,53 +57,84 @@ double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp, int size) {
 				//se delta minore distanza più corta
 				if (delta < min_delta) {
 					//devo salvare il più corto e salvarmi gli archi
-					/*for (int k = 0; k < inst->ncols; k++){
-						if(inst->best_sol[k]>0.5)
-							printf("%d\n ", k);
-					}*/
+					
 					min_new_edge1 = xpos(nodes_edge1[0], nodes_edge2[1], inst);
 					min_new_edge2 = xpos(nodes_edge1[1], nodes_edge2[0], inst);
+					
+					
 					if ((inst->best_sol[min_new_edge1] == 1) || (inst->best_sol[min_new_edge2] == 1)) {
 						continue;
 					}
 					old_edge1 = edges[i];
 					old_edge2 = edges[j];
-					/*printf("best_sol[%d]=%f\n", old_edge1, inst->best_sol[old_edge1]);
-					printf("best_sol[%d]=%f\n", old_edge2, inst->best_sol[old_edge2]);
-					printf("best_sol[%d]=%f\n", min_new_edge1, inst->best_sol[min_new_edge1]);
-					printf("best_sol[%d]=%f\n", min_new_edge2, inst->best_sol[min_new_edge2]);
-					*/
+					
 					inst->best_sol[old_edge1] = 0.0;
 					inst->best_sol[old_edge2] = 0.0;
 					inst->best_sol[min_new_edge1] = 1.0;
 					inst->best_sol[min_new_edge2] = 1.0;
-					/*printf("DOPO\n");
-					printf("best_sol[%d]=%f\n", old_edge1, inst->best_sol[old_edge1]);
-					printf("best_sol[%d]=%f\n", old_edge2, inst->best_sol[old_edge2]);
-					printf("best_sol[%d]=%f\n", min_new_edge1, inst->best_sol[min_new_edge1]);
-					printf("best_sol[%d]=%f\n", min_new_edge2, inst->best_sol[min_new_edge2]);
-					*/
+					
 					if (kruskal_sst(env, lp, inst) == 1) {
-						/*printf("AZZERO %d, %d e %d, %d, e aggiungo %d, %d e %d %d \n",
-							nodes_edge1[0]+1, nodes_edge1[1] + 1, nodes_edge2[0] + 1, nodes_edge2[1] + 1,
-							nodes_edge1[0]+1, nodes_edge2[1] + 1, nodes_edge1[1] + 1, nodes_edge2[0] + 1);
-						printf("PASSO DA %d e %d A %d, %d\n",
-							old_edge1, old_edge2, min_new_edge1, min_new_edge2);
-						*/
-						/*for (int k = 0; k < inst->ncols; k++){
-							if (inst->best_sol[k] > 0.5)
-								printf("%d\n ", k);
-						}*/
-						/*update_choosen_edge(inst);
-						add_edge_to_file(inst);
-						plot_gnuplot(inst);
-						*/
+						//CONTROLLO SE SONO NELLA TABU LIST
+						if (inst->tabu_index != 0) {
+							for (int k = 0; k < inst->tabu_index; k += 4) {
+								//printf("controllo %d - %d / %d - %d / %d - %d / %d - %d\n", min_new_edge1, inst->tabu_list[k], old_edge1,
+									//inst->tabu_list[k + 1], min_new_edge2, inst->tabu_list[k + 2], old_edge2, inst->tabu_list[k + 3]);
+								if (((min_new_edge1 == inst->tabu_list[k]) && (old_edge1 == inst->tabu_list[k + 1])) &&
+									((min_new_edge2 == inst->tabu_list[k + 2]) && (old_edge2 == inst->tabu_list[k + 3]))) {
+									//printf("Gia presenti nella tabu list %d e %d \n", min_new_edge1, min_new_edge2);
+									//Ritorno alla soluzione originale
+									inst->best_sol[old_edge1] = 1.0;
+									inst->best_sol[old_edge2] = 1.0;
+									inst->best_sol[min_new_edge1] = 0.0;
+									inst->best_sol[min_new_edge2] = 0.0;
+									in_tabu = 1;
+									break;
+								}
 
-						free(nodes_edge1);
-						free(nodes_edge2);
-						free(edges);
-						return delta;
-
+							}
+						}
+						//mi salvo il minore delta trovato e gli archi associati
+						//la prima volta che faccio tabu search salto lo scambio che mi da delta=0
+						if (inst->tabu_flag == 0) {
+							if (delta == 0) continue;
+							else {
+								if (in_tabu != 0) {
+									in_tabu = 0;
+									continue;
+								}
+								else{
+									min_delta = delta;
+									candidate_edge1 = min_new_edge1;
+									candidate_edge2 = min_new_edge2;
+									candidate_old_edge1 = old_edge1;
+									candidate_old_edge2 = old_edge2;
+									//printf("salvo il delta minimo %f dato da %d con %d e %d con %d\n", min_delta, candidate_edge1,
+										//candidate_old_edge1, candidate_edge2, candidate_old_edge2);
+								}
+							}
+						}
+						else {
+							if (in_tabu != 0) {
+								in_tabu = 0;
+								continue;
+							}
+							else {
+								min_delta = delta;
+								candidate_edge1 = min_new_edge1;
+								candidate_edge2 = min_new_edge2;
+								candidate_old_edge1 = old_edge1;
+								candidate_old_edge2 = old_edge2;
+								//printf("salvo il delta minimo %f dato da %d con %d e %d con %d\n", min_delta, candidate_edge1,
+									//candidate_old_edge1, candidate_edge2, candidate_old_edge2);
+							}
+						}
+						
+						//Ritorno alla soluzione originale
+						inst->best_sol[old_edge1] = 1.0;
+						inst->best_sol[old_edge2] = 1.0;
+						inst->best_sol[min_new_edge1] = 0.0;
+						inst->best_sol[min_new_edge2] = 0.0;
+						continue;
 					}
 					else {
 						if (TWO_OPT > 400)
@@ -130,26 +153,42 @@ double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp, int size) {
 		done = 1;
 
 	}
-	//scorro tutti gli archi della soluzione data all'interno di edges a coppie
-
 	
+	inst->best_sol[candidate_old_edge1] = 0.0;
+	inst->best_sol[candidate_old_edge2] = 0.0;
+	inst->best_sol[candidate_edge1] = 1.0;
+	inst->best_sol[candidate_edge2] = 1.0;
+	//aggiungo i lati nella tabu list
+	if (inst->tabu_index == 200) {
+		inst->tabu_index = 0;
+		printf("azzero l'indice tabu index\n");
+	}
+	//se delta maggiore di zero aggiungo archi a tabu list
+	if (min_delta > 0) {
+		inst->tabu_list[inst->tabu_index] = candidate_old_edge1;
+		inst->tabu_list[inst->tabu_index + 1] = candidate_edge1;
+		inst->tabu_list[inst->tabu_index + 2] = candidate_old_edge2;
+		inst->tabu_list[inst->tabu_index + 3] = candidate_edge2;
+		inst->tabu_index += 4;
+
+		//printf("Aggiungo a tabu list %d - %d - %d - %d \n", candidate_old_edge1, candidate_edge1, candidate_old_edge2, candidate_edge2);
+	}
+	printf("DELTA MIN  %f \n", min_delta);
+	printf("scambio %d con %d e %d con %d\n", candidate_old_edge1, candidate_edge1, candidate_old_edge2, candidate_edge2);
+	if(inst->tabu_flag ==0) inst->tabu_flag = 1;
+	printf("-----------tabu list---------------\n");
+	for (int k = 1; k < inst->tabu_index+1; k ++) {
+		printf("%d = %d\n",k, inst->tabu_list[k]);
+		if(k%4==0)
+			printf("----------------\n");
+	}
+
 	free(nodes_edge1);
 	free(nodes_edge2);
 	free(edges);
-	return 0;
+
+	return min_delta;
 
 }
 
 
-void reverse_xpos(int x, instance* inst, int* nodes) {
-	for (int i = 0; i < inst->nnodes; i++) {
-		for (int j = i + 1; j < inst->nnodes; j++) {
-			if (xpos(i, j, inst) == x) {
-				//printf("arco %d fatto da (%d,%d)\n", x, i + 1, j + 1);
-				nodes[0] = i;
-				nodes[1] = j;
-				return;
-			}
-		}
-	}
-}

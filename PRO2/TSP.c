@@ -24,7 +24,7 @@ double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int star
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double prob);
 double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
 double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
-double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp, int size);
+double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp);
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
 {
@@ -39,7 +39,7 @@ int TSPopt(instance *inst)
 	FILE* log = CPXfopen("log.txt", "w");
 	
 
-	/*------------------------HARD FIXING WITH LAZYCALLBACK--------------------------*/
+	
 	inst->ncols = CPXgetnumcols(env, lp);
 	//START WITH TRIVIAL INITIAL SOLUZION 1->2->3-...->n-1->1
 	//start_sol(inst);
@@ -94,7 +94,7 @@ int TSPopt(instance *inst)
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
 	int local_minimum = 0;
 	time_t timelimit = time(NULL) + 30;
-
+	printf("--------------------2-OPT-------------------\n");
 	//ESEGUO 2-OPT per trovare minimo locale
 	while (time(NULL) < timelimit) {
 		
@@ -106,33 +106,42 @@ int TSPopt(instance *inst)
 			local_minimum++;
 		}
 		//Se soluzione non migliora per 10 volte consecutive allora ho trovato minimo locale
-		if (local_minimum == 10) {
+		if (local_minimum == 3) {
 			break;
 		}
 		
 
 	}
 	//ESEGUO ORA TABU SEARCH
-	time_t timelimit = time(NULL) + 30;
+	printf("--------------------TABU-------------------\n");
+
+	timelimit = time(NULL) + 150;
 	int size = 0;
-	inst->tabu_list = (int*)calloc(100, sizeof(int));
+	inst->tabu_list = (int*)calloc(200, sizeof(int));
+	inst->tabu_index = 0;
+	inst->tabu_flag = 0;
+	double best_solution = INFINITY;
+	int* edges = (int*)calloc(inst->ncols, sizeof(int));
 	while (time(NULL) < timelimit) {
 
-		double delta = tabu_search(inst, env, lp, size);
-		printf("Delta: %f\n", delta);
+		double delta = tabu_search(inst, env, lp);
+		//printf("Delta: %f\n", delta);
 		opt_current += delta;
 		printf("New objective function: %f\n", opt_current);
-		if (delta == 0.0) {
-			local_minimum++;
+		if (opt_current < best_solution) {
+			best_solution = opt_current;
+			//scrivo gli archi della soluzione ottima in un array
+			for (int i = 0; i < inst->ncols; i++) {
+				edges[i] = inst->best_sol[i];
+			}
 		}
-		//Se soluzione non migliora per 10 volte consecutive allora ho trovato minimo locale
-		if (local_minimum == 10) {
-			break;
-		}
-
-
 	}
 
+	//scrivo la miglior soluzione trovata nell'instanza
+	for (int k = 0; k < inst->ncols; k++) {
+		inst->best_sol[k] = edges[k];
+	}
+	printf("MIGLIOR SOLUZIONE TROVATA DELTA=%f\n", best_solution);
 	update_choosen_edge(inst);
 	add_edge_to_file(inst);
 	plot_gnuplot(inst);
