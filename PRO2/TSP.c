@@ -23,10 +23,11 @@ void update_choosen_edge(instance* inst);
 double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timelimit, double prob, double opt);
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double prob);
 double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
-double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
+double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node, int seed);
 double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
 double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
 double vns(instance *inst, CPXENVptr env, CPXLPptr lp);
+void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp);
 int cost_alg(instance* inst);
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
@@ -52,12 +53,14 @@ int TSPopt(instance *inst)
 	double *minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
 	int start_node = 0;
 
+	genetic_alg(inst, env, lp);
+
 	for (int i = 0; i < 50; i++) {
 		for (int j = 0; j < inst->nnodes; j++) {
 			inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
 			
 
-			cost = nearest_neighborhood_GRASP(inst, env, lp, j);
+			cost = nearest_neighborhood_GRASP(inst, env, lp, j, j);
 			if (cost < min_cost) {
 				min_cost = cost;
 				for (int k = 0; k < inst->ncols; k++) {
