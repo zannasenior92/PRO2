@@ -25,6 +25,9 @@
     <Filter Include="Heuristics">
       <UniqueIdentifier>{6f8293eb-1cf8-4e5d-afd6-508892f3ebc2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Heuristics\Genetic Mothods">
+      <UniqueIdentifier>{27876a4b-5f59-4c98-8454-75443aaa42e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.c">
@@ -86,6 +89,12 @@
     </ClCompile>
     <ClCompile Include="GeneticAlgorithm.c">
       <Filter>Heuristics</Filter>
+    </ClCompile>
+    <ClCompile Include="cross-over_and_mutation.c">
+      <Filter>Heuristics\Genetic Mothods</Filter>
+    </ClCompile>
+    <ClCompile Include="other_methods.c">
+      <Filter>Heuristics\Genetic Mothods</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

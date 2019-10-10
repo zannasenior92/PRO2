@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cross-over_and_mutation.c" />
     <ClCompile Include="GeneticAlgorithm.c" />
     <ClCompile Include="HardFixing.c" />
     <ClCompile Include="myseparation.c" />
@@ -34,6 +35,7 @@
     <ClCompile Include="MTZ.c" />
     <ClCompile Include="NearestNeighborhood.c" />
     <ClCompile Include="NearestNeighborhoodGRASP.c" />
+    <ClCompile Include="other_methods.c" />
     <ClCompile Include="Parser.c" />
     <ClCompile Include="SelectedEdges.c" />
     <ClCompile Include="ThreeOpt.c" />
