@@ -93,7 +93,7 @@ int TSPopt(instance *inst)
 	int ncores = 1; CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
 	int local_minimum = 0;
-	time_t timelimit = time(NULL) + 30;
+	time_t timelimit = time(NULL) + 120;
 	printf("--------------------2-OPT-------------------\n");
 	//ESEGUO 2-OPT per trovare minimo locale
 	while (time(NULL) < timelimit) {
@@ -103,10 +103,6 @@ int TSPopt(instance *inst)
 		opt_current += delta;
 		printf("New objective function: %f\n", opt_current);
 		if (delta == 0.0) {
-			local_minimum++;
-		}
-		//Se soluzione non migliora per 10 volte consecutive allora ho trovato minimo locale
-		if (local_minimum == 3) {
 			break;
 		}
 		
@@ -115,11 +111,12 @@ int TSPopt(instance *inst)
 	//ESEGUO ORA TABU SEARCH
 	printf("--------------------TABU-------------------\n");
 
-	timelimit = time(NULL) + 150;
+	timelimit = time(NULL) + 120;
 	int size = 0;
 	inst->tabu_list = (int*)calloc(200, sizeof(int));
 	inst->tabu_index = 0;
 	inst->tabu_flag = 0;
+	inst->tabu_list_complete = 0;
 	double best_solution = INFINITY;
 	int* edges = (int*)calloc(inst->ncols, sizeof(int));
 	while (time(NULL) < timelimit) {

@@ -67,6 +67,7 @@ typedef struct {
 	int *tabu_list;
 	int tabu_index;
 	int tabu_flag;
+	int tabu_list_complete;
 
 } instance;														//NAME OF THE INSTANCE
 
