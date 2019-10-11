@@ -4,6 +4,9 @@
 #include <Windows.h>
 #include <time.h>
 
+#define CHOICE_OF_ADD_BAD 0.5 //REPRESENT THE PERCENTAGE FOR WHICH I CAN INSERT A BAD TSP IN A POPULATION
+#define CHOICE_OF_POPULATION 0.5 //REPRESENT THE PERCENTAGE FOR WHICH I SELECT MUTATION OR CROSS-OVER
+
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 void reverse_xpos(int x, instance* inst, int* nodes);
 void update_choosen_edge(instance* inst);
@@ -15,7 +18,7 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 int update_index_worst_cost_tsp(instance *inst, double *opt_cost, int num_sel_tsp);
 double cost_tsp(instance *inst, int* tsp);
 int* cross_over(instance *inst, int *tspFather, int *tspMother);
-int* mutation(instance* inst, int *tspParent, int* son);
+int* mutation(instance* inst, int *tspParent);
 double update_worst_cost_population(instance *inst, double *opt_cost, int num_sel_tsp);
 int index_best_cost_tsp(instance *inst, double *tsp_fitness, int num_sel_tsp);
 void update_bestsol(instance *inst, int *tsp_opt);
@@ -25,8 +28,8 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 {
 	srand((unsigned int)time(NULL));							//NEW RANDOM NUMBERS
 
-	int max_num_pop = 10000;					//LIMIT THE NUMBER OF CREATED POPULATION, END AFTER ANALYZE THIS NUMBER OF POPULATIONS
-	int num_sel_tsp = 100;						//NUMBER OF TSPs OF THE POPULATION(CANNOT BE LESS THAN nnodes!)
+	int max_num_pop = 100;					//LIMIT THE NUMBER OF CREATED POPULATION, END AFTER ANALYZE THIS NUMBER OF POPULATIONS
+	int num_sel_tsp = 1000;						//NUMBER OF TSPs OF THE POPULATION(CANNOT BE LESS THAN nnodes!)
 	int rows = num_sel_tsp;						//NUMBER OF POPULATION MEMBERS
 	int cols = inst->nnodes;					//NUMBER OF SELECTED NODES (N BECAUSE IS A TSP PROBLEM)
 	
@@ -74,8 +77,8 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	int **newTSP_solutions = (int **)malloc(rows * cols * sizeof(int)); //NEW POPULATION (NEW POPULATION FORMED BY SUBSTITUTING BETTER TSPs CREATED WITH CROSSOVER WITH OLD TSPs OF PREVIOUS POPULATION)
 	double *newTSP_fitness = (double *)malloc(num_sel_tsp * sizeof(double)); //NEW SOLUTIONS COST
 	double choice_of_new_generation;							//RANDOM CHOICE FOR CREATE NEW POPULATION
-	double choice_add_bad;					//RANDOM CHOICE FOR ADD IN A NEW POPULATION A BAD MEMBER
-	int c_index_sub;						//RANDOM INDEX FOR TSP SUBSTITUTION
+	double choice_add_bad;										//RANDOM CHOICE FOR ADD IN A NEW POPULATION A BAD MEMBER
+	int subs_index_choice;										//RANDOM CHOICE FOR SELECT A POPULATION ELEMENT TO SUBSITUTE WITH A BAD TSP
 
 	for (int j = 0; j < num_sel_tsp; j++)
 	{
@@ -87,7 +90,6 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	{
 		if (GENETIC_ALG > 400){printf("\n Worst cost: %lf \n", worst_fitness);}
 
-		choice_of_new_generation = (double)rand() / (double)RAND_MAX;	//GENERATE A RANDOM CHOICE
 		choice_add_bad = (double)rand() / (double)RAND_MAX;				//GENERATE A RANDOM CHOICE FOR ADD A BAD MEMBER TO A NEW POPULATION
 		
 		int* current_son1;												//SON GENERATED FROM PARENTS WITH CROSS-OVER OR MUTATION
@@ -95,24 +97,29 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 		double current_cost1;											//COST OF SON
 		double current_cost2;
 		int new_tsp_index = 0;
+		//int flag_DUPLICATE;											//FLAG FOR CHECK IF THERE IS A DUPLICATE IN THE POPULATION
 
 			for (int i = 0; i < num_sel_tsp; i++)
 			{
-				for (int j = i + 1; j < num_sel_tsp; j++)
+				choice_of_new_generation = (double)rand() / (double)RAND_MAX;	//GENERATE A RANDOM CHOICE
+				subs_index_choice = rand() % inst->nnodes;//RANDOM INDEX FOR SUBSTITUTE A TSP WITH A BAD TSP
+
+
+				if (choice_of_new_generation < CHOICE_OF_POPULATION)//---------------MUTATION
 				{
-					current_son1 = cross_over(inst, TSP_solutions[i], TSP_solutions[j]);	//NODES CURRENT SON
-					current_son2 = cross_over(inst, TSP_solutions[j], TSP_solutions[i]);
+					//flag_DUPLICATE = 0;
+					current_son1 = mutation(inst, TSP_solutions[i]);
+					current_cost1 = cost_tsp(inst, current_son1);
 
-					current_cost1 = cost_tsp(inst, current_son1);									//COST CURRENT SON
-					current_cost2 = cost_tsp(inst, current_son2);
-					if (GENETIC_ALG > 400) 
-					{ 
-						printf("Current1 son's Cost %d: %lf \n", i + j, current_cost1);
-						printf("Current2 son's Cost %d: %lf \n", i + j, current_cost2);
-					}
+					/*CHECK IF THERE IS A DUPLICATE IN THE POPULATION*/
+						//for (int k = 0; k < new_tsp_index; k++)
+						//{
+						//	if (newTSP_solutions[k] == current_son1)
+						//	{
+						//		flag_DUPLICATE = 1;
+						//	}
+						//}
 
-					/*STO SBAGLIANDO PERCHE' STO INSERENDO I PRIMI CROSS-OVER IN CUI CAMBIA SOLO  CHE FACCIO I QUALI SONO PIU' O 
-					MENO TUTTI UGUALI E QUINDI SE PER CASO UN CROSS-OVER E' BUONO DI SICURO TUTTI GLI ALTRI NON RIENTRANO NELL'ARRAY*/
 					if (new_tsp_index < num_sel_tsp)
 					{
 						newTSP_solutions[new_tsp_index] = current_son1;
@@ -123,7 +130,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 					}
 					else
 					{
-						//SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
+						//-------------------------------SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
 						if (current_cost1 < worst_fitness)
 						{
 							newTSP_solutions[index_worst_tsp_parent] = current_son1;
@@ -131,9 +138,80 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 							index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
 							worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
 						}
-						
+						else
+						{
+							if (choice_add_bad < CHOICE_OF_ADD_BAD)
+							{
+
+								newTSP_solutions[subs_index_choice] = current_son1;
+								newTSP_fitness[subs_index_choice] = current_cost1;
+								index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+								worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
+							}
+						}
 					}
 				}
+				else//-----------------------------------------------------CROSS-OVER
+				{
+					for (int j = i + 1; j < num_sel_tsp; j++)
+					{
+						//flag_DUPLICATE = 0;
+						subs_index_choice = rand() % inst->nnodes;//RANDOM INDEX FOR SUBSTITUTE A TSP WITH A BAD TSP
+
+						current_son1 = cross_over(inst, TSP_solutions[i], TSP_solutions[j]);	//NODES CURRENT SON
+						current_son2 = cross_over(inst, TSP_solutions[j], TSP_solutions[i]);
+
+						current_cost1 = cost_tsp(inst, current_son1);									//COST CURRENT SON
+						current_cost2 = cost_tsp(inst, current_son2);
+						if (GENETIC_ALG > 400)
+						{
+							printf("Current1 son's Cost %d: %lf \n", i + j, current_cost1);
+							printf("Current2 son's Cost %d: %lf \n", i + j, current_cost2);
+						}
+
+
+						/*CHECK IF THERE IS A DUPLICATE IN THE POPULATION*/
+						//for (int k = 0; k < new_tsp_index; k++)
+						//{
+						//	if (newTSP_solutions[k] == current_son1)
+						//	{
+						//		flag_DUPLICATE = 1;
+						//	}
+						//}
+
+						if (new_tsp_index < num_sel_tsp)
+						{
+							newTSP_solutions[new_tsp_index] = current_son1;
+							newTSP_fitness[new_tsp_index] = current_cost1;
+							new_tsp_index++;
+							index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+							worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
+						}
+						else
+						{
+							//-------------------------------SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
+							if (current_cost1 < worst_fitness)
+							{
+								newTSP_solutions[index_worst_tsp_parent] = current_son1;
+								newTSP_fitness[index_worst_tsp_parent] = current_cost1;
+								index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+								worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
+							}
+							else
+							{
+								if (choice_add_bad < CHOICE_OF_ADD_BAD)
+								{
+
+									newTSP_solutions[subs_index_choice] = current_son1;
+									newTSP_fitness[subs_index_choice] = current_cost1;
+									index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+									worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
+								}
+							}
+						}
+					}
+				}
+				
 			}
 				
 	

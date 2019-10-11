@@ -1,0 +1,3 @@
+User?(marco/Luca): Input method from shell(y/n)?: Insert name file used: 
+Select resolution model( flow1 / flow2 / mtz / fisch )?: ---------------------------------------------------------------------
+ input file not found!
