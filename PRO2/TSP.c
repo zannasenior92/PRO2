@@ -111,7 +111,7 @@ int TSPopt(instance *inst)
 	//ESEGUO ORA TABU SEARCH
 	printf("--------------------TABU-------------------\n");
 
-	timelimit = time(NULL) + 120;
+	timelimit = time(NULL) + 500;
 	int size = 0;
 	inst->tabu_list = (int*)calloc(200, sizeof(int));
 	inst->tabu_index = 0;
@@ -124,7 +124,7 @@ int TSPopt(instance *inst)
 		double delta = tabu_search(inst, env, lp);
 		//printf("Delta: %f\n", delta);
 		opt_current += delta;
-		printf("New objective function: %f\n", opt_current);
+		printf("New objective function: %f\n\n", opt_current);
 		if (opt_current < best_solution) {
 			best_solution = opt_current;
 			//scrivo gli archi della soluzione ottima in un array
@@ -138,36 +138,18 @@ int TSPopt(instance *inst)
 	for (int k = 0; k < inst->ncols; k++) {
 		inst->best_sol[k] = edges[k];
 	}
-	printf("MIGLIOR SOLUZIONE TROVATA DELTA=%f\n", best_solution);
-	update_choosen_edge(inst);
-	add_edge_to_file(inst);
-	plot_gnuplot(inst);
-	exit(0);
+	printf("MIGLIOR SOLUZIONE TROVATA DELTA=%.0f\n", best_solution);
+	//update_choosen_edge(inst);
+	
 
 
-	time_t time0 = time(NULL);
-
-	//SET TIMELIMIT AND USE HEURISTIC LOOP
-	time_t timelimit1 = time(NULL) + 90;
-	printf("-----------SET 70%%-----------\n");
-	opt_current= loop_hard_fixing(inst, env, lp, (double)timelimit1, 0.6, opt_heu);
-	opt_heu = opt_current;
-	printf("-----------SET 50%%-----------\n");
-	time_t timelimit2 = time(NULL) + 90;
-	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit2, 0.4, opt_heu);
-	opt_heu = opt_current;
-	printf("-----------SET 20%%-----------\n");
-	time_t timelimit3 = time(NULL) + 90;
-	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit3, 0.2, opt_heu);
-
-	printf("FINISH WITH TIME=%f\n", (double)(time(NULL)-time0));
-
-
+	
 	/*---------------PRINT SELECTED EDGES--------------------------------------------*/
 	selected_edges(inst);
+	plot_gnuplot(inst);
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
-	printf("Object function optimal value is: %.0f\n", opt_current);
+	printf("Best object function value is: %.0f\n", best_solution);
 	CPXfclose(log);																//CLOSE LOG FILE
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
 	CPXfreeprob(env, &lp);

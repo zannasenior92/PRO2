@@ -87,8 +87,8 @@ double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp) {
 							if (inst->tabu_list_complete == 0) {
 								for (int k = 0; k < inst->tabu_index; k += 4) {
 									//printf("k=%d \n", k);
-									printf("controllo nuovo %d - tabu %d / vecchio %d - t %d / %d - %d / %d - %d con k=%d\n", min_new_edge1, inst->tabu_list[k], old_edge1,
-										inst->tabu_list[k + 1], min_new_edge2, inst->tabu_list[k + 2], old_edge2, inst->tabu_list[k + 3], k);
+									//printf("controllo nuovo %d - tabu %d / vecchio %d - t %d / %d - %d / %d - %d con k=%d\n", min_new_edge1, inst->tabu_list[k], old_edge1,
+										//inst->tabu_list[k + 1], min_new_edge2, inst->tabu_list[k + 2], old_edge2, inst->tabu_list[k + 3], k);
 									/*if ((((min_new_edge1 == inst->tabu_list[k]) && (old_edge1 == inst->tabu_list[k + 1])) &&
 										((min_new_edge2 == inst->tabu_list[k + 2]) && (old_edge2 == inst->tabu_list[k + 3]))) ||
 										((min_new_edge2 == inst->tabu_list[k]) && (old_edge2 == inst->tabu_list[k + 1])) &&
@@ -96,10 +96,10 @@ double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp) {
 									if (((min_new_edge1 == inst->tabu_list[k]) && (old_edge1 == inst->tabu_list[k + 1])) ||
 										((old_edge1 == inst->tabu_list[k]) && (min_new_edge1 == inst->tabu_list[k + 1]))) {
 										
-										printf("Primo arco gia presente nella tabu list %d e %d in k=%d\n", min_new_edge1, old_edge1, k);
+										//printf("Primo arco gia presente nella tabu list %d e %d in k=%d\n", min_new_edge1, old_edge1, k);
 										if (((min_new_edge2 == inst->tabu_list[k + 2]) && (old_edge2 == inst->tabu_list[k + 3])) ||
 											((old_edge2 == inst->tabu_list[k+2]) && (min_new_edge2 == inst->tabu_list[k + 3]))) {
-											printf("secondo arco gia presente nella tabu list %d e %d in k=%d\n", min_new_edge2, old_edge2, k);
+											//printf("secondo arco gia presente nella tabu list %d e %d in k=%d\n", min_new_edge2, old_edge2, k);
 											in_tabu = 1;
 											continue;
 										}
@@ -118,10 +118,10 @@ double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp) {
 									if (((min_new_edge1 == inst->tabu_list[k]) && (old_edge1 == inst->tabu_list[k + 1]))||
 										((old_edge1 == inst->tabu_list[k]) && (min_new_edge1 == inst->tabu_list[k + 1]))) {
 
-										printf("Primo arco gia presente nella tabu list %d e %d in k=%d\n", min_new_edge1, old_edge1, k);
+										//printf("Primo arco gia presente nella tabu list %d e %d in k=%d\n", min_new_edge1, old_edge1, k);
 										if (((min_new_edge2 == inst->tabu_list[k + 2]) && (old_edge2 == inst->tabu_list[k + 3]))||
 											((old_edge2 == inst->tabu_list[k+2]) && (min_new_edge2 == inst->tabu_list[k + 3]))) {
-											printf("secondo arco gia presente nella tabu list %d e %d in k=%d\n", min_new_edge2, old_edge2, k);
+											//printf("secondo arco gia presente nella tabu list %d e %d in k=%d\n", min_new_edge2, old_edge2, k);
 											in_tabu = 1;
 											continue;
 										}
@@ -181,7 +181,7 @@ double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	if (inst->tabu_index == 200) {
 		inst->tabu_index = 0;
 		inst->tabu_list_complete = 1;
-		printf("azzero l'indice tabu index\n");
+		//printf("azzero l'indice tabu index\n");
 	}
 	//se delta maggiore di zero aggiungo archi a tabu list
 	if (min_delta > 0) {
@@ -193,10 +193,10 @@ double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 		//printf("Aggiungo a tabu list %d - %d - %d - %d \n", candidate_old_edge1, candidate_edge1, candidate_old_edge2, candidate_edge2);
 	}
-	printf("DELTA MIN  %f dato da %d con %d e %d con %d\n", min_delta, candidate_edge1, candidate_old_edge1, candidate_edge2, candidate_old_edge2);
+	printf("DELTA MIN  %.0f \n", min_delta);
 	//printf("scambio %d con %d e %d con %d\n", candidate_old_edge1, candidate_edge1, candidate_old_edge2, candidate_edge2);
 	//if(inst->tabu_flag ==0) inst->tabu_flag = 1;
-	printf("-----------tabu list---------------\n");
+	/*printf("-----------tabu list---------------\n");
 	if (inst->tabu_list_complete == 0) {
 		for (int k = 0; k < inst->tabu_index; k++) {
 			printf("%d = %d\n", k, inst->tabu_list[k]);
@@ -208,7 +208,7 @@ double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			printf("%d = %d\n", k, inst->tabu_list[k]);
 			
 		}
-	}
+	}*/
 	
 	free(nodes_edge1);
 	free(nodes_edge2);
