@@ -52,9 +52,12 @@ int TSPopt(instance *inst)
 	min_cost = INFINITY;
 	double *minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
 	int start_node = 0;
-
+	/************************************************************************************/
+	/************************************************************************************/
+	/*GENETICO*/
 	genetic_alg(inst, env, lp);
-
+	/************************************************************************************/
+	/************************************************************************************/
 	for (int i = 0; i < 50; i++) {
 		for (int j = 0; j < inst->nnodes; j++) {
 			inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
