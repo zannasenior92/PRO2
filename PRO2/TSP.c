@@ -48,7 +48,7 @@ int TSPopt(instance *inst)
 	min_cost = INFINITY;
 	double *minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
 	int start_node = 0;
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 10; i++) {
 		for (int j = 0; j < inst->nnodes; j++) {
 			inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
 			cost = nearest_neighborhood_GRASP(inst, env, lp, j);
@@ -93,7 +93,8 @@ int TSPopt(instance *inst)
 	int ncores = 1; CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
 	int local_minimum = 0;
-	time_t timelimit = time(NULL) + 120;
+	double min_2opt = 0;
+	time_t timelimit = time(NULL) + 300;
 	printf("--------------------2-OPT-------------------\n");
 	//ESEGUO 2-OPT per trovare minimo locale
 	while (time(NULL) < timelimit) {
@@ -103,6 +104,7 @@ int TSPopt(instance *inst)
 		opt_current += delta;
 		printf("New objective function: %f\n", opt_current);
 		if (delta == 0.0) {
+			min_2opt = opt_current;
 			break;
 		}
 		
@@ -111,7 +113,7 @@ int TSPopt(instance *inst)
 	//ESEGUO ORA TABU SEARCH
 	printf("--------------------TABU-------------------\n");
 
-	timelimit = time(NULL) + 500;
+	timelimit = time(NULL) + 300;
 	int size = 0;
 	inst->tabu_list = (int*)calloc(200, sizeof(int));
 	inst->tabu_index = 0;
@@ -138,20 +140,22 @@ int TSPopt(instance *inst)
 	for (int k = 0; k < inst->ncols; k++) {
 		inst->best_sol[k] = edges[k];
 	}
-	printf("MIGLIOR SOLUZIONE TROVATA DELTA=%.0f\n", best_solution);
-	//update_choosen_edge(inst);
+	
+	
 	
 
 
 	
 	/*---------------PRINT SELECTED EDGES--------------------------------------------*/
 	selected_edges(inst);
-	plot_gnuplot(inst);
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
+	printf("Starting object function is: %.0f\n", min_cost);
+	printf("Object function after 2-OPT is: %.0f\n", min_2opt);
 	printf("Best object function value is: %.0f\n", best_solution);
-	CPXfclose(log);																//CLOSE LOG FILE
+	plot_gnuplot(inst);
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
+	CPXfclose(log);																//CLOSE LOG FILE
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
 	return 0;
