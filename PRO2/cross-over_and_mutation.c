@@ -64,7 +64,6 @@ int* cross_over(instance *inst, int *tspFather, int *tspMother)
 	}
 	free(son_flags);
 	return new_SON;
-	free(new_SON);
 }
 
 /*MUTATION TO MODIFY ONLY SOME CRHOMOSOMES OF AN INDIVIDUAL*/
