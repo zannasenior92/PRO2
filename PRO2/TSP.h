@@ -61,6 +61,7 @@ typedef struct {
 	int *comp;		//COMPONENTI CONNESSE
 	int *mycomp;
 	int ncols;
+	int* new_SON;
 	CPXLPptr lp;
 	CPXENVptr env;
 	/*-----------------LAST VARIABLE CPLEX INDEX--------------------*/

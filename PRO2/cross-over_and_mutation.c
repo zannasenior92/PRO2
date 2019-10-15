@@ -5,7 +5,7 @@
 /*-------------------CROSS-OVER TO MERGE TWO TSPs----------------------*/
 int* cross_over(instance *inst, int *tspFather, int *tspMother)
 {
-	int* new_SON = (int*)calloc(inst->nnodes, sizeof(int));
+	inst->new_SON = (int*)calloc(inst->nnodes, sizeof(int));
 	int rand_cut = rand() % inst->nnodes;						//CUT WHERE TO CREATE SON WITH SOME FATHER'S AND MOTHER'S CHROMOSOMES
 	int* son_flags = (int*)calloc(inst->nnodes, sizeof(int));	//FLAG WHO REPRESENT HOW NODE IS INSERTED
 	
@@ -31,7 +31,7 @@ int* cross_over(instance *inst, int *tspFather, int *tspMother)
 
 	for (int i = 0; i < rand_cut; i++)							//ADD FATHER ELEMENTS
 	{
-		new_SON[son_index++] = tspFather[i];						//CHOOSE FATHER NODE
+		inst->new_SON[son_index++] = tspFather[i];						//CHOOSE FATHER NODE
 		son_flags[tspFather[i]] = 1;
 
 	}
@@ -39,7 +39,7 @@ int* cross_over(instance *inst, int *tspFather, int *tspMother)
 	{
 		if (son_flags[tspMother[m]] != 1)						//DON'T TAKE ELEMENTS ALREADY SELECTED FROM FATHER
 		{
-			new_SON[son_index++] = tspMother[m];					//CHOOSE MOTHER NODE
+			inst->new_SON[son_index++] = tspMother[m];					//CHOOSE MOTHER NODE
 			son_flags[tspMother[m]] = 1;
 		}
 	}
@@ -50,7 +50,7 @@ int* cross_over(instance *inst, int *tspFather, int *tspMother)
 	{
 		if (son_flags[l] == 0)
 		{
-			new_SON[son_index++] = l;
+			inst->new_SON[son_index++] = l;
 		}
 	}
 	if (GENETIC_ALG > 400)
@@ -58,12 +58,12 @@ int* cross_over(instance *inst, int *tspFather, int *tspMother)
 		printf("Nodes of the son are:    ");
 		for (int i = 0; i < inst->nnodes; i++)
 		{
-			printf("%d ", new_SON[i] + 1);
+			printf("%d ", inst->new_SON[i] + 1);
 		}
 		printf("\n\n");
 	}
 	free(son_flags);
-	return new_SON;
+	return inst->new_SON;
 }
 
 /*MUTATION TO MODIFY ONLY SOME CRHOMOSOMES OF AN INDIVIDUAL*/
@@ -88,24 +88,30 @@ int* mutation(instance* inst, int *tspParent)
 
 	int index_chromosome1 = rand() % inst->nnodes;
 	int index_chromosome2 = rand() % inst->nnodes;
-	//int index_chromosome3 = rand() % inst->nnodes;
-
+	int index_chromosome3 = rand() % inst->nnodes;
+	int index_chromosome4 = rand() % inst->nnodes;
 	while (index_chromosome2 == index_chromosome1)
 	{
 		index_chromosome2 = rand() % inst->nnodes;
 	}
-	/*while ((index_chromosome3 == index_chromosome1) || (index_chromosome3 == index_chromosome2) )
+	while ((index_chromosome3 == index_chromosome1) || (index_chromosome3 == index_chromosome2) )
 	{
 		index_chromosome3 = rand() % inst->nnodes;
-	}*/
+	}
+	while ((index_chromosome4 == index_chromosome1) || (index_chromosome4 == index_chromosome2) || (index_chromosome4 == index_chromosome3))
+	{
+		index_chromosome4 = rand() % inst->nnodes;
+	}
 
 	int chromosome1 = tsp_mutation_son[index_chromosome1];
 	int chromosome2 = tsp_mutation_son[index_chromosome2];
-	//int chromosome3 = tsp_mutation_son[index_chromosome3];
+	int chromosome3 = tsp_mutation_son[index_chromosome3];
+	int chromosome4 = tsp_mutation_son[index_chromosome4];
 
 	tsp_mutation_son[index_chromosome2] = chromosome1;
 	tsp_mutation_son[index_chromosome1] = chromosome2;
-	//tsp_mutation_son[index_chromosome3] = chromosome3;
+	tsp_mutation_son[index_chromosome3] = chromosome3;
+	tsp_mutation_son[index_chromosome4] = chromosome4;
 
 	if (GENETIC_ALG > 400)
 	{
