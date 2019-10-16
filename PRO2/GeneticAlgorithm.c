@@ -6,8 +6,8 @@
 #include <time.h>
 
 #define CHOICE_OF_ADD_BAD 0.5 //REPRESENT THE PERCENTAGE FOR WHICH I CAN INSERT A BAD TSP IN A POPULATION
-#define CHOICE_OF_POPULATION 0.3 //REPRESENT THE PERCENTAGE FOR WHICH I SELECT MUTATION OR CROSS-OVER
-#define VARIANCE_CHOICE_OF_POP 0.3 //REPRESENT THE DIMENSION OF RANGE FOR SELECT A FATHER AS SON IN NEXT POPULATION
+#define CHOICE_OF_POPULATION 0.4 //REPRESENT THE PERCENTAGE FOR WHICH I SELECT MUTATION OR CROSS-OVER
+#define VARIANCE_CHOICE_OF_POP 0.4 //REPRESENT THE DIMENSION OF RANGE FOR SELECT A FATHER AS SON IN NEXT POPULATION
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 void reverse_xpos(int x, instance* inst, int* nodes);
 void update_choosen_edge(instance* inst);
@@ -99,7 +99,8 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 		double current_cost1;											//COST OF SON
 		double current_cost2;
 		int new_tsp_index = 0;
-		int flag_DUPLICATE;												//FLAG FOR CHECK IF THERE IS A DUPLICATE IN THE POPULATION
+		int flag_DUPLICATE1;												//FLAG FOR CHECK IF THERE IS A DUPLICATE IN THE POPULATION
+		int flag_DUPLICATE2;
 
 		for (int i = 0; i < num_sel_tsp; i++)
 		{
@@ -152,9 +153,12 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 			}
 			else//-----------------------------------------------------CHOOSE CROSS-OVER
 			{
+				int counter_DUPLICATES = 0; //COUNTER FOR VERIFY IF ALL ELEMENT ARE DUPLICATE
+
 				for (int j = i + 1; j < num_sel_tsp; j++)
 				{
-					flag_DUPLICATE = 0;
+					flag_DUPLICATE1 = 0;
+					flag_DUPLICATE2 = 0;
 					subs_index_choice = rand() % inst->nnodes;//RANDOM INDEX FOR SUBSTITUTE A TSP WITH A BAD TSP
 
 					current_son1 = cross_over(inst, TSP_solutions[i], TSP_solutions[j]);	//NODES CURRENT SON
@@ -172,12 +176,21 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 					/*CHECK IF THERE IS A DUPLICATE IN THE POPULATION*/
 					for (int k = 0; k < new_tsp_index; k++)
 					{
-						if (newTSP_fitness[k] == current_cost1 || newTSP_fitness[k] == current_cost2)
+						if (newTSP_fitness[k] == current_cost1)
 						{
-							flag_DUPLICATE = 1;
+							flag_DUPLICATE1 = 1;
+						}
+						if (newTSP_fitness[k] == current_cost2)
+						{
+							flag_DUPLICATE2 = 1;
 						}
 					}
-					if( flag_DUPLICATE != 1)
+					if (flag_DUPLICATE1 == 1 && flag_DUPLICATE2 == 1)
+					{
+						counter_DUPLICATES = counter_DUPLICATES + 2;
+					}
+
+					if( flag_DUPLICATE1 != 1)
 					{
 						if (new_tsp_index < num_sel_tsp)
 						{
@@ -209,6 +222,45 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 							}
 						}
 					}
+					if (flag_DUPLICATE2 != 1)
+					{
+						if (new_tsp_index < num_sel_tsp)
+						{
+							newTSP_solutions[new_tsp_index] = current_son2;
+							newTSP_fitness[new_tsp_index] = current_cost2;
+							new_tsp_index++;
+							index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+							worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
+						}
+						else
+						{
+							//-------------------------------SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
+							if (current_cost2 < worst_fitness)
+							{
+								newTSP_solutions[index_worst_tsp_parent] = current_son2;
+								newTSP_fitness[index_worst_tsp_parent] = current_cost2;
+								index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+								worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
+							}
+							else
+							{
+								if (choice_add_bad < CHOICE_OF_ADD_BAD)
+								{
+									newTSP_solutions[subs_index_choice] = current_son2;
+									newTSP_fitness[subs_index_choice] = current_cost2;
+									index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+									worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
+								}
+							}
+						}
+					}
+				}
+				if (counter_DUPLICATES == (num_sel_tsp-i-1))//---------IF I FIND ALL DUPLICATES THEN I CAN ADD THE FATHER IN NEXT POPULATION
+				{
+					newTSP_solutions[i] = TSP_solutions[i];
+					newTSP_fitness[i] = TSP_fitness[i];
+					index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+					worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST 
 				}
 			}
 		}
