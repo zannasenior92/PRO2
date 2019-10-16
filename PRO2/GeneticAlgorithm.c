@@ -6,8 +6,8 @@
 #include <time.h>
 
 #define CHOICE_OF_ADD_BAD 0.5 //REPRESENT THE PERCENTAGE FOR WHICH I CAN INSERT A BAD TSP IN A POPULATION
-#define CHOICE_OF_POPULATION 0.4 //REPRESENT THE PERCENTAGE FOR WHICH I SELECT MUTATION OR CROSS-OVER
-#define VARIANCE_CHOICE_OF_POP 0.4 //REPRESENT THE DIMENSION OF RANGE FOR SELECT A FATHER AS SON IN NEXT POPULATION
+#define CHOICE_OF_POPULATION 0.2 //REPRESENT THE PERCENTAGE FOR WHICH I SELECT MUTATION OR CROSS-OVER
+#define VARIANCE_CHOICE_OF_POP 0.2 //REPRESENT THE DIMENSION OF RANGE FOR SELECT A FATHER AS SON IN NEXT POPULATION
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 void reverse_xpos(int x, instance* inst, int* nodes);
 void update_choosen_edge(instance* inst);
@@ -30,7 +30,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	srand((unsigned int)time(NULL));							//NEW RANDOM NUMBERS
 
 	int max_num_pop = 200;					//LIMIT THE NUMBER OF CREATED POPULATION, END AFTER ANALYZE THIS NUMBER OF POPULATIONS
-	int num_sel_tsp = 800;						//NUMBER OF TSPs OF THE POPULATION(CANNOT BE LESS THAN nnodes!)
+	int num_sel_tsp = 500;						//NUMBER OF TSPs OF THE POPULATION(CANNOT BE LESS THAN nnodes!)
 	int rows = num_sel_tsp;						//NUMBER OF POPULATION MEMBERS
 	int cols = inst->nnodes;					//NUMBER OF SELECTED NODES (N BECAUSE IS A TSP PROBLEM)
 
@@ -78,9 +78,13 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	/*------------------------------NEXT POPULATIONS-----------------------------------*/
 	int **newTSP_solutions = (int **)malloc(rows * cols * sizeof(int)); //NEW POPULATION (NEW POPULATION FORMED BY SUBSTITUTING BETTER TSPs CREATED WITH CROSSOVER WITH OLD TSPs OF PREVIOUS POPULATION)
 	double *newTSP_fitness = (double *)malloc(num_sel_tsp * sizeof(double)); //NEW SOLUTIONS COST
+	
+
 	double choice_of_new_gen;									//RANDOM CHOICE FOR CREATE NEW POPULATION
 	double choice_add_bad;										//RANDOM CHOICE FOR ADD IN A NEW POPULATION A BAD MEMBER
 	int subs_index_choice;										//RANDOM CHOICE FOR SELECT A POPULATION ELEMENT TO SUBSITUTE WITH A BAD TSP
+
+
 
 	for (int j = 0; j < num_sel_tsp; j++)
 	{
@@ -113,21 +117,12 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 				current_son1 = mutation(inst, TSP_solutions[i]);
 				current_cost1 = cost_tsp(inst, current_son1);
 
-				if (new_tsp_index < num_sel_tsp)
-				{
-					newTSP_solutions[new_tsp_index] = current_son1;
-					newTSP_fitness[new_tsp_index] = current_cost1;
-					new_tsp_index++;
-					index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
-					worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
-				}
-				else
-				{
+				
 					//-------------------------------SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
 					if (current_cost1 < worst_fitness)
 					{
-						newTSP_solutions[index_worst_tsp_parent] = current_son1;
-						newTSP_fitness[index_worst_tsp_parent] = current_cost1;
+						newTSP_solutions[i] = current_son1;
+						newTSP_fitness[i] = current_cost1;
 						index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
 						worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
 					}
@@ -136,13 +131,20 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 						if (choice_add_bad < CHOICE_OF_ADD_BAD)
 						{
 
-							newTSP_solutions[subs_index_choice] = current_son1;
-							newTSP_fitness[subs_index_choice] = current_cost1;
+							newTSP_solutions[i] = current_son1;
+							newTSP_fitness[i] = current_cost1;
 							index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
 							worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
 						}
+						else
+						{
+							newTSP_solutions[i] = TSP_solutions[i];
+							newTSP_fitness[i] = TSP_fitness[i];
+							index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+							worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST 
+						}
 					}
-				}
+				
 			}
 			else if (choice_of_new_gen > CHOICE_OF_POPULATION && choice_of_new_gen < (CHOICE_OF_POPULATION + VARIANCE_CHOICE_OF_POP))
 			{
@@ -154,7 +156,13 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 			else//-----------------------------------------------------CHOOSE CROSS-OVER
 			{
 				int counter_DUPLICATES = 0; //COUNTER FOR VERIFY IF ALL ELEMENT ARE DUPLICATE
-
+				int number_of_cross_over = (num_sel_tsp - i -1)*2;
+				double worst_cross_over;
+				int index_worst_co;
+				int index_best_co = 0;
+				int cross_over_index = 0;
+				int **cross_over_solutions = (int **)malloc(number_of_cross_over * cols * sizeof(int));
+				double *cross_over_fitness = (double *)malloc(number_of_cross_over * sizeof(double));
 				for (int j = i + 1; j < num_sel_tsp; j++)
 				{
 					flag_DUPLICATE1 = 0;
@@ -166,102 +174,155 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 
 					current_cost1 = cost_tsp(inst, current_son1);									//COST CURRENT SON
 					current_cost2 = cost_tsp(inst, current_son2);
+
+					free(inst->new_SON);
 					if (GENETIC_ALG > 400)
 					{
 						printf("Current1 son's Cost %d: %lf \n", i + j, current_cost1);
 						printf("Current2 son's Cost %d: %lf \n", i + j, current_cost2);
 					}
 
-
-					/*CHECK IF THERE IS A DUPLICATE IN THE POPULATION*/
-					for (int k = 0; k < new_tsp_index; k++)
+					if (cross_over_index < number_of_cross_over)
 					{
-						if (newTSP_fitness[k] == current_cost1)
+						cross_over_solutions[cross_over_index] = current_son1;
+						cross_over_fitness[cross_over_index] = current_cost1;
+						cross_over_index++;
+						index_worst_co = update_index_worst_cost_tsp(inst, cross_over_fitness, number_of_cross_over);
+						worst_cross_over = update_worst_cost_population(inst, cross_over_fitness, number_of_cross_over);
+					}
+					if (cross_over_index < number_of_cross_over)
+					{
+						cross_over_solutions[cross_over_index] = current_son2;
+						cross_over_fitness[cross_over_index] = current_cost2;
+						cross_over_index++;
+						index_worst_co = update_index_worst_cost_tsp(inst, cross_over_fitness, number_of_cross_over);
+						worst_cross_over = update_worst_cost_population(inst, cross_over_fitness, number_of_cross_over);
+					}
+					else
+					{
+						if (current_cost1 < worst_fitness)
 						{
-							flag_DUPLICATE1 = 1;
+							cross_over_solutions[index_worst_co] = current_son1;
+							cross_over_fitness[index_worst_co] = current_cost1;
+							index_worst_co = update_index_worst_cost_tsp(inst, cross_over_fitness, number_of_cross_over);
+							worst_cross_over = update_worst_cost_population(inst, cross_over_fitness, number_of_cross_over);
 						}
-						if (newTSP_fitness[k] == current_cost2)
+						if (current_cost2 < worst_fitness)
 						{
-							flag_DUPLICATE2 = 1;
+							cross_over_solutions[index_worst_co] = current_son2;
+							cross_over_fitness[index_worst_co] = current_cost2;
+							index_worst_co = update_index_worst_cost_tsp(inst, cross_over_fitness, number_of_cross_over);
+							worst_cross_over = update_worst_cost_population(inst, cross_over_fitness, number_of_cross_over);
 						}
 					}
-					if (flag_DUPLICATE1 == 1 && flag_DUPLICATE2 == 1)
-					{
-						counter_DUPLICATES = counter_DUPLICATES + 2;
-					}
-
-					if( flag_DUPLICATE1 != 1)
-					{
-						if (new_tsp_index < num_sel_tsp)
-						{
-							newTSP_solutions[new_tsp_index] = current_son1;
-							newTSP_fitness[new_tsp_index] = current_cost1;
-							new_tsp_index++;
-							index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
-							worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
-						}
-						else
-						{
-							//-------------------------------SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
-							if (current_cost1 < worst_fitness)
-							{
-								newTSP_solutions[index_worst_tsp_parent] = current_son1;
-								newTSP_fitness[index_worst_tsp_parent] = current_cost1;
-								index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
-								worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
-							}
-							else
-							{
-								if (choice_add_bad < CHOICE_OF_ADD_BAD)
-								{
-									newTSP_solutions[subs_index_choice] = current_son1;
-									newTSP_fitness[subs_index_choice] = current_cost1;
-									index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
-									worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
-								}
-							}
-						}
-					}
-					if (flag_DUPLICATE2 != 1)
-					{
-						if (new_tsp_index < num_sel_tsp)
-						{
-							newTSP_solutions[new_tsp_index] = current_son2;
-							newTSP_fitness[new_tsp_index] = current_cost2;
-							new_tsp_index++;
-							index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
-							worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
-						}
-						else
-						{
-							//-------------------------------SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
-							if (current_cost2 < worst_fitness)
-							{
-								newTSP_solutions[index_worst_tsp_parent] = current_son2;
-								newTSP_fitness[index_worst_tsp_parent] = current_cost2;
-								index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
-								worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
-							}
-							else
-							{
-								if (choice_add_bad < CHOICE_OF_ADD_BAD)
-								{
-									newTSP_solutions[subs_index_choice] = current_son2;
-									newTSP_fitness[subs_index_choice] = current_cost2;
-									index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
-									worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
-								}
-							}
-						}
-					}
+					index_best_co = index_best_cost_tsp(inst, cross_over_fitness, number_of_cross_over);
 				}
-				if (counter_DUPLICATES == (num_sel_tsp-i-1))//---------IF I FIND ALL DUPLICATES THEN I CAN ADD THE FATHER IN NEXT POPULATION
+				if (i==num_sel_tsp-1)
 				{
 					newTSP_solutions[i] = TSP_solutions[i];
 					newTSP_fitness[i] = TSP_fitness[i];
 					index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
 					worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST 
 				}
+				else
+				{
+					newTSP_solutions[i] = cross_over_solutions[index_best_co];
+					newTSP_fitness[i] = cross_over_fitness[index_best_co];
+					index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+					worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST 
+				}
+				
+				/*CHECK IF THERE IS A DUPLICATE IN THE POPULATION*/
+				/*for (int k = 0; k < new_tsp_index; k++)
+				{
+					if (newTSP_fitness[k] == current_cost1)
+					{
+						flag_DUPLICATE1 = 1;
+					}
+					if (newTSP_fitness[k] == current_cost2)
+					{
+						flag_DUPLICATE2 = 1;
+					}
+				}
+				if (flag_DUPLICATE1 == 1 && flag_DUPLICATE2 == 1)
+				{
+					counter_DUPLICATES = counter_DUPLICATES + 2;
+				}
+				
+				if (flag_DUPLICATE1 != 1)
+				{
+					if (new_tsp_index < num_sel_tsp)
+					{
+						newTSP_solutions[new_tsp_index] = current_son1;
+						newTSP_fitness[new_tsp_index] = current_cost1;
+						new_tsp_index++;
+						index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+						worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
+					}
+					else
+					{
+						//-------------------------------SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
+						if (current_cost1 < worst_fitness)
+						{
+							newTSP_solutions[index_worst_tsp_parent] = current_son1;
+							newTSP_fitness[index_worst_tsp_parent] = current_cost1;
+							index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+							worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
+						}
+						else
+						{
+							if (choice_add_bad < CHOICE_OF_ADD_BAD)
+							{
+								newTSP_solutions[subs_index_choice] = current_son1;
+								newTSP_fitness[subs_index_choice] = current_cost1;
+								index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+								worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
+							}
+						}
+					}
+				}
+				if (flag_DUPLICATE2 != 1)
+				{
+					if (new_tsp_index < num_sel_tsp)
+					{
+						newTSP_solutions[new_tsp_index] = current_son2;
+						newTSP_fitness[new_tsp_index] = current_cost2;
+						new_tsp_index++;
+						index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+						worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
+					}
+					else
+					{
+						//-------------------------------SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
+						if (current_cost2 < worst_fitness)
+						{
+							newTSP_solutions[index_worst_tsp_parent] = current_son2;
+							newTSP_fitness[index_worst_tsp_parent] = current_cost2;
+							index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+							worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
+						}
+						else
+						{
+							if (choice_add_bad < CHOICE_OF_ADD_BAD)
+							{
+								newTSP_solutions[subs_index_choice] = current_son2;
+								newTSP_fitness[subs_index_choice] = current_cost2;
+								index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+								worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST
+							}
+						}
+					}
+				}
+
+				if (counter_DUPLICATES == (num_sel_tsp-i-1))//---------IF I FIND ALL DUPLICATES THEN I CAN ADD THE FATHER IN NEXT POPULATION
+				{
+					newTSP_solutions[i] = TSP_solutions[i];
+					newTSP_fitness[i] = TSP_fitness[i];
+					index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_sel_tsp);	//UPDATE WORST TSPs INDEX
+					worst_fitness = update_worst_cost_population(inst, newTSP_fitness, num_sel_tsp);			//UPDATE WORST COST 
+				}*/
+				free(cross_over_fitness);
+				free(cross_over_solutions);
 			}
 		}
 
