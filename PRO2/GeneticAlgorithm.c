@@ -122,6 +122,8 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 
 				current_cost1 = cost_tsp(inst, current_son1);							//COST CURRENT SON
 				current_cost2 = cost_tsp(inst, current_son2);
+				free(inst->new_SON);
+
 				if (GENETIC_ALG > 400)
 				{
 					printf("Current1 son's Cost %d: %lf \n", i + j, current_cost1);
@@ -223,10 +225,11 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 			{
 				current_son1 = mutation(inst, TSP_solutions[i]);
 				current_cost1 = cost_tsp(inst, current_son1);
-			
+				
 				//-------------------------------SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
 				newTSP_solutions[i] = current_son1;
 				newTSP_fitness[i] = current_cost1;
+				free(inst->new_SON);
 			}
 			else if (choice_of_new_gen > CHOICE_OF_POPULATION && choice_of_new_gen < (CHOICE_OF_POPULATION + VARIANCE_CHOICE_OF_POP))
 			{
