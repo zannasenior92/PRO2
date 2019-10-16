@@ -69,10 +69,10 @@ int* cross_over(instance *inst, int *tspFather, int *tspMother)
 /*MUTATION TO MODIFY ONLY SOME CRHOMOSOMES OF AN INDIVIDUAL*/
 int* mutation(instance* inst, int *tspParent)
 {
-	int* tsp_mutation_son = (int*)calloc(inst->nnodes, sizeof(int));
+	inst->new_SON = (int*)calloc(inst->nnodes, sizeof(int));
 	for (int l = 0; l < inst->nnodes; l++)
 	{
-		tsp_mutation_son[l] = tspParent[l];
+		inst->new_SON[l] = tspParent[l];
 	}
 
 	if (GENETIC_ALG > 400)
@@ -81,7 +81,7 @@ int* mutation(instance* inst, int *tspParent)
 		printf("TSP BEFORE Mutation: ");
 		for (int k = 0; k < inst->nnodes; k++)
 		{
-			printf("%d ", tsp_mutation_son[k] + 1);
+			printf("%d ", inst->new_SON[k] + 1);
 		}
 		printf("\n\n");
 	}
@@ -103,15 +103,15 @@ int* mutation(instance* inst, int *tspParent)
 		index_chromosome4 = rand() % inst->nnodes;
 	}
 
-	int chromosome1 = tsp_mutation_son[index_chromosome1];
-	int chromosome2 = tsp_mutation_son[index_chromosome2];
-	int chromosome3 = tsp_mutation_son[index_chromosome3];
-	int chromosome4 = tsp_mutation_son[index_chromosome4];
+	int chromosome1 = inst->new_SON[index_chromosome1];
+	int chromosome2 = inst->new_SON[index_chromosome2];
+	int chromosome3 = inst->new_SON[index_chromosome3];
+	int chromosome4 = inst->new_SON[index_chromosome4];
 
-	tsp_mutation_son[index_chromosome2] = chromosome1;
-	tsp_mutation_son[index_chromosome1] = chromosome2;
-	tsp_mutation_son[index_chromosome3] = chromosome3;
-	tsp_mutation_son[index_chromosome4] = chromosome4;
+	inst->new_SON[index_chromosome2] = chromosome1;
+	inst->new_SON[index_chromosome1] = chromosome2;
+	inst->new_SON[index_chromosome3] = chromosome3;
+	inst->new_SON[index_chromosome4] = chromosome4;
 
 	if (GENETIC_ALG > 400)
 	{
@@ -119,11 +119,10 @@ int* mutation(instance* inst, int *tspParent)
 		printf("TSP AFTER Mutation: ");
 		for (int k = 0; k < inst->nnodes; k++)
 		{
-			printf("%d ", tsp_mutation_son[k] + 1);
+			printf("%d ", inst->new_SON[k] + 1);
 		}
 		printf("\n\n");
 	}
 
-	return tsp_mutation_son;
-	free(tsp_mutation_son);
+	return inst->new_SON;
 }

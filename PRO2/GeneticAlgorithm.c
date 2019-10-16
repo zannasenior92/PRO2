@@ -112,6 +112,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 			{
 				current_son1 = mutation(inst, TSP_solutions[i]);
 				current_cost1 = cost_tsp(inst, current_son1);
+				free(inst->new_SON);
 
 				if (new_tsp_index < num_sel_tsp)
 				{
@@ -163,7 +164,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 
 					current_son1 = cross_over(inst, TSP_solutions[i], TSP_solutions[j]);	//NODES CURRENT SON
 					current_son2 = cross_over(inst, TSP_solutions[j], TSP_solutions[i]);
-
+					free(inst->new_SON);
 					current_cost1 = cost_tsp(inst, current_son1);									//COST CURRENT SON
 					current_cost2 = cost_tsp(inst, current_son2);
 					if (GENETIC_ALG > 400)
