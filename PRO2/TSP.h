@@ -29,6 +29,8 @@ typedef struct {
 	double *best_sol;						// best sol. available
 	int *choosen_edge;						// Nodi scelti 
 	double best_obj_val;
+	int last_x_index;
+
 
 } instance;														//NAME OF THE INSTANCE
 
