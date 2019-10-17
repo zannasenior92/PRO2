@@ -55,7 +55,7 @@ double dist(int i, int j, instance *inst){
 		double q2 = cos(lati - latj);
 		double q3 = cos(lati + latj);
 		int dij = (int)(RRR*acos(0.5*((1.0 + q1)*q2 - (1.0 - q1)*q3)) + 1.0);
-		printf("Dist(%d,%d)=%d\n", i, j, dij);
+		//printf("Dist(%d,%d)=%d\n", i, j, dij);
 		return dij;
 		}
 		else print_error("Something go wrong in distance");
@@ -73,7 +73,7 @@ int TSPopt(instance *inst)
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 
 	int ncols = CPXgetnumcols(env, lp);
-	printf("numero colonne %d\n", ncols);
+	//printf("numero colonne %d\n", ncols);
 	inst->best_sol= (double *)calloc(ncols, sizeof(double));				//best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
 	
@@ -89,7 +89,7 @@ int TSPopt(instance *inst)
 		for (int j = 0; j < inst->nnodes; j++) {
 			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
 
-				if (VERBOSE >= 1) {
+				if (VERBOSE >= 100) {
 					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
 				}
 				/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
@@ -102,7 +102,7 @@ int TSPopt(instance *inst)
 	}
 	add_edge_to_file(inst);
 
-	if (VERBOSE >= 1) {
+	if (VERBOSE >= 100) {
 		printf("Selected nodes: %d \n", count);
 	}
 	/*-------------------------------------------------------------------------------*/
