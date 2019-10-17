@@ -4,7 +4,7 @@
 void plot_gnuplot(instance *inst) {
 	char * commandsForGnuplot[] = {
 
-		/*-------------------------PLOTTING COMMANDS TO PRINT NODES---------------------*/
+		/*-------------------------PLOTTING COMMANDS TO PRINT NODES---------------------
 		
 		"set terminal windows",
 		"set title \"Punti TSP att48\"",
@@ -15,9 +15,9 @@ void plot_gnuplot(instance *inst) {
 		"unset xtics", //remove axis x
 		"unset ytics", //remove axis y
 		"unset key", //toglie legenda path
-
+		
 		//-----------------------------PATH COLLABORATORS--------------------------------------------
-		"plot 'coordinateAtt48.txt' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",
+		"plot 'coordinateAtt48.txt' with labels offset char 1,-1.0 point pointtype 7 lc rgb '#0060ad' ",*/
 		/*------------------------------------------------------------------------------*/
 
 
