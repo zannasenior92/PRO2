@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="comandiGnuplot.c" />
     <ClCompile Include="dist_and_pos.c" />
+    <ClCompile Include="Flow1.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="Parser.c" />
     <ClCompile Include="TSP.c" />
