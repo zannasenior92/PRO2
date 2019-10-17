@@ -7,7 +7,7 @@
 
 #define CHOICE_OF_ADD_BAD 0.5 //REPRESENT THE PERCENTAGE FOR WHICH I CAN INSERT A BAD TSP IN A POPULATION
 #define CHOICE_OF_POPULATION 0.05 //REPRESENT THE PERCENTAGE FOR WHICH I SELECT MUTATION OR CROSS-OVER
-#define VARIANCE_CHOICE_OF_POP 0.05 //REPRESENT THE DIMENSION OF RANGE FOR SELECT A FATHER AS SON IN NEXT POPULATION
+#define VARIANCE_CHOICE_OF_POP 0.5 //REPRESENT THE DIMENSION OF RANGE FOR SELECT A FATHER AS SON IN NEXT POPULATION
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 void reverse_xpos(int x, instance* inst, int* nodes);
 void update_choosen_edge(instance* inst);
@@ -86,7 +86,9 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	double *cross_over_fitness = (double *)malloc(num_sel_tsp * sizeof(double)); //NEW SOLUTIONS COST
 	double worst_cross_over_fitness = 0;													//FITNESS(COST) WORST FATHER
 	int index_worst_cross_over = 0;												//WORST FATHER INDEX
-
+	int flag_DUPLICATE1;												//FLAG FOR CHECK IF THERE IS A DUPLICATE IN THE POPULATION
+	int flag_DUPLICATE2;
+	int mutation_DUPLICATE;
 
 	for (int j = 0; j < num_sel_tsp; j++)
 	{
@@ -105,8 +107,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 		double current_cost1;											//COST OF SON
 		double current_cost2;
 		int new_tsp_index = 0;
-		int flag_DUPLICATE1;												//FLAG FOR CHECK IF THERE IS A DUPLICATE IN THE POPULATION
-		int flag_DUPLICATE2;
+		
 
 		for (int i = 0; i < num_sel_tsp; i++)//-----------------------------------------CHOOSE CROSS-OVER
 		{
@@ -122,7 +123,6 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 
 				current_cost1 = cost_tsp(inst, current_son1);							//COST CURRENT SON
 				current_cost2 = cost_tsp(inst, current_son2);
-				free(inst->new_SON);
 
 				if (GENETIC_ALG > 400)
 				{
@@ -134,7 +134,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 				/*CHECK IF THERE IS A DUPLICATE IN THE POPULATION*/
 				for (int k = 0; k < new_tsp_index; k++)
 				{
-					if (newTSP_fitness[k] == current_cost1)
+					if (cross_over_fitness[k] == current_cost1)
 					{
 						flag_DUPLICATE1 = 1;
 					}
@@ -143,7 +143,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 				/*CHECK IF THERE IS A DUPLICATE IN THE POPULATION*/
 				for (int k = 0; k < new_tsp_index; k++)
 				{
-					if (newTSP_fitness[k] == current_cost2)
+					if (cross_over_fitness[k] == current_cost2)
 					{
 						flag_DUPLICATE2 = 1;
 					}
@@ -219,17 +219,33 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 		{
 			choice_of_new_gen = (double)rand() / (double)RAND_MAX;	//GENERATE A RANDOM CHOICE
 			subs_index_choice = rand() % inst->nnodes;//RANDOM INDEX FOR SUBSTITUTE A TSP WITH A BAD TSP
-
+			mutation_DUPLICATE = 0;
 
 			if (choice_of_new_gen < CHOICE_OF_POPULATION)//---------------CHOOSE MUTATION
 			{
 				current_son1 = mutation(inst, TSP_solutions[i]);
 				current_cost1 = cost_tsp(inst, current_son1);
+
+				for (int k = 0; k < new_tsp_index; k++)
+				{
+					if (newTSP_fitness[k] == current_cost1)
+					{
+						mutation_DUPLICATE = 1;
+					}
+				}
+				if (mutation_DUPLICATE != 1)
+				{
+					newTSP_solutions[i] = current_son1;
+					newTSP_fitness[i] = current_cost1;
+				}
+				else
+				{
+					newTSP_solutions[i] = TSP_solutions[i];
+					newTSP_fitness[i] = TSP_fitness[i];
+				}
 				
-				//-------------------------------SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
-				newTSP_solutions[i] = current_son1;
-				newTSP_fitness[i] = current_cost1;
-				free(inst->new_SON);
+				
+				
 			}
 			else if (choice_of_new_gen > CHOICE_OF_POPULATION && choice_of_new_gen < (CHOICE_OF_POPULATION + VARIANCE_CHOICE_OF_POP))
 			{
@@ -288,7 +304,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 		printf("\n");
 		num_of_populations++;
 
-		//Sleep(5000);
+		free(inst->new_SON);
 
 	}
 	free(cross_over_solutions);
