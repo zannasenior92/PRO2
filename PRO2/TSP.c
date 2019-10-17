@@ -7,61 +7,6 @@
 void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp);
 void add_edge_to_file(instance *inst);
 
-/*------------------POSITION OF VARIABLE INSIDE THE MODEL----------------------------*/
-int xpos(int i, int j, instance *inst) {
-	return i * inst->nnodes + j;
-}
-int upos(int i, instance *inst) {
-	return inst->nnodes*inst->nnodes + i;
-}
-
-
-/*-------------------------DISTANCE BETWEEN TWO POINTS-------------------------------*/
-double dist(int i, int j, instance *inst){
-	if(inst->dist_type==0) {
-		double dx = inst->xcoord[i] - inst->xcoord[j];
-		double dy = inst->ycoord[i] - inst->ycoord[j];
-		return (int)(sqrt((dx*dx + dy * dy)) + 0.5);
-	}
-	if(inst->dist_type==1){
-		double dx = inst->xcoord[i] - inst->xcoord[j];
-		double dy = inst->ycoord[i] - inst->ycoord[j];
-		double rij = sqrt((dx*dx+dy*dy)/10.0);
-		int tij = (int)(rij + 0.5);
-		if (tij < rij)
-			return (tij + 1);
-		else
-			return tij;
-	}
-
-	if (inst->dist_type == 2) {
-		double PI = 3.141592;
-		double deg = (int)(inst->xcoord[i]);
-		double min = inst->xcoord[i] - deg;
-		double lati = PI * (deg + 5.0*min / 3.0) / 180.0;
-		deg = (int)(inst->ycoord[i] + 0.5);
-		min = inst->ycoord[i] - deg;
-		double longi = PI * (deg + 5.0*min / 3.0) / 180.0;
-
-		deg = (int)(inst->xcoord[j]);
-		min = inst->xcoord[j] - deg;
-		double latj = PI * (deg + 5.0*min / 3.0) / 180.0;
-		deg = (int)(inst->ycoord[j] + 0.5);
-		min = inst->ycoord[j] - deg;
-		double longj = PI * (deg + 5.0*min / 3.0) / 180.0;
-
-		double RRR = 6378.388;
-		double q1 = cos(longi - longj);
-		double q2 = cos(lati - latj);
-		double q3 = cos(lati + latj);
-		int dij = (int)(RRR*acos(0.5*((1.0 + q1)*q2 - (1.0 - q1)*q3)) + 1.0);
-		//printf("Dist(%d,%d)=%d\n", i, j, dij);
-		return dij;
-		}
-		else print_error("Something go wrong in distance");
-}
-
-
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
 {
@@ -88,7 +33,7 @@ int TSPopt(instance *inst)
 	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
 	for (int i = 0; i < inst->nnodes; i++) {
 		for (int j = 0; j < inst->nnodes; j++) {
-			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
+			if (inst->best_sol[xpos_compact(i, j, inst)] > 0.5) {
 
 				if (VERBOSE >= 100) {
 					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
@@ -145,11 +90,11 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			/*----------------------INSERT VARIABLE IN CPLEX--------------*/
 			if (CPXnewcols(env, lp, 1, &obj, &lb, &ub, &binary, cname)) print_error(" wrong CPXnewcols on x var.s");
 			/*--------------------CHECK VARIABLE POSITION-----------------*/
-			if (CPXgetnumcols(env, lp) - 1 != xpos(i, j, inst)) print_error(" wrong position for x var.s");
+			if (CPXgetnumcols(env, lp) - 1 != xpos_compact(i, j, inst)) print_error(" wrong position for x var.s");
 
 			if (VERBOSE >= 500)
 			{
-				printf("The column with i=%d e j=%d is in position %d and xpos is %d\n", i, j, CPXgetnumcols(env, lp), xpos(i, j, inst));
+				printf("The column with i=%d e j=%d is in position %d and xpos is %d\n", i, j, CPXgetnumcols(env, lp), xpos_compact(i, j, inst));
 			}
 		}
 	}
@@ -195,7 +140,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int i = 0; i < inst->nnodes; i++)
 		{
 			if (i == h) continue;
-			if (CPXchgcoef(env, lp, lastrow, xpos(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x2]");
+			if (CPXchgcoef(env, lp, lastrow, xpos_compact(i, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x2]");
 		}
 	}
 
@@ -216,7 +161,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int i = 0; i < inst->nnodes; i++)
 		{
 			if (i == h) continue;
-			if (CPXchgcoef(env, lp, lastrow, xpos(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
+			if (CPXchgcoef(env, lp, lastrow, xpos_compact(h, i, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
 
@@ -234,9 +179,9 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 		for (int j = i + 1; j < inst->nnodes; j++) {
 
 			if (i == j) continue;
-			index[0] = xpos(i, j, inst);										//VARIABLE'S  INDEX
+			index[0] = xpos_compact(i, j, inst);										//VARIABLE'S  INDEX
 			value[0] = 1.0;														//VARIABLE'S VALUE  
-			index[1] = xpos(j, i, inst);
+			index[1] = xpos_compact(j, i, inst);
 			value[1] = 1.0;
 			sprintf(cname[0], "link(%d,%d)", i + 1, j + 1);
 
@@ -278,7 +223,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			value[0] = 1.0;														//SET TO 1 VARIABLE'S VALUE  
 			index[1] = (upos(j, inst));
 			value[1] = -1.0;
-			index[2] = xpos(i, j, inst);
+			index[2] = xpos_compact(i, j, inst);
 			value[2] = big_M;
 			if (CPXaddlazyconstraints(env, lp, 1, 3, &rhs, &sense, &izero, index, value, cname)) print_error("wrong CPXlazyconstraints");
 
