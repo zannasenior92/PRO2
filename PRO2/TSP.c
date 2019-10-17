@@ -60,4 +60,3 @@ int TSPopt(instance *inst)
 	CPXcloseCPLEX(&env);
 	return 0;
 }
-
