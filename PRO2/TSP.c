@@ -70,6 +70,7 @@ int TSPopt(instance *inst)
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
 	build_modelMTZ(inst, env, lp);												//populate the model
+	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);							//to visualize in video
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 
 	int ncols = CPXgetnumcols(env, lp);
