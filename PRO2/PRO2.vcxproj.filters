@@ -33,6 +33,9 @@
     <ClCompile Include="dist_and_pos.c">
       <Filter>FileFunzioni</Filter>
     </ClCompile>
+    <ClCompile Include="Flow2.c">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h">
