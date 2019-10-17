@@ -112,7 +112,6 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 			{
 				current_son1 = mutation(inst, TSP_solutions[i]);
 				current_cost1 = cost_tsp(inst, current_son1);
-				free(inst->new_SON);
 
 				if (new_tsp_index < num_sel_tsp)
 				{
@@ -164,7 +163,6 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 
 					current_son1 = cross_over(inst, TSP_solutions[i], TSP_solutions[j]);	//NODES CURRENT SON
 					current_son2 = cross_over(inst, TSP_solutions[j], TSP_solutions[i]);
-					free(inst->new_SON);
 					current_cost1 = cost_tsp(inst, current_son1);									//COST CURRENT SON
 					current_cost2 = cost_tsp(inst, current_son2);
 					if (GENETIC_ALG > 400)
@@ -298,11 +296,11 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 				printf("Tsp%d fitness: %lf \n", i, TSP_fitness[i]);
 			}
 		}
-		printf("\n");
 		index_best_fitness = index_best_cost_tsp(inst, TSP_fitness, num_sel_tsp);
 		best_fitness = TSP_fitness[index_best_fitness];
 		update_bestsol(inst, TSP_solutions[index_best_fitness]);
 
+		printf("\n");
 		printf("Worst fitness index: %d \n", index_worst_tsp_parent);
 		printf("Worst fitness:       %lf \n", worst_fitness);
 		printf("Best fitness index:  %d \n", index_best_fitness);
@@ -310,7 +308,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 		printf("\n");
 		num_of_populations++;
 
-		//Sleep(5000);
+		free(inst->new_SON);//FREE THE SON CREATED WITH CROSS OVER OR MUTATION
 
 	}
 	free(newTSP_fitness);
