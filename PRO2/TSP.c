@@ -19,10 +19,11 @@ int TSPopt(instance *inst)
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
 	build_modelFlow1(inst, env, lp);												//populate the model
+	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);							//to visualize in video
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 
 	int ncols = CPXgetnumcols(env, lp);
-	printf("numero colonne %d\n", ncols);
+	//printf("numero colonne %d\n", ncols);
 	inst->best_sol= (double *)calloc(ncols, sizeof(double));				//best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
 	if(VERBOSE>=200){
@@ -37,7 +38,7 @@ int TSPopt(instance *inst)
 		for (int j = 0; j < inst->nnodes; j++) {
 			if (inst->best_sol[xpos_compact(i, j, inst)] > 0.5) {
 
-				if (VERBOSE >= 1) {
+				if (VERBOSE >= 100) {
 					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
 				}
 				/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
@@ -50,7 +51,7 @@ int TSPopt(instance *inst)
 	}
 	add_edge_to_file(inst);
 
-	if (VERBOSE >= 1) {
+	if (VERBOSE >= 100) {
 		printf("Selected nodes: %d \n", count);
 	}
 	/*-------------------------------------------------------------------------------*/
