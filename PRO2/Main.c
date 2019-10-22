@@ -36,7 +36,6 @@ int main(int argc, char **argv) {
 	}
 
 	if (TSPopt(&inst)) print_error(" error within TSPopt()");
-	plot_gnuplot(&inst);													//PLOT COORDINATES IN GNUPLOT WINDOW
 	free_instance(&inst);													//FREE MEMORY OCCUPIED BY instance TSP.h
 	return 0;
 }

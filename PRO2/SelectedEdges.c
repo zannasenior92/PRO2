@@ -47,6 +47,7 @@ void selected_edges(instance *inst)
 		}
 	}
 	add_edge_to_file(inst);
+	plot_gnuplot(inst);													//PLOT COORDINATES IN GNUPLOT WINDOW
 
 	if (SELECTED_EDGES >= 100) {
 		printf("Selected nodes: %d \n", count);

@@ -43,8 +43,7 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 /*---------------------------------------HARD FIXING LOOP--------------------------------------------*/
 double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timelimit, double prob, double opt) {
 	int fix = 1;
-	int finded = 0;
-	double opt_heu = opt;
+	double min_cost = opt;
 	double opt_current;																//VALUE OPTIMAL SOL
 
 	while (time(NULL) < timelimit) {
@@ -60,16 +59,21 @@ double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timel
 		}
 		if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
 		printf("Object function optimal value is: %.0f\n", opt_current);
-		if (opt_heu == opt_current) {
+		if (min_cost == opt_current) {
 			printf("Equal optimal values, reset\n");
 			reset_lower_bound(inst, env, lp);
 			fix = 1;
 		}
-		else {
+		else if(opt_current < min_cost){
 			if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
 			printf("Different optimal values, continue\n");
-			if (CPXgetobjval(env, lp, &opt_heu)) print_error("Error getting optimal value");
-			printf("Object function optimal value is: %.0f\n", opt_heu);
+			min_cost = opt_current;
+			printf("Object function optimal value is: %.0f\n", min_cost);
+		}
+		/*WORST SOLUTION, RESET LOWER BOUND*/
+		else
+		{
+			reset_lower_bound(inst, env, lp);
 		}
 	}
 	return opt_current;
@@ -79,7 +83,6 @@ double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timel
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double prob)
 {
 	srand(seed);														//SEED FOR RANDOM FUNCTION
-	printf("hard fix bounds \n");
 	int *index_set = (int *)malloc(inst->nnodes * sizeof(int));			//ARRAY OF INDEXES TO CHANGE BOUND
 	double *bounds_set = (double *)calloc(inst->nnodes, sizeof(double));//ARRAY THAT CONTAIN THE NEW VALUE OF THE BOUND					
 	char *lb_set = (char *)malloc(inst->nnodes * sizeof(char));			//ARRAY THAT SPECIFIES WHAT BOUND CHANGE FOR EACH VARIABLE
@@ -100,7 +103,7 @@ void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double pr
 			
 		}
 	}
-	printf("Selected %d edges in %d\n", count, inst->nnodes);
+	//printf("Selected %d edges in %d\n", count, inst->nnodes);
 	CPXchgbds(env, lp, count, index_set, lb_set, bounds_set);			//FUNCTION TO MODIFY BOUNDS TO THE VARIABLES
 	
 	CPXwriteprob(env, lp, "modelchanged.lp", NULL);
@@ -108,51 +111,4 @@ void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double pr
 	free(index_set);
 	free(bounds_set);
 	free(lb_set);
-}
-
-/*-----------------------------FUNCTION TO UPDATE THE HEURISTIC SOLUTION-----------------------*/
-
-void update_x_heu(instance *inst, CPXENVptr env, CPXLPptr lp)
-{
-	double *current_sol = (double *)calloc(inst->ncols, sizeof(double));				//CURRENT SOLUTION 
-	double opt_current_val;																//VALUE OPTIMAL SOL
-
-	if (CPXgetobjval(env, lp, &opt_current_val)) print_error("Error getting optimal value");;//OPTIMAL SOLUTION FOUND
-	
-	/*FIND CURRENT SOLUTION AND SAVE IN A TEMPORARY ARRAY*/
-	if (CPXgetx(env, lp, current_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
-
-	/*IF THE VALUE OF THE OBJECTIVE FUNCTION IS BETTER RATHER THAN THE BEST SOLUTION THEN I UPDATE IT*/
-	if (opt_current_val < inst->best_obj_val)
-	{
-		printf("Best HEURISTIC solution founded: %lf", opt_current_val);
-		for (int i = 0; i < inst->ncols; i++)
-		{
-			inst->best_sol[i] = current_sol[i];
-		}
-	}
-	free(current_sol);
-}
-
-/*FUNCTION THAT SET THE START SOLUTION (THE SOLUTION WILL BE TRIVIAL THAT IS  1->2->3->....->n)*/
-void start_sol(instance *inst)
-{
-	printf("Set of the initial Heuristic Best Solution \n\n");
-	inst->best_sol = (double *)calloc(inst->ncols, sizeof(double));
-	for (int i = 0; i < inst->nnodes-1; i++)
-	{
-		inst->best_sol[xpos(i,i+1,inst)] = 1;
-	}
-	inst->best_sol[xpos(0, inst->nnodes - 1, inst)] = 1;
-
-	if (HARD_FIXING >= 200) {
-		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = i + 1; j < inst->nnodes; j++) {
-				if (inst->best_sol[xpos(i, j, inst)] > TOLERANCE) 
-				{
-					printf("Node (%d,%d) is selected \n", i + 1, j + 1);
-				}
-			}
-		}
-	}
 }

@@ -33,12 +33,14 @@ int cost_alg(instance* inst);
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
 {
-	inst->compact = 0;
+	//inst->compact = 0;
 	int error;
 	double opt_heu, opt_current;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
+	
 	build_model(inst, env, lp);
+	
 	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);							//to visualize in video
 	FILE* log = CPXfopen("log.txt", "w");
 	
@@ -46,7 +48,7 @@ int TSPopt(instance *inst)
 	/*------------------------HARD FIXING WITH LAZYCALLBACK--------------------------*/
 	inst->ncols = CPXgetnumcols(env, lp);
 
-	//----START WITH TRIVIAL INITIAL SOLUZION 1->2->3-...->n-1->1
+	//----TAKE THE BEST INITIAL SOLUTION WITH NEAREST NEIGHBORHOOD GRASP
 	inst->best_sol= (double*)calloc(inst->ncols, sizeof(double));
 	double cost, min_cost;
 	min_cost = INFINITY;
@@ -55,7 +57,7 @@ int TSPopt(instance *inst)
 	/************************************************************************************/
 	/************************************************************************************/
 	/*GENETICO*/
-	genetic_alg(inst, env, lp);
+	//genetic_alg(inst, env, lp);
 	/************************************************************************************/
 	/************************************************************************************/
 	for (int i = 0; i < 50; i++) {
@@ -75,10 +77,9 @@ int TSPopt(instance *inst)
 	}
 	
 
-	printf("\nBest Initial Cost After Nearest Neighborhood %f\n", min_cost);
+	printf("\nBest Initial Cost After Nearest Neighborhood GRASP %f\n", min_cost);
 	for (int k = 0; k < inst->ncols; k++) {
 		inst->best_sol[k]= minimum_solution[k];
-
 	}
 	
 	/*-------PRINT INITIAL SOLUTION--------*/
@@ -89,32 +90,27 @@ int TSPopt(instance *inst)
 	
 	//SET INITIAL OPTIMAL VALUE TO INFINITE
 	opt_current = min_cost;
-	printf("Opt current %f   opt calc %d\n", opt_current, cost_alg(inst));
+	printf("Opt current %f opt calc %d\n", opt_current, cost_alg(inst));
 
 	/*------------SETTING OF CALLBACKS--------------*/
 	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
 	CPXsetdblparam(env, CPX_PARAM_TILIM, 30);
 	CPXsetlazyconstraintcallbackfunc(env, add_SEC_lazy, inst);
-	int ncores = 1; CPXgetnumcores(env, &ncores);
+	int ncores = 1; 
+	CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
 	int local_minimum = 0;
-	time_t timelimit = time(NULL) + 120;
+	time_t timelimit = time(NULL) + 40;
 	double delta, delta_vns;
 
 	while (time(NULL) < timelimit) {
 		
 		delta = two_opt(inst, env, lp);
 		printf("Delta: %f\n", delta);
-		opt_current += delta;
-		int cost_with_alg = cost_alg(inst);
-		
+		opt_current += delta;		
 		printf("New objective function: %f\n", opt_current);
-		printf("COSTO CALCOLATO:%d\n", cost_alg(inst));
+
 		if (delta == 0.0) {
-			local_minimum++;
-		}
-		
-		if (local_minimum == 5) {
 
 			if (opt_current < min_cost) {
 				minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
@@ -122,22 +118,8 @@ int TSPopt(instance *inst)
 				for (int k = 0; k < inst->ncols; k++) {
 					minimum_solution[k] = inst->best_sol[k];
 
-				}
-				
+				}				
 				min_cost = opt_current;
-				printf("PRENDO IL MINIMO %f\n", min_cost);
-			}
-			else {
-				int cost_before = cost_alg(inst);
-				inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
-				for (int k = 0; k < inst->ncols; k++) {
-					inst->best_sol[k] = minimum_solution[k];
-						
-				}
-				int cost_after = cost_alg(inst);
-				printf("COSTO PRIMA %d      COSTO DOPO %d\n", cost_before, cost_after);
-				opt_current = min_cost;
-				
 			}
 			int done = 0;
 			while (done == 0) {
@@ -150,28 +132,21 @@ int TSPopt(instance *inst)
 				}
 			}
 			
-			printf("---------------------------------------------------CALCIO 3-OPT min=%f\n", min_cost);
-			printf("Object function %f\n", opt_current);
-			printf("Object calculated %d\n", cost_alg(inst));
-			
-			local_minimum = 0;
-
+			printf("----------------------------------CALCIO 3-OPT Opt current=%f\n", opt_current);
 		}
-		
-
 	}
 	if (opt_current < min_cost) {
-		printf("FINAL Object function %f\n", opt_current);
-		int cost_with_alg = cost_alg(inst);
-		printf("FINAL Object function calculated %d\n", cost_with_alg);
+		printf("Best Object function founded %f\n", opt_current);
 	}
 	else {
-		printf("FINAL Object function %f\n", min_cost);
-		inst->best_sol = minimum_solution;
-		int cost_with_alg = cost_alg(inst);
-		printf("FINAL Object function calculated %d\n", cost_with_alg);
+		printf("Best Object function founded %f\n", min_cost);
+		for (int k = 0; k < inst->ncols; k++) {
+			inst->best_sol[k] = minimum_solution[k];
+		}
 	}
-	
+
+	/*---------------------START HARD FIXING-------------------------------------------*/
+	/*FIX INITIAL SOLUTION*/
 	hard_fixing(inst, env, lp, 1, 1);//SET ALL EDGES
 	if (CPXmipopt(env, lp)) print_error("Error resolving model");
 	if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
@@ -187,16 +162,16 @@ int TSPopt(instance *inst)
 	time_t time0 = time(NULL);
 	opt_heu = opt_current;
 	//SET TIMELIMIT AND USE HEURISTIC LOOP
-	time_t timelimit1 = time(NULL) + 30;
-	printf("-----------SET 70%%-----------\n");
+	time_t timelimit1 = time(NULL) + 5;
+	printf("-----------SET 60%%-----------\n");
 	opt_current= loop_hard_fixing(inst, env, lp, (double)timelimit1, 0.6, opt_heu);
 	opt_heu = opt_current;
-	printf("-----------SET 50%%-----------\n");
-	time_t timelimit2 = time(NULL) + 30;
+	printf("-----------SET 40%%-----------\n");
+	time_t timelimit2 = time(NULL) + 5;
 	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit2, 0.4, opt_heu);
 	opt_heu = opt_current;
 	printf("-----------SET 20%%-----------\n");
-	time_t timelimit3 = time(NULL) + 30;
+	time_t timelimit3 = time(NULL) + 5;
 	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit3, 0.2, opt_heu);
 
 	printf("FINISH WITH TIME=%f\n", (double)(time(NULL)-time0));
