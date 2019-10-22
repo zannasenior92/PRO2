@@ -23,6 +23,7 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
 	fprintf(gnuplotPipe, "%s \n", "set terminal windows 1");
 	fprintf(gnuplotPipe, "%s \n", "set title \"Punti TSP ");
 	int done = 0;
+	if (CPXsetdblparam(env, CPX_PARAM_TILIM, 900)) print_error("Error on setting parameter");
 	while (!done) {
 		
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
@@ -44,8 +45,7 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
 		add_edge_to_file(inst);
 		fprintf(gnuplotPipe, "%s \n", "plot 'connected_components.txt' with lp ls 1 lc variable, ''  with point pointtype 7 lc variable");
 		/*----------------FOR SMALL INSTANCES--------------*/
-		Sleep(1000);
-		printf(gnuplotPipe, "%s \n", "pause 1");
+		if(inst->nnodes< 100)	Sleep(500);
 		fflush(gnuplotPipe);
 		printf("Componente connesse %d\n", inst->n_connected_comp);
 	}

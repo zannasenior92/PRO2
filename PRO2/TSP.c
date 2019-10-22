@@ -27,7 +27,7 @@ int TSPopt(instance *inst)
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
-	
+	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);
 	select_and_build_model(inst, env, lp);
 	FILE* log = CPXfopen("log.txt", "w");
 
@@ -99,8 +99,7 @@ int TSPopt(instance *inst)
 		return 0;
 
 	}
-	print_error("Metodo non specificato\n");
-	return -1;
+
 }
 
 
