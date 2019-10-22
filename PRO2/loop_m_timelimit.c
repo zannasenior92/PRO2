@@ -21,7 +21,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 	double ottimo;
 	int resolved = 0;
 	double ticks1, ticks2, time3, time4;
-	double timelimit = 15;															//SET TIMELIMIT 
+	double timelimit = 2;															//SET TIMELIMIT 
 	printf("timelimit: %f second\n", timelimit);
 	int resolved_in_time = 0;															//1 se è stato risolto il modello nel tempo e non è uscito per timelimit
 	while (!done) {
@@ -54,13 +54,13 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 
 			}
 			/*------------------------STATUS ENDED BY IMPOSSIBLE SOLUTION-------------------------*/
-			if (status == CPXMIP_INFEASIBLE) {
+			else if (status == CPXMIP_INFEASIBLE) {
 				printf("Impossible solution!\n");
 				exit(0);
 			}
 
 			/*---------------STATUS ENDED BY TIMELIMIT BUT INTEGER SOLUTION FOUNDED----------------*/
-			if (status == CPXMIP_TIME_LIM_FEAS) {
+			else if (status == CPXMIP_TIME_LIM_FEAS) {
 				int ncols = CPXgetnumcols(env, lp);
 				inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
 				if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
@@ -94,7 +94,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 
 			}
 			/*------------FOUNDED INTEGER SOLUTION OR INTEGER SOLUTION WITH TOLERANCE---------------*/
-			if ((status == CPXMIP_OPTIMAL) || (status == CPXMIP_OPTIMAL_TOL)) {
+			else if ((status == CPXMIP_OPTIMAL) || (status == CPXMIP_OPTIMAL_TOL)) {
 				int ncols = CPXgetnumcols(env, lp);
 				inst->best_sol = (double *)calloc(ncols, sizeof(double));
 				if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
@@ -116,6 +116,10 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 				update_choosen_edge(inst);
 				add_edge_to_file(inst);
 				plot_gnuplot(inst);
+			}
+			else {
+				printf("------------------------------------STATUS NON GESTITO: %d\n", status);
+				exit(0);
 			}
 		}
 
