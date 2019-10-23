@@ -10,10 +10,9 @@ void add_edge_to_file(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
 int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE *log);
-int update_choosen_edges(instance *inst);
+void update_choosen_edges(instance *inst);
 void plot_gnuplot_start(instance *inst, FILE * gnuplotPipe);
 void plot_gnuplot(instance *inst, FILE * gnuplotPipe);
-void update_choosen_edge(instance* inst);
 int xpos_compact(int i, int j, instance *inst);
 int xpos(int i, int j, instance *inst);
 
@@ -69,13 +68,10 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log)
 	}
 
 	
-	int sel_nodes = update_choosen_edges(inst);//------------------SAVE EDGES INSIDE inst->choosen_edge and return number of edges
+	update_choosen_edges(inst);//------------------SAVE EDGES INSIDE inst->choosen_edge and return number of edges
 
 	add_edge_to_file(inst);
 
-	if (VERBOSE >= 100) {
-		printf("Selected nodes: %d \n", sel_nodes);
-	}
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 	double opt_val;																		//VALUE OPTIMAL SOL
