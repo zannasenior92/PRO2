@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="choosen_edges.c" />
     <ClCompile Include="comandiGnuplot.c" />
     <ClCompile Include="Default.c" />
     <ClCompile Include="dist_and_pos.c" />
@@ -32,7 +33,6 @@
     <ClCompile Include="Models.c" />
     <ClCompile Include="MTZ.c" />
     <ClCompile Include="Parser.c" />
-    <ClCompile Include="SelectedEdges.c" />
     <ClCompile Include="TSP.c" />
   </ItemGroup>
   <ItemGroup>

@@ -7,7 +7,7 @@ int xpos(int i, int j, instance *inst);
 int xpos_compact(int i, int j, instance *inst);
 void add_edge_to_file(instance *inst);
 
-void selected_edges(instance *inst)
+void update_choosen_edge(instance *inst)
 {
 	int count = 0;
 	int n = 0;

@@ -5,8 +5,8 @@
 #include "TSP.h"
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
-void update_choosen_edge(instance* inst);
 void add_edge_to_file(instance *inst);
+void update_choosen_edge(instance *inst);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
 void plot_gnuplot(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
@@ -166,71 +166,13 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 			printf("Best %f\n", inst->best_sol[i]);
 		}
 	}
-	int count = 0;
-	int n = 0;
-	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
-	if (inst->compact == 1) {
-		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = 0; j < inst->nnodes; j++) {
-				if (inst->best_sol[xpos_compact(i, j, inst)] > 0.5) {
-
-					if (VERBOSE >= 100) {
-						printf("Node (%d,%d) selected\n", i + 1, j + 1);
-					}
-					/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
-					inst->choosen_edge[n] = i;
-					inst->choosen_edge[n + 1] = j;
-					n += 2;
-					count++;
-				}
-			}
-		}
-	}
-	else {
-		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = i + 1; j < inst->nnodes; j++) {
-				if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
-
-					if (VERBOSE >= 100) {
-						printf("Node (%d,%d) selected\n", i + 1, j + 1);
-					}
-					/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
-					inst->choosen_edge[n] = i;
-					inst->choosen_edge[n + 1] = j;
-					n += 2;
-					count++;
-				}
-			}
-		}
-	}
+	
+	update_choosen_edge(inst);
 	add_edge_to_file(inst);
 
-
-	if (VERBOSE >= 100) {
-		printf("Selected nodes: %d \n", count);
-	}
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 	double opt_val;																		//VALUE OPTIMAL SOL
 	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;	//OPTIMAL SOLUTION FOUND
 	printf("Object function optimal value is: %.0f\n", opt_val);
-}
-
-void update_choosen_edge(instance* inst) {
-	int n = 0;
-	for (int i = 0; i < inst->nnodes; i++) {
-		for (int j = i + 1; j < inst->nnodes; j++) {
-			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
-
-				if (VERBOSE >= 100) {
-					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
-				}
-				/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
-				inst->choosen_edge[n] = i;
-				inst->choosen_edge[n + 1] = j;
-				n += 2;
-
-			}
-		}
-	}
 }
