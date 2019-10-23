@@ -14,10 +14,16 @@ int TSPopt(instance *inst)
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
-	build_modelMTZ(inst, env, lp);												//populate the model
-	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);							//to visualize in video
-	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
+	CPXsetintparam(env, CPX_PARAM_RANDOMSEED, 123456);
+	CPXsetdblparam(env, CPX_PARAM_TILIM, 3600);
+	CPXsetintparam(env, CPX_PARAM_CLOCKTYPE, 2);
+	double start_time, end_time, elapsed_time;
+	if (CPXgettime(env, &start_time)) print_error("error getting time\n");
 
+	build_modelMTZ(inst, env, lp);												//populate the model
+	//CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);							//to visualize in video
+	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
+	int status = CPXgetstat(env, lp);
 	int ncols = CPXgetnumcols(env, lp);
 	//printf("numero colonne %d\n", ncols);
 	inst->best_sol= (double *)calloc(ncols, sizeof(double));				//best objective solution
@@ -46,7 +52,7 @@ int TSPopt(instance *inst)
 			}
 		}
 	}
-	add_edge_to_file(inst);
+	//add_edge_to_file(inst);
 
 	if (VERBOSE >= 100) {
 		printf("Selected nodes: %d \n", count);
@@ -55,8 +61,20 @@ int TSPopt(instance *inst)
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 	if (CPXgetobjval(env, lp, &inst->best_obj_val)) print_error("no best objective function");	//OPTIMAL SOLUTION FOUND
 	printf("Object function optimal value is: %f\n", inst->best_obj_val);
+	if (CPXgettime(env, &end_time)) print_error("error getting time\n");
+	elapsed_time = end_time - start_time;
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
+	inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
+	FILE* output = fopen("file1.txt", "w");
+	if ((status == 101) || (status == 102)) {
+		fprintf(output, "MTZ,%s,%f,1,123456", inst->input_file_name, elapsed_time);
+	}
+	else {
+		fprintf(output, "MTZ,%s,%f,0,123456", inst->input_file_name, elapsed_time);
+
+	}
+	fclose(output);
 	return 0;
 }
