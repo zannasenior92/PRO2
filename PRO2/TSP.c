@@ -18,7 +18,7 @@ void print_error(const char *err);
 void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp);
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp);
 void start_sol(instance *inst);
-void selected_edges(instance *inst);
+void update_choosen_edges(instance *inst);
 
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
@@ -53,7 +53,7 @@ int TSPopt(instance *inst)
 		}
 	}
 
-	selected_edges(inst);
+	update_choosen_edges(inst);
 
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
