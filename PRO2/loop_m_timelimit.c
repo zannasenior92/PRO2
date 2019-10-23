@@ -6,7 +6,7 @@
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
 void add_edge_to_file(instance *inst);
-void update_choosen_edge(instance *inst);
+void update_choosen_edges(instance *inst);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
 void plot_gnuplot(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
@@ -87,7 +87,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 							printf("Added constraints\n");
 						}
 					}
-					update_choosen_edge(inst);
+					update_choosen_edges(inst);
 					add_edge_to_file(inst);
 					plot_gnuplot(inst);
 				}
@@ -113,7 +113,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 						printf("Added constraints\n");
 					}
 				}
-				update_choosen_edge(inst);
+				update_choosen_edges(inst);
 				add_edge_to_file(inst);
 				plot_gnuplot(inst);
 			}
@@ -167,7 +167,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 		}
 	}
 	
-	update_choosen_edge(inst);
+	update_choosen_edges(inst);
 	add_edge_to_file(inst);
 
 	/*-------------------------------------------------------------------------------*/

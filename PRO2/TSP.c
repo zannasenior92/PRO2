@@ -14,10 +14,9 @@ void add_edge_to_file(instance *inst);
 void plot_gnuplot(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
-void update_choosen_edge(instance* inst);
+void update_choosen_edges(instance* inst);
 void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log, double *time1);
 void print_error(const char *err);
-void update_choosen_edge(instance *inst);
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
@@ -56,7 +55,7 @@ int TSPopt(instance *inst)
 		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
 		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
 
-		update_choosen_edge(inst);
+		update_choosen_edges(inst);
 		/*-------------------------------------------------------------------------------*/
 		/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 		double opt_val;																		//VALUE OPTIMAL SOL
