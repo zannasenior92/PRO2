@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="choosen_edges.c" />
     <ClCompile Include="comandiGnuplot.c" />
     <ClCompile Include="kruskal_and_SEC.c" />
     <ClCompile Include="Default.c" />

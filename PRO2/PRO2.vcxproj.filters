@@ -69,6 +69,9 @@
     <ClCompile Include="statstic_data_algorithm.c">
       <Filter>MainDataToFile</Filter>
     </ClCompile>
+    <ClCompile Include="choosen_edges.c">
+      <Filter>FileFunzioni</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h">

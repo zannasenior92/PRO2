@@ -10,6 +10,7 @@ void add_edge_to_file(instance *inst);
 int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
 void add_SEC(CPXENVptr env, CPXLPptr lp, instance *inst);
 int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE *log);
+int update_choosen_edges(instance *inst);
 void plot_gnuplot_start(instance *inst, FILE * gnuplotPipe);
 void plot_gnuplot(instance *inst, FILE * gnuplotPipe);
 void update_choosen_edge(instance* inst);
@@ -17,31 +18,40 @@ int xpos_compact(int i, int j, instance *inst);
 int xpos(int i, int j, instance *inst);
 
 
+
 /*****************************************************************************************************************/
-int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
+int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) 
+{
 	FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe", "w");	//"-persistent" KEEPS THE PLOT OPEN EVEN AFTER YOUR C PROGRAM QUIT
 	fprintf(gnuplotPipe, "%s \n", "set terminal windows 1");
 	fprintf(gnuplotPipe, "%s \n", "set title \"Punti TSP ");
-	int done = 0;
 	if (CPXsetdblparam(env, CPX_PARAM_TILIM, 900)) print_error("Error on setting parameter");
-	while (!done) {
+
+	int done = 0;
+
+	while (!done) 
+	{
 		
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 		if (CPXsetlogfile(env, log)) print_error("Error in log file");
 		int ncols = CPXgetnumcols(env, lp);
 		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
 		if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
-		if (kruskal_sst(env, lp, inst) == 1) {
+		
+		if (kruskal_sst(env, lp, inst) == 1)//VERIFY IF THERE IS ONLY ONE CONNECTED COMPONENT
+		{
 			done = 1;
 		}
 
-		else {
+		else//--------------------------------OTHERWISE ADD CONSTRAINTS FOR ALL CONNECTED COMPONENT IN THE PROVVISORY TSP SOLUTION
+		{
 			add_SEC(env, lp, inst);
-			if (VERBOSE >= 100) {
-				printf("Aggiunti vincoli\n");
+			if (VERBOSE >= 100) 
+			{
+				printf("Added constrraints \n");
 			}
 		}
-		update_choosen_edge(inst);
+		update_choosen_edges(inst);
 		add_edge_to_file(inst);
 		fprintf(gnuplotPipe, "%s \n", "plot 'connected_components.txt' with lp ls 1 lc variable, ''  with point pointtype 7 lc variable");
 		/*----------------FOR SMALL INSTANCES--------------*/
@@ -57,47 +67,14 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
 			printf("Best %f\n", inst->best_sol[i]);
 		}
 	}
-	int count = 0;
-	int n = 0;
-	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
-	if (inst->compact == 1) {
-		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = 0; j < inst->nnodes; j++) {
-				if (inst->best_sol[xpos_compact(i, j, inst)] > TOLERANCE) {
 
-					if (VERBOSE >= 100) {
-						printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
-					}
-					/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
-					inst->choosen_edge[n] = i;
-					inst->choosen_edge[n + 1] = j;
-					n += 2;
-					count++;
-				}
-			}
-		}
-	}
-	else {
-		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = i + 1; j < inst->nnodes; j++) {
-				if (inst->best_sol[xpos(i, j, inst)] > TOLERANCE) {
+	
+	int sel_nodes = update_choosen_edges(inst);//------------------SAVE EDGES INSIDE inst->choosen_edge and return number of edges
 
-					if (VERBOSE >= 100) {
-						printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
-					}
-					/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
-					inst->choosen_edge[n] = i;
-					inst->choosen_edge[n + 1] = j;
-					n += 2;
-					count++;
-				}
-			}
-		}
-	}
 	add_edge_to_file(inst);
 
 	if (VERBOSE >= 100) {
-		printf("Selected nodes: %d \n", count);
+		printf("Selected nodes: %d \n", sel_nodes);
 	}
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
@@ -108,24 +85,4 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) {
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
 	return 0;
-}
-
-
-void update_choosen_edge(instance* inst) {
-	int n = 0;
-	for (int i = 0; i < inst->nnodes; i++) {
-		for (int j = i + 1; j < inst->nnodes; j++) {
-			if (inst->best_sol[xpos(i, j, inst)] > 0.5) {
-
-				if (VERBOSE >= 100) {
-					printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
-				}
-				/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
-				inst->choosen_edge[n] = i;
-				inst->choosen_edge[n + 1] = j;
-				n += 2;
-
-			}
-		}
-	}
 }
