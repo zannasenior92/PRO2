@@ -69,7 +69,7 @@
     <ClCompile Include="HardFixing.c">
       <Filter>Heuristics</Filter>
     </ClCompile>
-    <ClCompile Include="SelectedEdges.c">
+    <ClCompile Include="choosen_edges.c">
       <Filter>FileFunzioni</Filter>
     </ClCompile>
   </ItemGroup>
