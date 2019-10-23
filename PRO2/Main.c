@@ -21,9 +21,8 @@ void free_instance(instance *inst) {
 /*----------------------------------------MAIN-------------------------------------------*/
 int main(int argc, char **argv) {
 	
-	double total_time;
-	clock_t start_t, end_t;													//START TIME
-	start_t = clock();
+	clock_t start_time, end_time;											//START TIME, END TIME
+	double elapsed_time;													//ELAPSED TIME
 	instance inst;															//CREATE VARIABLE inst OF TYPE instance
 
 	
@@ -41,19 +40,18 @@ int main(int argc, char **argv) {
 		double dProva = dist(31, 39, &inst);
 		printf("Distanza tra 32 e 40 : %.2f\n", dProva);
 	}
-
+	start_time = clock();
 	if (TSPopt(&inst)) print_error(" error within TSPopt()");
+	end_time = clock();														//FINAL TIME
 	plot_gnuplot(&inst);													//PLOT COORDINATES IN GNUPLOT WINDOW
 	free_instance(&inst);													//FREE MEMORY OCCUPIED BY instance TSP.h
 	
-
-	end_t = clock();														//FINAL TIME
-	total_time = ((double)(end_t - start_t)) / CLOCKS_PER_SEC;
+	elapsed_time =(double) (end_time - start_time)/CLOCKS_PER_SEC;
 
 	/*-------------------------STAMP ELAPSED TIME-------------------------*/
 	if (VERBOSE >= 100)
 	{
-		printf("The program time is: %f (s)", total_time);
+		printf("The program time is: %f (s)",elapsed_time);
 	}
 
 	return 0;
