@@ -40,20 +40,12 @@ int main(int argc, char **argv) {
 		double dProva = dist(31, 39, &inst);
 		printf("Distanza tra 32 e 40 : %.2f\n", dProva);
 	}
-
+	
 	if (TSPopt(&inst)) print_error(" error within TSPopt()");
-	plot_gnuplot(&inst);													//PLOT COORDINATES IN GNUPLOT WINDOW
+
+	//plot_gnuplot(&inst);													//PLOT COORDINATES IN GNUPLOT WINDOW
 	free_instance(&inst);													//FREE MEMORY OCCUPIED BY instance TSP.h
 	
-
-	end_t = clock();														//FINAL TIME
-	total_time = ((double)(end_t - start_t)) / CLOCKS_PER_SEC;
-
-	/*-------------------------STAMP ELAPSED TIME-------------------------*/
-	if (VERBOSE >= 100)
-	{
-		printf("The program time is: %f (s)", total_time);
-	}
 
 	return 0;
 }
