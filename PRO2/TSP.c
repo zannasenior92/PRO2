@@ -8,7 +8,7 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp);
 void add_edge_to_file(instance *inst);
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
-int TSPopt(instance *inst)
+int TSPopt(instance *inst, int i)
 {
 	
 	int error;
@@ -67,7 +67,13 @@ int TSPopt(instance *inst)
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
 	inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
-	FILE* output = fopen("file1.txt", "w");
+	char out_file[100]="";
+	strcat(out_file, "file");
+	char iter[2];
+	sprintf(iter, "%d", i);
+	strcat(out_file, iter);
+	strcat(out_file, ".txt");
+	FILE* output = fopen(out_file, "w");
 	if ((status == 101) || (status == 102)) {
 		fprintf(output, "MTZ,%s,%f,1,123456", inst->input_file_name, elapsed_time);
 	}

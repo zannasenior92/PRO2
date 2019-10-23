@@ -8,7 +8,7 @@ void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
 void plot_gnuplot(instance *inst);
 int xpos_compact(int i, int j, instance *inst);
-int TSPopt(instance *inst);
+int TSPopt(instance *inst, int i);
 double dist(int i, int j, instance *inst);
 void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(NULL); exit(1); } 
 void free_instance(instance *inst) {
@@ -21,13 +21,23 @@ void free_instance(instance *inst) {
 /*----------------------------------------MAIN-------------------------------------------*/
 int main(int argc, char **argv) {
 	
-	clock_t start_time, end_time;											//START TIME, END TIME
-	double elapsed_time;													//ELAPSED TIME
-	instance inst;															//CREATE VARIABLE inst OF TYPE instance
-
 	
-	parse_command_line(argc, argv, &inst);									//keep the arguments of the command line
-	read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
+	instance inst;															//CREATE VARIABLE inst OF TYPE instance
+	char* instances[] = { "ulysses16.tsp",
+						"ulysses22.tsp" };
+	
+	//parse_command_line(argc, argv, &inst);									//keep the arguments of the command line
+	char name_file[100]="";
+	for (int i = 0; i < 2; i++) {
+		
+		strcat(name_file, "C:\\Users\\marco\\Documents\\RO2\\");
+		strcat(name_file, instances[i]);
+		printf("%s\n", name_file);
+		strcpy(inst.input_file, name_file);
+		read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
+		if (TSPopt(&inst, i)) print_error(" error within TSPopt()");
+		strcpy(name_file, "");
+	}
 
 
 	if(VERBOSE>=200){
@@ -41,7 +51,6 @@ int main(int argc, char **argv) {
 		printf("Distanza tra 32 e 40 : %.2f\n", dProva);
 	}
 	
-	if (TSPopt(&inst)) print_error(" error within TSPopt()");
 
 	//plot_gnuplot(&inst);													//PLOT COORDINATES IN GNUPLOT WINDOW
 	free_instance(&inst);													//FREE MEMORY OCCUPIED BY instance TSP.h
