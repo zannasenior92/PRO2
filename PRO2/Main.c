@@ -24,15 +24,17 @@ int main(int argc, char **argv) {
 	instance inst;															//CREATE VARIABLE inst OF TYPE instance
 	char* instances[] = { "a280.tsp","ali535.tsp","att48.tsp","att532.tsp","berlin52.tsp","bier127.tsp","burma14.tsp","ch130.tsp",
 	"ch150.tsp","d198.tsp","d493.tsp","d657.tsp","eil51.tsp","eil76.tsp","eil101.tsp","fl417.tsp","gil262.tsp","gr202.tsp",
-	"gr229.tsp","gr431.tsp","kroA100.tsp","kroA150.tsp","kroA200.tsp","kroB100.tsp","kroB150.tsp","kroB200.tsp","kroC100.tsp",
+	"gr229.tsp","gr431.tsp"
+	};
+
+	/*,"kroA100.tsp","kroA150.tsp","kroA200.tsp","kroB100.tsp","kroB150.tsp","kroB200.tsp","kroC100.tsp",
 	"kroD100.tsp","kroE100.tsp","lin105.tsp","lin318.tsp","p654.tsp","pcb442.tsp","pr76.tsp","pr107.tsp","pr124.tsp","pr136.tsp",
 	"pr144.tsp","pr152.tsp","pr226.tsp","pr264.tsp","pr299.tsp","pr439.tsp","rat99.tsp","rat195.tsp","rat575.tsp","rat783.tsp",
-	"rd100.tsp","rd400.tsp","st70.tsp","u159.tsp","u574.tsp","u724.tsp","ulysses16.tsp","ulysses22.tsp"
-	};
+	"rd100.tsp","rd400.tsp","st70.tsp","u159.tsp","u574.tsp","u724.tsp","ulysses16.tsp","ulysses22.tsp"*/
 
 	//parse_command_line(argc, argv, &inst);									//keep the arguments of the command line
 	char name_file[100] = "";
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < sizeof(instances) / sizeof(instances[0]); i++) {
 
 		strcat(name_file, "C:\\Users\\Luca\\Documents\\FilesTSP\\");
 		strcat(name_file, instances[i]);
