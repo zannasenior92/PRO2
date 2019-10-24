@@ -7,7 +7,7 @@ int zpos(int i, int j, instance *inst);
 double dist(int i, int j, instance *inst);
 
 /*------------------------------BUILD CPLEX MODEL------------------------------------*/
-void build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
+void build_modelPers(instance *inst, CPXENVptr env, CPXLPptr lp) {
 
 	double lb = 0.0; //lower bound
 	double ub = 1.0; //upper bound

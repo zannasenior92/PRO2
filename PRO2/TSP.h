@@ -20,6 +20,8 @@ typedef struct {
 	double *ycoord;
 	double timelimit;
 	int dist_type;
+	char input_file_name[100];
+
 
 	//-----------------------PARAMETERS-----------------------
 	char input_file[1000];
@@ -27,10 +29,10 @@ typedef struct {
 
 	//----------------------GLOBAL DATA-------------------------
 	double *best_sol;						// best sol. available
-	int *choosen_edge;						// Nodi scelti 
+	int *choosen_edge;						// archi scelti 
+	int *u;
 	double best_obj_val;
 	int last_x_index;
-
 
 } instance;														//NAME OF THE INSTANCE
 

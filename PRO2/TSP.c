@@ -4,7 +4,7 @@
 
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
-void build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
+void build_modelPers(instance *inst, CPXENVptr env, CPXLPptr lp);
 void print_error(const char *err);
 void add_edge_to_file(instance *inst);
 int xpos(int i, int j, instance *inst);
@@ -21,7 +21,7 @@ int TSPopt(instance *inst)
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error); //create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP"); //create the structure for our model(lp)
-	build_model(inst, env, lp); //populate the model
+	build_modelPers(inst, env, lp); //populate the model
 	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);							//to visualize in video
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n"); //CPXmipopt to solve the model
 
