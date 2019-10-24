@@ -191,7 +191,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			value[lazy_index] = -1.0;
 			lazy_index++;
 		}
-		if (VERBOSE >= 1 && (i == inst->nnodes - 1))
+		if (VERBOSE >= 200 && (i == inst->nnodes - 1))
 		{
 			printf("Last number of lazy_index: %d \n", lazy_index);
 		}
@@ -249,7 +249,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			value[lazy_index] = -1.0;
 			lazy_index++;
 		}
-		if (VERBOSE >= 1 && (i == inst->nnodes - 1))
+		if (VERBOSE >= 200 && (i == inst->nnodes - 1))
 		{
 			printf("Last number of lazy_index: %d \n", lazy_index);
 		}
@@ -282,7 +282,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			value[lazy_index] = 1.0;
 			lazy_index++;
 		}
-		if (VERBOSE >= 1 && (i == inst->nnodes - 1))
+		if (VERBOSE >= 200 && (i == inst->nnodes - 1))
 		{
 			printf("Last number of lazy_index: %d \n", lazy_index);
 		}
