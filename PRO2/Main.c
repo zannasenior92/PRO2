@@ -23,9 +23,8 @@ int main(int argc, char **argv) {
 	
 	
 	instance inst;															//CREATE VARIABLE inst OF TYPE instance
-	char* instances[] = { "ali535.tsp", "att48.tsp","att532.tsp","berlin52.tsp","bier127.tsp",
-		"burma14.tsp","ch130.tsp","ch150.tsp","d198.tsp","d493.tsp","d657.tsp","eil51.tsp","eil76.tsp",
-		"eil101.tsp","fl417.tsp","gil262.tsp","gr202.tsp","gr229.tsp","gr431.tsp" };
+	char* instances[] = { "eil51.tsp","eil76.tsp","eil101.tsp","fl417.tsp",
+		"gil262.tsp","gr202.tsp","gr229.tsp","gr431.tsp" };
 	
 	//parse_command_line(argc, argv, &inst);									//keep the arguments of the command line
 	char name_file[100]="";
@@ -36,7 +35,7 @@ int main(int argc, char **argv) {
 		printf("%s\n", name_file);
 		strcpy(inst.input_file, name_file);
 		read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
-		if (TSPopt(&inst, i+1)) print_error(" error within TSPopt()");
+		if (TSPopt(&inst, i+11)) print_error(" error within TSPopt()");
 		strcpy(name_file, "");
 	}
 

@@ -36,9 +36,9 @@ int TSPopt(instance *inst, int i)
 		inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
 		char out_file[100] = "";
 		strcat(out_file, "file");
-		char iter[2];
-		sprintf(iter, "%d", i);
-		strcat(out_file, iter);
+		char iters[5]="";
+		sprintf(iters, "%d", i);
+		strcat(out_file, iters);
 		strcat(out_file, ".txt");
 		FILE* output = fopen(out_file, "w");
 		fprintf(output, "MTZ,%s,%f,0,123456", inst->input_file_name, elapsed_time);	
@@ -87,7 +87,7 @@ int TSPopt(instance *inst, int i)
 	inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
 	char out_file[100]="";
 	strcat(out_file, "file");
-	char iter[2];
+	char iter[5]="";
 	sprintf(iter, "%d", i);
 	strcat(out_file, iter);
 	strcat(out_file, ".txt");
