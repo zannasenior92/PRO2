@@ -168,7 +168,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	free(index);
 	free(value);
 
-	/*--------------------------SUM_j(yij-yji) = 1  for all i in N-{1}, i!=j -------------------*/
+	/*--------------------------SUM_j(yij-yji) = -1  for all i in N-{1}, i!=j -------------------*/
 	for (int i = 1; i < inst->nnodes; i++) {
 		char sense = 'E';
 		int izero = 0;
@@ -226,7 +226,7 @@ void build_modelFlow2(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	free(index2);
 	free(value2);
 
-	/*--------------------------SUM_j(zij-zji) = -1  for all i in N-{1}, i!=j -------------------*/
+	/*--------------------------SUM_j(zij-zji) = 1  for all i in N-{1}, i!=j -------------------*/
 	for (int i = 1; i < inst->nnodes; i++) {
 		char sense = 'E';
 		int izero = 0;
