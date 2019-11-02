@@ -39,7 +39,7 @@ int TSPopt(instance *inst, int i)
 		inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
 		char out_file[100] = "";
 		strcat(out_file, "file");
-		char iter[2];
+		char iter[5];
 		sprintf(iter, "%d", i);
 		strcat(out_file, iter);
 		strcat(out_file, ".txt");
@@ -90,7 +90,7 @@ int TSPopt(instance *inst, int i)
 	inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
 	char out_file[100] = "";
 	strcat(out_file, "file");
-	char iter[2];
+	char iter[5];
 	sprintf(iter, "%d", i);
 	strcat(out_file, iter);
 	strcat(out_file, ".txt");
