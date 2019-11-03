@@ -44,7 +44,7 @@ int TSPopt(instance *inst, int i)
 		strcat(out_file, iter);
 		strcat(out_file, ".txt");
 		FILE* output = fopen(out_file, "w");
-		fprintf(output, "MTZ,%s,%f,0,123456", inst->input_file_name, elapsed_time);
+		fprintf(output, "ModPers,%s,%f,0,123456", inst->input_file_name, elapsed_time);
 		fclose(output);
 		CPXfreeprob(env, &lp);
 		CPXcloseCPLEX(&env);
@@ -96,10 +96,10 @@ int TSPopt(instance *inst, int i)
 	strcat(out_file, ".txt");
 	FILE* output = fopen(out_file, "w");
 	if ((status == 101) || (status == 102)) {
-		fprintf(output, "MTZ,%s,%f,1,123456", inst->input_file_name, elapsed_time);
+		fprintf(output, "ModPers,%s,%f,1,123456", inst->input_file_name, elapsed_time);
 	}
 	else {
-		fprintf(output, "MTZ,%s,%f,0,123456", inst->input_file_name, elapsed_time);
+		fprintf(output, "ModPers,%s,%f,0,123456", inst->input_file_name, elapsed_time);
 
 	}
 	fclose(output);
