@@ -114,6 +114,8 @@ void build_modelPers(instance *inst, CPXENVptr env, CPXLPptr lp) {
 			if (CPXchgcoef(env, lp, lastrow, zpos(v, h, inst), 1.0)) print_error(" wrong CPXchgcoef [x1]");
 		}
 	}
+	free(index);
+	free(value);
 	/*---------------Vincolo forte somme(zit)+xij+somme(jt)<=2*/
 
 	for (int i = 1; i < inst->nnodes; i++) {
