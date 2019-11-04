@@ -22,9 +22,9 @@ int TSPopt(instance *inst, int i)
 	CPXsetintparam(env, CPX_PARAM_CLOCKTYPE, 2);
 	double start_time, end_time, elapsed_time;
 	if (CPXgettime(env, &start_time)) print_error("error getting time\n");
-
+	printf("ModPers,%s\n", inst->input_file_name);
 	build_modelPers(inst, env, lp);												//populate the model
-	//CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);							//to visualize in video
+	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);							//to visualize in video
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 
 	if (CPXgettime(env, &end_time)) print_error("error getting time\n");
@@ -84,9 +84,7 @@ int TSPopt(instance *inst, int i)
 	if (CPXgetobjval(env, lp, &inst->best_obj_val)) print_error("no best objective function");	//OPTIMAL SOLUTION FOUND
 	printf("Object function optimal value is: %f\n", inst->best_obj_val);
 
-	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
-	CPXfreeprob(env, &lp);
-	CPXcloseCPLEX(&env);
+	
 	inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
 	char out_file[100] = "";
 	strcat(out_file, "file");
@@ -103,6 +101,9 @@ int TSPopt(instance *inst, int i)
 
 	}
 	fclose(output);
+	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
+	CPXfreeprob(env, &lp);
+	CPXcloseCPLEX(&env);
 	return 0;
 }
 

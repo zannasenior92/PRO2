@@ -13,6 +13,8 @@ void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(N
 void free_instance(instance *inst) {
 	free(inst->xcoord);
 	free(inst->ycoord);
+	
+	
 }
 /*---------------------------------------------------------------------------------------*/
 
