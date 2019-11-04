@@ -79,6 +79,13 @@ void read_input(instance *inst) {
 		par_name = strtok(line, " :");																// " :" as delimiter
 
 		/*--------------------------------CHECK FILE LINES--------------------------------*/
+		if (strncmp(par_name, "NAME", 4) == 0)
+		{
+			token1 = strtok(NULL, " :");
+			strcpy(inst->input_file_name, token1);
+			continue;
+		}
+
 		if (strncmp(par_name, "DIMENSION", 9) == 0)
 		{
 			token1 = strtok(NULL, " :");															//NULL gives the following word
