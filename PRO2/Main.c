@@ -7,7 +7,7 @@ void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
 void plot_final_gnuplot(instance *inst);
 int xpos(int i, int j, instance *inst);
-int TSPopt(instance *inst);
+int TSPopt(instance *inst, int i);
 double dist(int i, int j, instance *inst);
 void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(NULL); exit(1); } 
 void free_instance(instance *inst) {
@@ -23,8 +23,8 @@ int main(int argc, char **argv) {
 	instance inst;															//CREATE VARIABLE inst OF TYPE instance
 	inst.model_type = 0;
 	char* instances[] = {
-		"a280.tsp","ali535.tsp","att48.tsp","att532.tsp","berlin52.tsp","bier127.tsp","burma14.tsp","ch130.tsp",
-	"ch150.tsp","d198.tsp","d493.tsp","d657.tsp","eil51.tsp","eil76.tsp","eil101.tsp","fl417.tsp","gil262.tsp","gr202.tsp"
+		"a280.tsp"//,"ali535.tsp","att48.tsp","att532.tsp","berlin52.tsp","bier127.tsp","burma14.tsp","ch130.tsp",
+	//"ch150.tsp","d198.tsp","d493.tsp","d657.tsp","eil51.tsp","eil76.tsp","eil101.tsp","fl417.tsp","gil262.tsp","gr202.tsp"
 	};
 
 	/*  

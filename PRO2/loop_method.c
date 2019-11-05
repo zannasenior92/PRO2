@@ -21,9 +21,9 @@ int xpos(int i, int j, instance *inst);
 /*****************************************************************************************************************/
 int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log) 
 {
-	FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe", "w");	//"-persistent" KEEPS THE PLOT OPEN EVEN AFTER YOUR C PROGRAM QUIT
+	/*FILE * gnuplotPipe = _popen("C:/gnuplot/bin/gnuplot.exe", "w");	//"-persistent" KEEPS THE PLOT OPEN EVEN AFTER YOUR C PROGRAM QUIT
 	fprintf(gnuplotPipe, "%s \n", "set terminal windows 1");
-	fprintf(gnuplotPipe, "%s \n", "set title \"Punti TSP ");
+	fprintf(gnuplotPipe, "%s \n", "set title \"Punti TSP ");*/
 	if (CPXsetdblparam(env, CPX_PARAM_TILIM, 900)) print_error("Error on setting parameter");
 
 	int done = 0;
@@ -45,38 +45,23 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log)
 		else//--------------------------------OTHERWISE ADD CONSTRAINTS FOR ALL CONNECTED COMPONENT IN THE PROVVISORY TSP SOLUTION
 		{
 			add_SEC(env, lp, inst);
-			if (VERBOSE >= 100) 
-			{
-				printf("Added constrraints \n");
-			}
+			
 		}
-		update_choosen_edges(inst);
+		/*update_choosen_edges(inst);
 		add_edge_to_file(inst);
 		fprintf(gnuplotPipe, "%s \n", "plot 'connected_components.txt' with lp ls 1 lc variable, ''  with point pointtype 7 lc variable");
 		/*----------------FOR SMALL INSTANCES--------------*/
-		if(inst->nnodes< 100)	Sleep(500);
+		/*if(inst->nnodes< 100)	Sleep(500);
 		fflush(gnuplotPipe);
-		printf("Componente connesse %d\n", inst->n_connected_comp);
+		printf("Componente connesse %d\n", inst->n_connected_comp);*/
 	}
-	_pclose(gnuplotPipe);
-
-	int ncols = CPXgetnumcols(env, lp);
-	if (VERBOSE >= 200) {
-		for (int i = 0; i < ncols - 1; i++) {
-			printf("Best %f\n", inst->best_sol[i]);
-		}
-	}
-
-	
-	update_choosen_edges(inst);//------------------SAVE EDGES INSIDE inst->choosen_edge and return number of edges
-
-	add_edge_to_file(inst);
+	//_pclose(gnuplotPipe);
 
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 	double opt_val;																		//VALUE OPTIMAL SOL
 	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;	//OPTIMAL SOLUTION FOUND
-	printf("Object function optimal value is: %.0f\n", opt_val);
+	//printf("Object function optimal value is: %.0f\n", opt_val);
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
