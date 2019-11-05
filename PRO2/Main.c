@@ -23,8 +23,8 @@ int main(int argc, char **argv) {
 	instance inst;															//CREATE VARIABLE inst OF TYPE instance
 	inst.model_type = 0;
 	char* instances[] = {
-		"a280.tsp"//,"ali535.tsp","att48.tsp","att532.tsp","berlin52.tsp","bier127.tsp","burma14.tsp","ch130.tsp",
-	//"ch150.tsp","d198.tsp","d493.tsp","d657.tsp","eil51.tsp","eil76.tsp","eil101.tsp","fl417.tsp","gil262.tsp","gr202.tsp"
+		"a280.tsp","ali535.tsp","att48.tsp","att532.tsp","berlin52.tsp","bier127.tsp","burma14.tsp","ch130.tsp",
+	"ch150.tsp","d198.tsp","d493.tsp","d657.tsp","eil51.tsp","eil76.tsp","eil101.tsp","fl417.tsp","gil262.tsp","gr202.tsp"
 	};
 
 	/*  
