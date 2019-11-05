@@ -22,9 +22,8 @@ int TSPopt(instance *inst, int i)
 	CPXsetintparam(env, CPX_PARAM_CLOCKTYPE, 2);
 	double start_time, end_time, elapsed_time;
 	if (CPXgettime(env, &start_time)) print_error("error getting time\n");
-	printf("ModPers,%s\n", inst->input_file_name);
 	build_modelPers(inst, env, lp);												//populate the model
-	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);							//to visualize in video
+	//CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);							//to visualize in video
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 
 	if (CPXgettime(env, &end_time)) print_error("error getting time\n");

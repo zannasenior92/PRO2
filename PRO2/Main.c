@@ -13,8 +13,6 @@ void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(N
 void free_instance(instance *inst) {
 	free(inst->xcoord);
 	free(inst->ycoord);
-	
-	
 }
 /*---------------------------------------------------------------------------------------*/
 
@@ -24,11 +22,11 @@ int main(int argc, char **argv) {
 
 
 	instance inst;															//CREATE VARIABLE inst OF TYPE instance
-	char* instances[] = {"ulysses16.tsp" 
+	char* instances[] = { 
+		"ulysses16.tsp","ulysses22.tsp"
 	};
 
-	/*"att48.tsp", "berlin52.tsp", "burma14.tsp","eil51.tsp","eil76.tsp","eil101.tsp",
-		"rat99.tsp",,"ulysses22.tsp"
+	/*"att48.tsp", "berlin52.tsp", "burma14.tsp","eil51.tsp","eil76.tsp","eil101.tsp","rat99.tsp",
 	
 	"a280.tsp","ali535.tsp","att532.tsp","bier127.tsp","ch130.tsp",
 	"ch150.tsp","d198.tsp","d493.tsp","d657.tsp","fl417.tsp","gil262.tsp","gr202.tsp",
@@ -46,7 +44,7 @@ int main(int argc, char **argv) {
 		printf("%s\n", name_file);
 		strcpy(inst.input_file, name_file);
 		read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
-		if (TSPopt(&inst, i)) print_error(" error within TSPopt()");
+		if (TSPopt(&inst, i+7)) print_error(" error within TSPopt()");
 		strcpy(name_file, "");
 	}
 
