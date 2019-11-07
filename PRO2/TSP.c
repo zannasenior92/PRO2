@@ -22,49 +22,72 @@ void update_choosen_edges(instance *inst);
 
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
-int TSPopt(instance *inst)
+int TSPopt(instance *inst, int i)
 {
 	
 	inst->compact = 0;
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
-
-	select_and_build_model(inst, env, lp);
-
-	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);									//Per visualizzare a video
-	FILE* log = CPXfopen("log.txt", "w");
+	
+	CPXsetintparam(env, CPX_PARAM_RANDOMSEED, 123456);
+	CPXsetdblparam(env, CPX_PARAM_TILIM, 3600);
+	CPXsetintparam(env, CPX_PARAM_CLOCKTYPE, 2);
+	double start_time, end_time, elapsed_time;
+	if (CPXgettime(env, &start_time)) print_error("error getting time\n");
+	build_model(inst, env, lp);
+	
 	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
 	CPXsetlazyconstraintcallbackfunc(env, add_SEC_lazy, inst);
 
 	int ncores = 1; CPXgetnumcores(env, &ncores);
 	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
-	/*------------------------------------METODO LOOP---------------------------------------*/
-	int done = 0;
 	inst->ncols = CPXgetnumcols(env, lp);
 	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
-	if (CPXsetlogfile(env, log)) print_error("Error in log file");
-	inst->best_sol = (double *)calloc(inst->ncols, sizeof(double));				//best objective solution
-	if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
-
-	if(VERBOSE>=200){
-		for (int i = 0; i < inst->ncols - 1; i++){
-			printf("Best %f\n", inst->best_sol[i]);
-		}
+	
+	if (CPXgettime(env, &end_time)) print_error("error getting time\n");
+	elapsed_time = end_time - start_time;
+	int status = CPXgetstat(env, lp);
+	int ncols = CPXgetnumcols(env, lp);
+	inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
+	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) {
+		inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
+		char out_file[100] = "";
+		strcat(out_file, "file");
+		char iters[5] = "";
+		sprintf(iters, "%d", i);
+		strcat(out_file, iters);
+		strcat(out_file, ".txt");
+		FILE* output = fopen(out_file, "w");
+		fprintf(output, "Sec_Callback,%s,%f,0,123456", inst->input_file_name, elapsed_time);
+		fclose(output);
+		CPXfreeprob(env, &lp);
+		CPXcloseCPLEX(&env);
+		return 0;
 	}
 
-	update_choosen_edges(inst);
+	if (CPXgetobjval(env, lp, &inst->best_obj_val)) print_error("no best objective function");	//OPTIMAL SOLUTION FOUND
+	printf("Object function optimal value is: %f\n", inst->best_obj_val);
 
-	/*-------------------------------------------------------------------------------*/
-	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
-	double opt_val;																//VALUE OPTIMAL SOL
-	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;													//OPTIMAL SOLUTION FOUND
-	printf("Object function optimal value is: %.0f\n", opt_val);
-	
-	CPXfclose(log);																//CLOSE LOG FILE
-	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
+	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
+	inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
+	char out_file[100] = "";
+	strcat(out_file, "file");
+	char iter[5] = "";
+	sprintf(iter, "%d", i);
+	strcat(out_file, iter);
+	strcat(out_file, ".txt");
+	FILE* output = fopen(out_file, "w");
+	if ((status == 101) || (status == 102)) {
+		fprintf(output, "Sec_Callback,%s,%f,1,123456", inst->input_file_name, elapsed_time);
+	}
+	else {
+		fprintf(output, "Sec_Callback,%s,%f,0,123456", inst->input_file_name, elapsed_time);
+
+	}
+	fclose(output);
 	return 0;
 }
 
