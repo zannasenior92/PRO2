@@ -8,13 +8,13 @@ void build_modelMTZ(instance *inst, CPXENVptr env, CPXLPptr lp);
 void add_edge_to_file(instance *inst);
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
-int TSPopt(instance *inst, int i, int j)
+int TSPopt(instance *inst, int i, int j, int seed)
 {
 	
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
-	//CPXsetintparam(env, CPX_PARAM_RANDOMSEED, 123456);
+	CPXsetintparam(env, CPX_PARAM_RANDOMSEED, seed);
 	CPXsetdblparam(env, CPX_PARAM_TILIM, 3600);
 	CPXsetintparam(env, CPX_PARAM_CLOCKTYPE, 2);
 	double start_time, end_time, elapsed_time;
@@ -33,7 +33,9 @@ int TSPopt(instance *inst, int i, int j)
 	inst->best_sol= (double *)calloc(ncols, sizeof(double));				//best objective solution
 	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) {
 		//print_error("no solution avaialable");
-		inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
+		if (j == 0) {
+			inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
+		}
 		char out_file[100] = "";
 		strcat(out_file, "file");
 		char iters[5]="";
@@ -45,8 +47,6 @@ int TSPopt(instance *inst, int i, int j)
 		strcat(out_file, iterj);
 		strcat(out_file, ".txt");
 		FILE* output = fopen(out_file, "w");
-		int seed;
-		CPXgetintparam(env, CPX_PARAM_RANDOMSEED, &seed);
 		fprintf(output, "MTZ,%s,%f,0,%d", inst->input_file_name, elapsed_time, seed);	
 		fclose(output);
 		CPXfreeprob(env, &lp);
@@ -61,7 +61,9 @@ int TSPopt(instance *inst, int i, int j)
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT-----------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
-	inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
+	if (j == 0) {
+		inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
+	}
 	char out_file[100]="";
 	strcat(out_file, "file");
 	char iter[5]="";
@@ -71,10 +73,9 @@ int TSPopt(instance *inst, int i, int j)
 	strcat(out_file, iter);
 	strcat(out_file, "_");
 	strcat(out_file, itj);
+	strcat(out_file, ".txt");
 	FILE* output = fopen(out_file, "w");
-	int seed;
-	CPXgetintparam(env, CPX_PARAM_RANDOMSEED, &seed);
-	
+
 	if ((status == 101) || (status == 102)) {
 		fprintf(output, "MTZ,%s,%f,1,%d", inst->input_file_name, elapsed_time, seed);
 	}

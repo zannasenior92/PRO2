@@ -8,7 +8,7 @@ void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
 void plot_gnuplot(instance *inst);
 int xpos_compact(int i, int j, instance *inst);
-int TSPopt(instance *inst, int i, int j);
+int TSPopt(instance *inst, int i, int j, int seed);
 double dist(int i, int j, instance *inst);
 void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(NULL); exit(1); } 
 void free_instance(instance *inst) {
@@ -35,6 +35,7 @@ int main(int argc, char **argv) {
 	
 	//parse_command_line(argc, argv, &inst);									//keep the arguments of the command line
 	char name_file[100]="";
+	int* seed[] = { 23,58,1992,2010,19931993 };
 	for (int i = 0; i < sizeof(instances)/sizeof(instances[0]); i++) {
 		
 		strcat(name_file, "C:\\Users\\marco\\Documents\\RO2\\");
@@ -43,7 +44,7 @@ int main(int argc, char **argv) {
 		strcpy(inst.input_file, name_file);
 		read_input(&inst);													//READ VARIABLES FROM INPUT AND SAVE INTO inst
 		for (int j = 0; j < 5; j++) {
-			if (TSPopt(&inst, i, j)) print_error(" error within TSPopt()");
+			if (TSPopt(&inst, i, j, seed[j])) print_error(" error within TSPopt()");
 
 		}
 		strcpy(name_file, "");
