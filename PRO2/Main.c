@@ -7,7 +7,7 @@
 void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
 void plot_gnuplot(instance *inst);
-int TSPopt(instance *inst, int i);
+int TSPopt(instance *inst, int i, int j, int seed);
 double dist(int i, int j, instance *inst);
 void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(NULL); exit(1); }
 void free_instance(instance *inst) {
@@ -22,9 +22,10 @@ int main(int argc, char **argv) {
 
 
 	instance inst;															//CREATE VARIABLE inst OF TYPE instance
-	char* instances[] = { "pr152.tsp","pr226.tsp","pr264.tsp","pr299.tsp","pr439.tsp","rat99.tsp","rat195.tsp","rat575.tsp","rat783.tsp",
-	"rd100.tsp","rd400.tsp","st70.tsp","u159.tsp","u574.tsp","u724.tsp","ulysses16.tsp","ulysses22.tsp"
-	};
+	
+	char* instances[] = { "att48.tsp", "berlin52.tsp", "burma14.tsp", "eil51.tsp", "eil76.tsp", "eil101.tsp", "kroE100.tsp",
+		"pr76.tsp","rat99.tsp","st70.tsp","ulysses16.tsp", "ulysses22.tsp" };
+	
 
 	/*"a280.tsp","ali535.tsp","att48.tsp","att532.tsp","berlin52.tsp","bier127.tsp","burma14.tsp","ch130.tsp",
 	"ch150.tsp","d198.tsp","d493.tsp","d657.tsp","eil51.tsp","eil76.tsp","eil101.tsp","fl417.tsp","gil262.tsp","gr202.tsp",
@@ -37,6 +38,7 @@ int main(int argc, char **argv) {
 
 	//parse_command_line(argc, argv, &inst);									//keep the arguments of the command line
 	char name_file[100] = "";
+	int* seed[] = { 23,58,1992,2010,19931993 };
 	for (int i = 0; i < sizeof(instances) / sizeof(instances[0]); i++) {
 
 		strcat(name_file, "C:\\Users\\marco\\Documents\\RO2\\");
@@ -44,7 +46,10 @@ int main(int argc, char **argv) {
 		printf("%s\n", name_file);
 		strcpy(inst.input_file, name_file);
 		read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
-		if (TSPopt(&inst, i+38)) print_error(" error within TSPopt()");
+		for (int j = 0; j < 5; j++) {
+			if (TSPopt(&inst, i + 8, j, seed[j])) print_error(" error within TSPopt()");
+
+		}
 		strcpy(name_file, "");
 	}
 
