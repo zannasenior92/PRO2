@@ -10,7 +10,7 @@ void build_modelFischetti(instance *inst, CPXENVptr env, CPXLPptr lp);
 /*METODO CHE CONTROLLA IL TIPO DI MODELLO E COSTRUISCE QUELLO RELATIVO*/
 void select_and_build_model(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	if (inst->model_type == 0) {
-		printf("Modello TSP normale\n");
+		//printf("Modello TSP normale\n");
 		build_model(inst, env, lp);
 	}
 	if (inst->model_type == 1) {
