@@ -23,10 +23,16 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log)
 {
 	
 	int done = 0;
-
+	time_t timelimit_rins = time(NULL) + 100;
 	while (!done) 
 	{
-		
+		/*AGGIUNGO RINS PER 100 SECONDI poi rimetto automatico*/
+		if (time(NULL) < timelimit_rins) {
+			CPXsetintparam(env, CPX_PARAM_RINSHEUR, 10);
+		}
+		else {
+			CPXsetintparam(env, CPX_PARAM_RINSHEUR, 0);
+		}
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");		//CPXmipopt to solve the model
 		int ncols = CPXgetnumcols(env, lp);
 		inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
