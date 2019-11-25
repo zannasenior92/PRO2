@@ -21,9 +21,9 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 	double ottimo;
 	int resolved = 0;
 	double ticks1, ticks2, time3, time4;
-	double timelimit = 2;															//SET TIMELIMIT 
+	double timelimit = 10;															//SET TIMELIMIT 
 	printf("timelimit: %f second\n", timelimit);
-	int resolved_in_time = 0;															//1 se è stato risolto il modello nel tempo e non è uscito per timelimit
+	int resolved_in_time = 0;	//1 se è stato risolto il modello nel tempo e non è uscito per timelimit
 	while (!done) {
 
 		if (CPXgettime(env, &time3)) print_error("Error getting time\n");				//GET TIME
@@ -40,8 +40,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 
 			int status = CPXgetstat(env, lp);											//GET STATUS END
 			printf("Status=%d\n", status);
-
-			/*-------------------STATUS ENDED BY TIMELIMIT, INFEASIBLE SOLUTION FUNDED------------*/
+			/*-------------------(108)STATUS ENDED BY TIMELIMIT, INFEASIBLE SOLUTION FOUNDED------------*/
 			if (status == CPXMIP_TIME_LIM_INFEAS) {
 				timelimit *= 2;
 				if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit)) print_error("Error on setting parameter");
@@ -53,13 +52,13 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 				}
 
 			}
-			/*------------------------STATUS ENDED BY IMPOSSIBLE SOLUTION-------------------------*/
+			/*------------------------(103)STATUS ENDED BY IMPOSSIBLE SOLUTION-------------------------*/
 			else if (status == CPXMIP_INFEASIBLE) {
 				printf("Impossible solution!\n");
 				exit(0);
 			}
 
-			/*---------------STATUS ENDED BY TIMELIMIT BUT INTEGER SOLUTION FOUNDED----------------*/
+			/*---------------(107)STATUS ENDED BY TIMELIMIT BUT INTEGER SOLUTION FOUNDED----------------*/
 			else if (status == CPXMIP_TIME_LIM_FEAS) {
 				int ncols = CPXgetnumcols(env, lp);
 				inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
@@ -73,9 +72,10 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 				}
 				else {
 					if (kruskal_sst(env, lp, inst) == 1) {
-
-						resolved = 1;
+						/*resolved = 1;
 						done = 1;
+						*/
+						continue;
 					}
 
 					else {
@@ -89,11 +89,11 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 					}
 					update_choosen_edges(inst);
 					add_edge_to_file(inst);
-					plot_gnuplot(inst);
+					//plot_gnuplot(inst);
 				}
 
 			}
-			/*------------FOUNDED INTEGER SOLUTION OR INTEGER SOLUTION WITH TOLERANCE---------------*/
+			/*------------(101)FOUNDED INTEGER SOLUTION OR (102)INTEGER SOLUTION WITH TOLERANCE---------------*/
 			else if ((status == CPXMIP_OPTIMAL) || (status == CPXMIP_OPTIMAL_TOL)) {
 				int ncols = CPXgetnumcols(env, lp);
 				inst->best_sol = (double *)calloc(ncols, sizeof(double));
@@ -115,7 +115,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst, FILE
 				}
 				update_choosen_edges(inst);
 				add_edge_to_file(inst);
-				plot_gnuplot(inst);
+				//plot_gnuplot(inst);
 			}
 			else {
 				printf("------------------------------------STATUS NON GESTITO: %d\n", status);

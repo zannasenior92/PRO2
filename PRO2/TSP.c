@@ -26,7 +26,7 @@ int TSPopt(instance *inst)
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
-	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);
+	//CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);
 	double *time1, *time2;
 	if (CPXgettime(env, &time1)) print_error("time error");									//START TIME
 	select_and_build_model(inst,env,lp);
