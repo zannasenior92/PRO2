@@ -53,7 +53,7 @@ int TSPopt(instance *inst, int i)
 		strcat(out_file, iters);
 		strcat(out_file, ".txt");
 		FILE* output = fopen(out_file, "w");
-		fprintf(output, "Sec_Loop_Normal,%s,%f,0,123456", inst->input_file_name, elapsed_time);
+		fprintf(output, "Sec_Loop_RINS10,%s,%f,0,123456", inst->input_file_name, elapsed_time);
 		fclose(output);
 		CPXfreeprob(env, &lp);
 		CPXcloseCPLEX(&env);
@@ -76,10 +76,10 @@ int TSPopt(instance *inst, int i)
 	strcat(out_file, ".txt");
 	FILE* output = fopen(out_file, "w");
 	if ((status == 101) || (status == 102)) {
-		fprintf(output, "Sec_Loop_Normal,%s,%f,1,123456", inst->input_file_name, elapsed_time);
+		fprintf(output, "Sec_Loop_RINS10,%s,%f,1,123456", inst->input_file_name, elapsed_time);
 	}
 	else {
-		fprintf(output, "Sec_Loop_Normal,%s,%f,0,123456", inst->input_file_name, elapsed_time);
+		fprintf(output, "Sec_Loop_RINS10,%s,%f,0,123456", inst->input_file_name, elapsed_time);
 
 	}
 	fclose(output);

@@ -23,8 +23,9 @@ int loop_method(CPXENVptr env, CPXLPptr lp, instance *inst, FILE* log)
 {
 	
 	int done = 0;
+	time_t timelimit = time(NULL) + 3600;
 	time_t timelimit_rins = time(NULL) + 100;
-	while (!done) 
+	while ((!done)&&(time(NULL)<timelimit))
 	{
 		/*AGGIUNGO RINS PER 100 SECONDI poi rimetto automatico*/
 		if (time(NULL) < timelimit_rins) {
