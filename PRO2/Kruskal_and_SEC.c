@@ -44,7 +44,7 @@ int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
 			n++;
 		}
 	}
-	if (VERBOSE >= 10) {
+	if (VERBOSE >= 100) {
 		printf("Componenti connesse %d\n", n);
 	}
 	inst->n_connected_comp = n;
