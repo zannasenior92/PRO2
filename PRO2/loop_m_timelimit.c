@@ -25,7 +25,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	//printf("timelimit: %f second\n", timelimit);
 	int resolved_in_time = 0;	//1 se è stato risolto il modello nel tempo e non è uscito per timelimit
 	while ((!done) && (time(NULL) < timelimit_max)) {
-		if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit)) print_error("Error on setting parameter");
+		if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit)) print_error("Error on setting parameter timelimit");
 
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
 
@@ -57,7 +57,7 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst) {
 
 			//printf("Best solution found(status ended by timelimit):%.0f\n", ottimo);
 			if (kruskal_sst(env, lp, inst) == inst->nnodes) {
-				if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit * 2)) print_error("Error on setting parameter");
+				if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit * 2)) print_error("Error on setting parameter timelimit*2(107)");
 				//printf("Ha n=%d comp conn\n", kruskal_sst(env, lp, inst));
 			}
 			else {
@@ -97,15 +97,9 @@ void loop_method_with_timelimit(CPXENVptr env, CPXLPptr lp, instance *inst) {
 	}
 	
 	/*-------------------------VERY USEFUL ITERATION WITHOUT TIMELIMIT----------------------*/
-	if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit_max-time(NULL))) print_error("Error on setting parameter");
-	if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
-	
+	if (timelimit_max - time(NULL) > 0) {
+		if (CPXsetdblparam(env, CPX_PARAM_TILIM, timelimit_max - time(NULL))) print_error("Error on setting parameter");
+		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
+	}
 
-	int ncols = CPXgetnumcols(env, lp);
-	inst->best_sol = (double *)calloc(ncols, sizeof(double));				//best objective solution
-	if (CPXgetx(env, lp, inst->best_sol, 0, ncols - 1)) print_error("no solution avaialable");
-
-	double opt_val;																		//VALUE OPTIMAL SOL
-	if (CPXgetobjval(env, lp, &opt_val)) print_error("Error getting optimal value");;	//OPTIMAL SOLUTION FOUND
-	//printf("Object function optimal value is: %.0f\n", opt_val);
 }
