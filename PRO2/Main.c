@@ -22,7 +22,8 @@ void free_instance(instance *inst) {
 int main(int argc, char **argv) {
 	
 	instance inst;		
-	char* instances[] = { "rd400.tsp","st70.tsp","u159.tsp","u574.tsp","u724.tsp","ulysses16.tsp","ulysses22.tsp"
+	char* instances[] = { "kroB150.tsp","pr107.tsp","pr299.tsp","pr76.tsp"
+		//"rd400.tsp","st70.tsp","u159.tsp","u574.tsp","u724.tsp","ulysses16.tsp","ulysses22.tsp"
 	};
 
 	/*"a280.tsp","ali535.tsp","att48.tsp","att532.tsp","berlin52.tsp","bier127.tsp",
@@ -42,7 +43,7 @@ int main(int argc, char **argv) {
 		printf("%s\n", name_file);
 		strcpy(inst.input_file, name_file);
 		read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
-		if (TSPopt(&inst, i+48)) print_error(" error within TSPopt()");
+		if (TSPopt(&inst, i+100)) print_error(" error within TSPopt()");
 		strcpy(name_file, "");
 	}												//PLOT COORDINATES IN GNUPLOT WINDOW
 	free_instance(&inst);													//FREE MEMORY OCCUPIED BY instance TSP.h
