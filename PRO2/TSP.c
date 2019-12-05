@@ -80,6 +80,9 @@ int TSPopt(instance *inst, int i)
 	strcat(out_file, iter);
 	strcat(out_file, ".txt");
 	FILE* output = fopen(out_file, "w");
+	//STAMPA
+	//update_choosen_edges(inst);
+
 	if ((status == 101) || (status == 102)) {
 		fprintf(output, "Sec_Callback,%s,%f,1,123456", inst->input_file_name, elapsed_time);
 	}

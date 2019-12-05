@@ -22,14 +22,14 @@ int main(int argc, char **argv) {
 	
 	instance inst;															//CREATE VARIABLE inst OF TYPE instance
 	inst.model_type = 0;
-	char* instances[] = {
-		"gr202.tsp",
+	char* instances[] = { "gr229.tsp","kroB150.tsp","pr107.tsp","pr144.tsp","pr264.tsp","pr299.tsp"
+		/*"gr202.tsp",
 	"gr229.tsp","gr431.tsp","kroA100.tsp","kroA150.tsp","kroA200.tsp","kroB100.tsp",
 	"kroB150.tsp","kroB200.tsp","kroC100.tsp",
 	"kroD100.tsp","kroE100.tsp","lin105.tsp","lin318.tsp","p654.tsp","pcb442.tsp","pr76.tsp",
 	"pr107.tsp","pr124.tsp","pr136.tsp",
 	"pr144.tsp","pr152.tsp","pr226.tsp","pr264.tsp","pr299.tsp","pr439.tsp","rat99.tsp","rat195.tsp","rat575.tsp","rat783.tsp",
-	"rd100.tsp","rd400.tsp","st70.tsp","u159.tsp","u574.tsp","u724.tsp","ulysses16.tsp","ulysses22.tsp"
+	"rd100.tsp","rd400.tsp","st70.tsp","u159.tsp","u574.tsp","u724.tsp","ulysses16.tsp","ulysses22.tsp"*/
 	};
 
 	/*"a280.tsp","ali535.tsp","att48.tsp","att532.tsp","berlin52.tsp","bier127.tsp","burma14.tsp","ch130.tsp",
@@ -44,10 +44,11 @@ int main(int argc, char **argv) {
 		printf("%s\n", name_file);
 		strcpy(inst.input_file, name_file);
 		read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
-		if (TSPopt(&inst, i+17)) print_error(" error within TSPopt()");
+		if (TSPopt(&inst, i+100)) print_error(" error within TSPopt()");
 		strcpy(name_file, "");
 	}
-										//PLOT COORDINATES IN GNUPLOT WINDOW
+									//PLOT COORDINATES IN GNUPLOT WINDOW
+	//plot_gnuplot(&inst);
 	free_instance(&inst);													//FREE MEMORY OCCUPIED BY instance TSP.h
 	return 0;
 }
