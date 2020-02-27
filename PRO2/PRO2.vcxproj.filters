@@ -96,6 +96,9 @@
     <ClCompile Include="other_methods.c">
       <Filter>Heuristics\Genetic Mothods</Filter>
     </ClCompile>
+    <ClCompile Include="VNS.c">
+      <Filter>Heuristics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h">

@@ -71,6 +71,10 @@ void add_edge_to_file(instance *inst) {
 	fclose(file);
 }
 
+
+/**************************************************************/
+/*DA ELIMINARE POICHE' C'E' GIA' SELECTED IL METODO SELECTED EDGES*/
+/**************************************************************/
 void update_choosen_edge(instance* inst) {
 	int n = 0;
 	for (int i = 0; i < inst->nnodes; i++) {

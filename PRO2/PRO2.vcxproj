@@ -41,6 +41,7 @@
     <ClCompile Include="ThreeOpt.c" />
     <ClCompile Include="TSP.c" />
     <ClCompile Include="TwoOpt.c" />
+    <ClCompile Include="VNS.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h" />
