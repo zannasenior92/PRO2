@@ -24,110 +24,99 @@ double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timel
 void fix_nodes_local_branching(CPXENVptr env, CPXLPptr lp, instance *inst, double k);
 void delete_local_branching_constraint(CPXENVptr env, CPXLPptr lp);
 double loop_local_branching(instance *inst, CPXENVptr env, CPXLPptr lp, double timelimit, int k, double opt);
-
+double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node, int seed);
+	
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
-int TSPopt(instance *inst)
+int TSPopt(instance *inst, int i)
 {
-	inst->compact = 0;
 	int error;
+	double opt_heu, opt_current;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
+	CPXsetintparam(env, CPX_PARAM_RANDOMSEED, 123456);
+
 	build_model(inst, env, lp);
-	//select_and_build_model(inst, env, lp);
-	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);									//Per visualizzare a video
-	FILE* log = CPXfopen("log.txt", "w");
-	
-	
 	
 	/*------------------------------------USO LOCAL BRANCHING CON LAZYCALLBACK---------------------------------------*/
 	inst->ncols = CPXgetnumcols(env, lp);
-	//PARTO CON SOLUZIONE INIZIALE BANALE 1-2-3-...
-	start_sol(inst);
-	//stampo soluzione iniziale
-	update_choosen_edge(inst);
-	add_edge_to_file(inst);
-	plot_gnuplot(inst);
+	/*----TAKE THE BEST INITIAL SOLUTION WITH NEAREST NEIGHBORHOOD GRASP-------------*/
+	inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
+	double cost, min_cost;
+	min_cost = INFINITY;
+	double *minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
+	int start_node = 0;
 
-	double opt_heu, opt_current;
-	//Setto ottimo soluzione iniziale a infinito
-	opt_heu = CPX_INFBOUND;
-	//Codice di intro per callback
-	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
-	CPXsetlazyconstraintcallbackfunc(env, add_SEC_lazy, inst);
-	int ncores = 1; CPXgetnumcores(env, &ncores);
-	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
-	CPXsetdblparam(env, CPX_PARAM_TILIM, 60);
-	//printf("PARTO CON IL TEMPO=%f\n", (double)time(NULL));
-	//Imposto timelimit e chiamo loop per euristico
-	time_t timelimit1 = time(NULL) + 500;
-	printf("-----------DIST HAMMING 2-----------\n");
-	opt_current = loop_local_branching(inst, env, lp, timelimit1, 2, opt_heu);
-	opt_heu = opt_current;
-	printf("-----------DIST HAMMING 5-----------\n");
-	time_t timelimit2 = time(NULL) + 500;
-	opt_current = loop_local_branching(inst, env, lp, timelimit2, 5, opt_heu);
-	printf("-----------DIST HAMMING 8-----------\n");
-	
-	time_t timelimit3 = time(NULL) + 500;
-	opt_current = loop_local_branching(inst, env, lp, timelimit3, 10, opt_heu);
-	opt_heu = opt_current;
-	
-	//pr226
-	//hamming 2-5-8 con 300 sec all'uno 81216
-	// hamming 2 con 900 87716
-	// hamming 8 con 900 81128
-	//printf("FINISCO CON IL TEMPO=%f\n", (double)time(NULL));
-	int count = 0;
-	int n = 0;
-	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
-	if (inst->compact == 1) {
-		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = 0; j < inst->nnodes; j++) {
-					if (inst->best_sol[xpos_compact(i, j, inst)] > TOLERANCE) {
+	for (int i = 0; i < 10; i++) {
+		for (int j = 0; j < inst->nnodes; j++) {
+			inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
 
-						if (VERBOSE >= 100) {
-							printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
-						}
-						/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
-						inst->choosen_edge[n] = i;
-						inst->choosen_edge[n + 1] = j;
-						n += 2;
-						count++;
-					}
-			}
-		}
-	}
-	else {
-		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = i+1; j < inst->nnodes; j++) {
-				if (inst->best_sol[xpos(i, j, inst)] > TOLERANCE) {
+			cost = nearest_neighborhood_GRASP(inst, env, lp, j, j);
+			if (cost < min_cost) {
+				min_cost = cost;
+				for (int k = 0; k < inst->ncols; k++) {
+					minimum_solution[k] = inst->best_sol[k];
 
-					if (VERBOSE >= 100) {
-						printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
-					}
-					/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
-					inst->choosen_edge[n] = i;
-					inst->choosen_edge[n + 1] = j;
-					n += 2;
-					count++;
 				}
 			}
 		}
 	}
-	add_edge_to_file(inst);
-
-	if (VERBOSE >= 100) {
-		printf("Selected nodes: %d \n", count);
+	printf("\nBest Initial Cost After Nearest Neighborhood GRASP %f\n", min_cost);
+	for (int k = 0; k < inst->ncols; k++) {
+		inst->best_sol[k] = minimum_solution[k];
 	}
 	/*-------------------------------------------------------------------------------*/
+
+	free(minimum_solution);
+
+
+	opt_current = min_cost;
+
+	/*------------SETTING OF CALLBACKS--------------*/
+	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
+	CPXsetdblparam(env, CPX_PARAM_TILIM, 30);
+	CPXsetlazyconstraintcallbackfunc(env, add_SEC_lazy, inst);
+	int ncores = 1;
+	CPXgetnumcores(env, &ncores);
+	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
+	//Setto ottimo soluzione iniziale a infinito
+	opt_heu = opt_current;
+	
+	time_t timelimit1 = time(NULL) + 1200;
+	printf("-----------DIST HAMMING 2-----------\n");
+	opt_current = loop_local_branching(inst, env, lp, timelimit1, 2, opt_heu);
+	opt_heu = opt_current;
+	printf("-----------DIST HAMMING 5-----------\n");
+	time_t timelimit2 = time(NULL) + 1200;
+	opt_current = loop_local_branching(inst, env, lp, timelimit2, 5, opt_heu);
+	printf("-----------DIST HAMMING 8-----------\n");
+	time_t timelimit3 = time(NULL) + 1200;
+	opt_current = loop_local_branching(inst, env, lp, timelimit3, 10, opt_heu);
+	opt_heu = opt_current;
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 	printf("Object function optimal value is: %.0f\n", opt_current);
-	CPXfclose(log);																//CLOSE LOG FILE
+
+
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
+
+	inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
+	char out_file[100] = "";
+	strcat(out_file, "file");
+	char iter[5] = "";
+	sprintf(iter, "%d", i);
+	strcat(out_file, iter);
+	strcat(out_file, ".txt");
+	FILE* output = fopen(out_file, "w");
+	//STAMPA
+	//update_choosen_edges(inst);
+
+	fprintf(output, "LocalBranching,%s,%f,123456", inst->input_file_name, opt_current);
+
+	fclose(output);
 	return 0;
+
 }
 
 
