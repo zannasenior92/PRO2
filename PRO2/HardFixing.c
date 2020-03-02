@@ -65,17 +65,17 @@ double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timel
 			return -1;
 		}
 		if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
-		printf("Object function optimal value is: %.0f\n", opt_current);
+		//printf("Object function optimal value is: %.0f\n", opt_current);
 		if (min_cost == opt_current) {
-			printf("Equal optimal values, reset\n");
+			//printf("Equal optimal values, reset\n");
 			reset_lower_bound(inst, env, lp);
 			fix = 1;
 		}
 		else if(opt_current < min_cost){
 			if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
-			printf("Different optimal values, continue\n");
+			//printf("Different optimal values, continue\n");
 			min_cost = opt_current;
-			printf("Object function optimal value is: %.0f\n", min_cost);
+			//printf("Object function optimal value is: %.0f\n", min_cost);
 		}
 		/*WORST SOLUTION, RESET LOWER BOUND*/
 		else
@@ -89,7 +89,7 @@ double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timel
 /*FUNZIONE CHE RESETTA TUTTI I LOWER BOUND DI TUTTE LE VARIABILI*/
 void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 {
-	printf("reset bounds \n");
+	//printf("reset bounds \n");
 	int *index0 = (int*)malloc(inst->nnodes * sizeof(int));				//ARRAY OF INDEXES TO CHANGE BOUND
 	double *bounds0 = (double*)calloc(inst->nnodes, sizeof(double));	//ARRAY THAT CONTAIN THE NEW VALUE OF THE BOUND				
 	char *lb0 = (char*)malloc(inst->nnodes * sizeof(char));				//ARRAY THAT SPECIFIES WHAT BOUND CHANGE FOR EACH VARIABLE
@@ -108,7 +108,7 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 		lb0[i] = 'L';
 	}
 	CPXchgbds(env, lp, n, index0, lb0, bounds0);//FUNCTION TO MODIFY BOUNDS TO THE VARIABLES
-	printf("SCRIVO MODEL RESET---------------------\n");
+	//printf("SCRIVO MODEL RESET---------------------\n");
 	CPXwriteprob(env, lp, "modelreset.lp", NULL);
 
 	free(index0);

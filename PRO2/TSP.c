@@ -30,18 +30,16 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp);
 int cost_alg(instance* inst);
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
-int TSPopt(instance *inst)
+int TSPopt(instance *inst, int i)
 {
 	//inst->compact = 0;
 	int error;
 	double opt_heu, opt_current;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
+	CPXsetintparam(env, CPX_PARAM_RANDOMSEED, 123456);
 	
 	build_model(inst, env, lp);
-	
-	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);							//to visualize in video
-	FILE* log = CPXfopen("log.txt", "w");
 	
 
 	/*------------------------HARD FIXING WITH LAZYCALLBACK--------------------------*/
@@ -54,7 +52,7 @@ int TSPopt(instance *inst)
 	double *minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
 	int start_node = 0;
 	
-	for (int i = 0; i < 50; i++) {
+	for (int i = 0; i < 10; i++) {
 		for (int j = 0; j < inst->nnodes; j++) {
 			inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
 			
@@ -75,28 +73,10 @@ int TSPopt(instance *inst)
 	}
 	/*-------------------------------------------------------------------------------*/
 
-	
-	/*-----------PRINT INITIAL SOLUTION-----------*/
-
-	/**********************************************/
-	/*BASTA METTERE IL METODO SELECTED EDGES PERCHE' FA TUTTE QUESTE TRE ISTRUZIONI*/
-
-	update_choosen_edge(inst);
-	add_edge_to_file(inst);
-	plot_gnuplot(inst);
-	/**********************************************/
-
 	free(minimum_solution);
 
-	/**********************************************************************************************/
-
-	/*NON CAPISCO L'USO DI min_cost E opt_curr POICHE' ALLA FINE SECONDO ME BASTAVA USARE SOLO min_cost*/
 	
-	/**********************************************************************************************/
-
-	/*------------SET INITIAL OPTIMAL VALUE---------*/
 	opt_current = min_cost;
-	printf("Opt current %f opt calc %d\n", opt_current, cost_alg(inst));
 
 	/*------------SETTING OF CALLBACKS--------------*/
 	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
@@ -112,47 +92,53 @@ int TSPopt(instance *inst)
 	hard_fixing(inst, env, lp, 1, 1);//--------SET ALL EDGES WITH A HARD SELECTION
 	if (CPXmipopt(env, lp)) print_error("Error resolving model");
 	if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
-	printf("Object function optimal value is: %.0f\n", opt_current);
+	//printf("Object function optimal value is: %.0f\n", opt_current);
 	reset_lower_bound(inst, env, lp);
 
-
-	/**********************************************/
-	
-	/*BASTA METTERE IL METODO SELECTED EDGES*/
-	
-	update_choosen_edge(inst);
-	add_edge_to_file(inst);
-	plot_gnuplot(inst);
-	/**********************************************/
 
 	time_t time0 = time(NULL);
 	opt_heu = opt_current;
 	//SET TIMELIMIT AND USE HEURISTIC LOOP
-	time_t timelimit1 = time(NULL) + 5;
+	time_t timelimit1 = time(NULL) + 1200;
 	printf("-----------SET 60%%-----------\n");
 	opt_current= loop_hard_fixing(inst, env, lp, (double)timelimit1, 0.6, opt_heu);
 	opt_heu = opt_current;
 	printf("-----------SET 40%%-----------\n");
-	time_t timelimit2 = time(NULL) + 5;
+	time_t timelimit2 = time(NULL) + 1200;
 	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit2, 0.4, opt_heu);
 	opt_heu = opt_current;
 	printf("-----------SET 20%%-----------\n");
-	time_t timelimit3 = time(NULL) + 5;
+	time_t timelimit3 = time(NULL) + 1200;
 	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit3, 0.2, opt_heu);
 
-	printf("FINISH WITH TIME=%f\n", (double)(time(NULL)-time0));
+	//printf("FINISH WITH TIME=%f\n", (double)(time(NULL)-time0));
 
 
-	/*---------------PRINT SELECTED EDGES--------------------------------------------*/
-	selected_edges(inst);
+	/*---------------PRINT SELECTED EDGES--------------------------------------------
+	selected_edges(inst);*/
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 	printf("Object function optimal value is: %.0f\n", opt_current);
 	
-	CPXfclose(log);																//CLOSE LOG FILE
+	
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
+
+	inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
+	char out_file[100] = "";
+	strcat(out_file, "file");
+	char iter[5] = "";
+	sprintf(iter, "%d", i);
+	strcat(out_file, iter);
+	strcat(out_file, ".txt");
+	FILE* output = fopen(out_file, "w");
+	//STAMPA
+	//update_choosen_edges(inst);
+
+	fprintf(output, "HardFixing,%s,%f,123456", inst->input_file_name, opt_current);
+	
+	fclose(output);
 	return 0;
 }
 
