@@ -8,7 +8,7 @@ int xpos(int i, int j, instance *inst);
 /*FUNZIONE CHE RESETTA TUTTI I LOWER BOUND DI TUTTE LE VARIABILI*/
 void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 {
-	printf("reset bounds \n");
+	//printf("reset bounds \n");
 	int *index0 = (int*)malloc(inst->nnodes * sizeof(int));				//ARRAY DI INDICI A CUI CAMBIARE IL BOUND
 	double *bounds0 = (double*)calloc(inst->nnodes, sizeof(double));				//ARRAY CHE CONTIENE IL NUOVO VALORE DEL BOUND				
 	char *lb0 = (char*)malloc(inst->nnodes * sizeof(char));				//ARRAY CHE SPECIFICA QUALE BOUND CAMBIARE PER OGNI VARIABILE
@@ -27,7 +27,7 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp)
 		lb0[i] = 'L';
 	}
 	CPXchgbds(env, lp, n, index0, lb0, bounds0);			//FUNZIONE PER MODIFICARE IL BOUND ALLE VARIABILI
-	printf("SCRIVO MODEL RESET---------------------\n");
+	//printf("SCRIVO MODEL RESET---------------------\n");
 	CPXwriteprob(env, lp, "modelreset.lp", NULL);
 
 	free(index0);

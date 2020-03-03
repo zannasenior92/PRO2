@@ -32,6 +32,7 @@ typedef struct {
 	//----------------------GLOBAL DATA-------------------------
 	double *best_sol;						// best sol. available
 	int *choosen_edge;						// archi scelti 
+	int *choosen_nodes;						// nodi scelti
 	double best_obj_val;
 	int n_connected_comp;
 	int *comp;		//COMPONENTI CONNESSE
@@ -41,7 +42,7 @@ typedef struct {
 	CPXENVptr env;
 	/*-----------------LAST VARIABLE CPLEX INDEX--------------------*/
 	int last_x_index;											//LATS INDEX OF x VARIABLES (LAST COLUMN IN CPLEX)
-	
+	double starting_solution_cost;
 
 } instance;														//NAME OF THE INSTANCE
 
