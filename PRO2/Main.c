@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 	char name_file[100] = "";
 	for (int i = 0; i < sizeof(instances) / sizeof(instances[0]); i++) {
 
-		strcat(name_file, "C:\\Users\\marco\\Documents\\RO2\\");
+		strcat(name_file, "C:\\Users\\Luca\\Documents\\FilesTSP\\");
 		strcat(name_file, instances[i]);
 		printf("%s\n", name_file);
 		strcpy(inst.input_file, name_file);

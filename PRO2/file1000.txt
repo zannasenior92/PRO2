@@ -1,1 +1,1 @@
-LocalBranching,att532,41496.000000,123456
+LocalBranching,att532,36929.000000,123456

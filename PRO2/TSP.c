@@ -19,7 +19,6 @@ void reset_lower_bound(instance *inst, CPXENVptr env, CPXLPptr lp);
 void hard_fixing(CPXENVptr env, CPXLPptr lp, instance *inst, int seed, double prob);
 void start_sol(instance *inst);
 void update_choosen_edge(instance* inst);
-double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timelimit, double prob, double opt);
 
 void fix_nodes_local_branching(CPXENVptr env, CPXLPptr lp, instance *inst, double k);
 void delete_local_branching_constraint(CPXENVptr env, CPXLPptr lp);
@@ -122,8 +121,6 @@ int TSPopt(instance *inst, int i)
 
 }
 
-
-
 /*------------------------ADD SUBTOUR ELIMINATION CONSTRAINTS------------------------*/
 
 static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle, int *useraction_p) {
@@ -145,50 +142,4 @@ static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, v
 		*useraction_p = CPX_CALLBACK_SET; 		// tell CPLEX that cuts have been created
 	}
 	return 0;
-}
-
-
-double loop_local_branching(instance *inst, CPXENVptr env, CPXLPptr lp, double timelimit, int k, double opt) {
-	int fix = 1;
-	int finded = 0;
-	double opt_heu = opt;
-	double opt_current;																//VALUE OPTIMAL SOL
-
-	while (time(NULL) < timelimit) {
-		if (fix == 1) {
-			fix_nodes_local_branching(env, lp, inst, k);
-			fix = 0;
-		}
-		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
-		if (CPXgetstat(env, lp) == CPXMIP_INFEASIBLE) {
-			printf("PROBLEMA IMPOSSIBILE\n");
-			reset_lower_bound(inst, env, lp);
-			return -1;
-		}
-		if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
-		//printf("Object function optimal value is: %.0f\n", opt_current);
-		if (opt_heu == opt_current) {
-			//printf("Valori ottimi uguali, resetto\n");
-			reset_lower_bound(inst, env, lp);
-			fix = 1;
-
-		}
-		else {
-			if (opt_current < opt_heu) {
-				if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
-				printf("Valori ottimi diversi, continuo\n");
-				if (CPXgetobjval(env, lp, &opt_heu)) print_error("Error getting optimal value");
-
-			}
-			else {
-				reset_lower_bound(inst, env, lp);
-				fix = 1;
-			}
-			//printf("Object function optimal value is: %.0f\n", opt_heu);
-			//fix = 1;
-		}
-	}
-
-	delete_local_branching_constraint(env, lp);
-	return opt_current;
 }
