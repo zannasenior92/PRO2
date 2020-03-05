@@ -72,6 +72,9 @@
     <ClCompile Include="Local_Branching.c">
       <Filter>Heuristics</Filter>
     </ClCompile>
+    <ClCompile Include="Selected_edges.c">
+      <Filter>FileFunzioni</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h">

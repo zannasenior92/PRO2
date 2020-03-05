@@ -33,6 +33,7 @@
     <ClCompile Include="Models.c" />
     <ClCompile Include="MTZ.c" />
     <ClCompile Include="Parser.c" />
+    <ClCompile Include="Selected_edges.c" />
     <ClCompile Include="TSP.c" />
   </ItemGroup>
   <ItemGroup>

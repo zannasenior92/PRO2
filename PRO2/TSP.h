@@ -11,6 +11,7 @@
 
 #define VERBOSE 50
 #define TOLERANCE 0.5
+#define SELECTED_EDGES 50
 typedef struct {
 
 

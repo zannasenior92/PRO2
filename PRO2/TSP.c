@@ -20,7 +20,7 @@ void hard_fixing(CPXENVptr env, CPXLPptr lp, instance *inst, int seed, double pr
 void start_sol(instance *inst);
 void update_choosen_edge(instance* inst);
 double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timelimit, double prob, double opt);
-
+void selected_edges(instance *inst);
 void fix_nodes_local_branching(CPXENVptr env, CPXLPptr lp, instance *inst, double k);
 void delete_local_branching_constraint(CPXENVptr env, CPXLPptr lp);
 double loop_local_branching(instance *inst, CPXENVptr env, CPXLPptr lp, double timelimit, int k, double opt);
@@ -60,16 +60,16 @@ int TSPopt(instance *inst)
 	CPXsetdblparam(env, CPX_PARAM_TILIM, 60);
 	//printf("PARTO CON IL TEMPO=%f\n", (double)time(NULL));
 	//Imposto timelimit e chiamo loop per euristico
-	time_t timelimit1 = time(NULL) + 500;
+	time_t timelimit1 = time(NULL) + 10;
 	printf("-----------DIST HAMMING 2-----------\n");
 	opt_current = loop_local_branching(inst, env, lp, timelimit1, 2, opt_heu);
 	opt_heu = opt_current;
 	printf("-----------DIST HAMMING 5-----------\n");
-	time_t timelimit2 = time(NULL) + 500;
+	time_t timelimit2 = time(NULL) + 10;
 	opt_current = loop_local_branching(inst, env, lp, timelimit2, 5, opt_heu);
 	printf("-----------DIST HAMMING 8-----------\n");
 	
-	time_t timelimit3 = time(NULL) + 500;
+	time_t timelimit3 = time(NULL) + 10;
 	opt_current = loop_local_branching(inst, env, lp, timelimit3, 10, opt_heu);
 	opt_heu = opt_current;
 	
@@ -78,48 +78,7 @@ int TSPopt(instance *inst)
 	// hamming 2 con 900 87716
 	// hamming 8 con 900 81128
 	//printf("FINISCO CON IL TEMPO=%f\n", (double)time(NULL));
-	int count = 0;
-	int n = 0;
-	/*-------------------PRINT SELECTED EDGES(remember cplex tolerance)--------------*/
-	if (inst->compact == 1) {
-		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = 0; j < inst->nnodes; j++) {
-					if (inst->best_sol[xpos_compact(i, j, inst)] > TOLERANCE) {
-
-						if (VERBOSE >= 100) {
-							printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
-						}
-						/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
-						inst->choosen_edge[n] = i;
-						inst->choosen_edge[n + 1] = j;
-						n += 2;
-						count++;
-					}
-			}
-		}
-	}
-	else {
-		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = i+1; j < inst->nnodes; j++) {
-				if (inst->best_sol[xpos(i, j, inst)] > TOLERANCE) {
-
-					if (VERBOSE >= 100) {
-						printf("Il nodo (%d,%d) e' selezionato\n", i + 1, j + 1);
-					}
-					/*--ADD EDGES(VECTOR LENGTH = 2*nnodes TO SAVE NODES OF EVERY EDGE)--*/
-					inst->choosen_edge[n] = i;
-					inst->choosen_edge[n + 1] = j;
-					n += 2;
-					count++;
-				}
-			}
-		}
-	}
-	add_edge_to_file(inst);
-
-	if (VERBOSE >= 100) {
-		printf("Selected nodes: %d \n", count);
-	}
+	selected_edges(inst);
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 	printf("Object function optimal value is: %.0f\n", opt_current);
@@ -153,76 +112,4 @@ static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, v
 		*useraction_p = CPX_CALLBACK_SET; 		// tell CPLEX that cuts have been created
 	}
 	return 0;
-}
-
-double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timelimit,  double prob, double opt){
-	int fix = 1;
-	int finded = 0;
-	double opt_heu = opt;
-	double opt_current;																//VALUE OPTIMAL SOL
-
-	while (time(NULL) < timelimit) {
-		if (fix == 1) {
-			hard_fixing(env, lp, inst, time(NULL), prob);
-			fix = 0;
-		}
-		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
-		if (CPXgetstat(env, lp) == CPXMIP_INFEASIBLE) {
-			printf("PROBLEMA IMPOSSIBILE\n");
-			reset_lower_bound(inst, env, lp);
-			return -1;
-		}
-		if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
-		printf("Object function optimal value is: %.0f\n", opt_current);
-		if (opt_heu == opt_current) {
-			printf("Valori ottimi uguali, resetto\n");
-			reset_lower_bound(inst, env, lp);
-			fix = 1;
-
-		}
-		else {
-			if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
-			printf("Valori ottimi diversi, continuo\n");
-			if (CPXgetobjval(env, lp, &opt_heu)) print_error("Error getting optimal value");
-			printf("Object function optimal value is: %.0f\n", opt_heu);
-			
-		}
-	}
-	return opt_current;
-}
-
-double loop_local_branching(instance *inst, CPXENVptr env, CPXLPptr lp, double timelimit, int k, double opt) {
-	int fix = 1;
-	int finded = 0;
-	double opt_heu = opt;
-	double opt_current;																//VALUE OPTIMAL SOL
-
-	while (time(NULL) < timelimit) {
-		if (fix == 1) {
-			fix_nodes_local_branching(env, lp, inst, k);
-			fix = 0;
-		}
-		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
-		if (CPXgetstat(env, lp) == CPXMIP_INFEASIBLE) {
-			printf("PROBLEMA IMPOSSIBILE\n");
-			reset_lower_bound(inst, env, lp);
-			return -1;
-		}
-		if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
-		printf("Object function optimal value is: %.0f\n", opt_current);
-		if (opt_heu == opt_current) {
-			printf("Valori ottimi uguali, resetto\n");
-			delete_local_branching_constraint(env, lp);
-			fix = 1;
-
-		}
-		else {
-			if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
-			printf("Valori ottimi diversi, continuo\n");
-			if (CPXgetobjval(env, lp, &opt_heu)) print_error("Error getting optimal value");
-			printf("Object function optimal value is: %.0f\n", opt_heu);
-
-		}
-	}
-	return opt_current;
 }
