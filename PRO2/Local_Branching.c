@@ -18,7 +18,7 @@ double loop_local_branching(instance *inst, CPXENVptr env, CPXLPptr lp, double t
 		
 		int random = rand();
 		CPXsetintparam(env, CPX_PARAM_RANDOMSEED, random);
-
+		
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
 		if (CPXgetstat(env, lp) == CPXMIP_INFEASIBLE) {
 			printf("PROBLEMA IMPOSSIBILE\n");
@@ -27,9 +27,19 @@ double loop_local_branching(instance *inst, CPXENVptr env, CPXLPptr lp, double t
 		}
 		if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
 
-		if (VERBOSE > 50) printf("Object function optimal value is: %.0f\n", opt_current);
+		if (VERBOSE > 0) printf("Object function optimal value is: %.0f\n", opt_current);
+		
+		if (opt_current < opt_heu) {
+			if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
+			printf("Aggiorno minimo\n");
+			opt_heu = opt_current;
+		}
+		reset_lower_bound(inst, env, lp);
+		delete_local_branching_constraint(env, lp);
 
-		if (opt_heu == opt_current) {
+		fix_nodes_local_branching(env, lp, inst, k);
+
+		/*if (opt_heu == opt_current) {
 
 			if (VERBOSE > 50) printf("Valori ottimi uguali, resetto\n");
 			reset_lower_bound(inst, env, lp);
@@ -45,7 +55,8 @@ double loop_local_branching(instance *inst, CPXENVptr env, CPXLPptr lp, double t
 				reset_lower_bound(inst, env, lp);
 			}
 			//printf("Object function optimal value is: %.0f\n", opt_heu);
-		}
+			
+		}*/
 	}
 
 	delete_local_branching_constraint(env, lp);

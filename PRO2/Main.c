@@ -41,20 +41,33 @@ int main(int argc, char **argv) {
 		/*"rd400.tsp",
 		"pr439.tsp", 
 		"rat575.tsp",
-		"pcb442.tsp"*/
-		"att532.tsp"
-		
+		"pcb442.tsp"
+
+		"ali535.tsp",
+		"d493.tsp",
+		"fl417.tsp",
+		"gr431.tsp",
+		"lin318.tsp",
+		"p654.tsp", DA FARE
+		"rd400.tsp",
+		"pr439.tsp",
+		"rat575.tsp",
+		"pcb442.tsp",*/
+		"rat575.tsp",
+		"u574.tsp",
+		"u724.tsp",
+		"p654.tsp"
 	};
 
 	char name_file[100] = "";
 	for (int i = 0; i < sizeof(instances) / sizeof(instances[0]); i++) {
 
-		strcat(name_file, "C:\\Users\\Luca\\Documents\\FilesTSP\\");
+		strcat(name_file, "C:\\Users\\marco\\Documents\\RO2\\");
 		strcat(name_file, instances[i]);
 		printf("%s\n", name_file);
 		strcpy(inst.input_file, name_file);
 		read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
-		if (TSPopt(&inst, i+1000)) print_error(" error within TSPopt()");
+		if (TSPopt(&inst, i+10)) print_error(" error within TSPopt()");
 		strcpy(name_file, "");
 	}
 	free_instance(&inst);													//FREE MEMORY OCCUPIED BY instance TSP.h
