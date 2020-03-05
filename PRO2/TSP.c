@@ -34,7 +34,7 @@ int TSPopt(instance *inst)
 {
 	//inst->compact = 0;
 	int error;
-	double opt_heu, opt_current;
+	double opt_heu, opt_current;											//opt_heu = global optimal valure of heuristic :: opt_current = current valure of heuristic
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
 	
@@ -49,8 +49,7 @@ int TSPopt(instance *inst)
 
 	/*----TAKE THE BEST INITIAL SOLUTION WITH NEAREST NEIGHBORHOOD GRASP-------------*/
 	inst->best_sol= (double*)calloc(inst->ncols, sizeof(double));
-	double cost, min_cost;
-	min_cost = INFINITY;
+	opt_heu = INFINITY;
 	double *minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
 	int start_node = 0;
 	
@@ -58,9 +57,9 @@ int TSPopt(instance *inst)
 		for (int j = 0; j < inst->nnodes; j++) {
 			inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
 			
-			cost = nearest_neighborhood_GRASP(inst, env, lp, j, j);
-			if (cost < min_cost) {
-				min_cost = cost;
+			opt_current = nearest_neighborhood_GRASP(inst, env, lp, j, j);
+			if (opt_current < opt_heu) {
+				opt_heu = opt_current;
 				for (int k = 0; k < inst->ncols; k++) {
 					minimum_solution[k] = inst->best_sol[k];
 
@@ -69,7 +68,7 @@ int TSPopt(instance *inst)
 		}
 	}
 	
-	printf("\nBest Initial Cost After Nearest Neighborhood GRASP %f\n", min_cost);
+	printf("\nBest Initial Cost After Nearest Neighborhood GRASP %f\n", opt_heu);
 	for (int k = 0; k < inst->ncols; k++) {
 		inst->best_sol[k]= minimum_solution[k];
 	}
@@ -77,25 +76,13 @@ int TSPopt(instance *inst)
 
 	
 	/*-----------PRINT INITIAL SOLUTION-----------*/
-
-	/**********************************************/
-	/*BASTA METTERE IL METODO SELECTED EDGES PERCHE' FA TUTTE QUESTE TRE ISTRUZIONI*/
-
-	update_choosen_edge(inst);
-	add_edge_to_file(inst);
-	plot_gnuplot(inst);
+	selected_edges(inst);
 	/**********************************************/
 
-	free(minimum_solution);
-
-	/**********************************************************************************************/
-
-	/*NON CAPISCO L'USO DI min_cost E opt_curr POICHE' ALLA FINE SECONDO ME BASTAVA USARE SOLO min_cost*/
-	
-	/**********************************************************************************************/
+	free(minimum_solution);	
 
 	/*------------SET INITIAL OPTIMAL VALUE---------*/
-	opt_current = min_cost;
+	opt_current = opt_heu;
 	printf("Opt current %f opt calc %d\n", opt_current, cost_alg(inst));
 
 	/*------------SETTING OF CALLBACKS--------------*/
@@ -114,15 +101,9 @@ int TSPopt(instance *inst)
 	if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
 	printf("Object function optimal value is: %.0f\n", opt_current);
 	reset_lower_bound(inst, env, lp);
-
-
-	/**********************************************/
 	
-	/*BASTA METTERE IL METODO SELECTED EDGES*/
-	
-	update_choosen_edge(inst);
-	add_edge_to_file(inst);
-	plot_gnuplot(inst);
+	/*-----------PRINT INITIAL SOLUTION-----------*/
+	selected_edges(inst);
 	/**********************************************/
 
 	time_t time0 = time(NULL);
