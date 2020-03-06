@@ -2,7 +2,7 @@
 
 
 /*---------------------------DEFINING CONNECTED COMPONENTS---------------------------*/
-int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst) {
+int kruskal_sst(instance *inst) {
 	int c1, c2 = 0;
 	int n_connected_comp = 0;
 	int max = -1;

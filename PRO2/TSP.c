@@ -22,9 +22,9 @@ void start_sol(instance *inst);
 void update_choosen_edge(instance* inst);
 double nearest_neighborhood(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
 void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double prob);
-double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node);
-double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
-double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp);
+double nearest_neighborhood_GRASP(instance *inst, int start_node);
+double two_opt(instance *inst);
+double tabu_search(instance *inst);
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
 int TSPopt(instance *inst)
 {
@@ -51,7 +51,7 @@ int TSPopt(instance *inst)
 	for (int i = 0; i < 10; i++) {
 		for (int j = 0; j < inst->nnodes; j++) {
 			inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
-			cost = nearest_neighborhood_GRASP(inst, env, lp, j);
+			cost = nearest_neighborhood_GRASP(inst, j);
 			if (cost < min_cost) {
 				min_cost = cost;
 				minimum_solution = inst->best_sol;
@@ -68,12 +68,7 @@ int TSPopt(instance *inst)
 	/*---------------------SET INITIAL OPTIMAL VALUE TO INFINITE---------------------*/
 
 	opt_current = min_cost;
-	//SETTING OF CALLBACKS
-	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
-	CPXsetdblparam(env, CPX_PARAM_TILIM, 30);
-	CPXsetlazyconstraintcallbackfunc(env, add_SEC_lazy, inst);
-	int ncores = 1; CPXgetnumcores(env, &ncores);
-	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
+	
 	int local_minimum = 0;
 	double min_2opt = 0;
 	time_t timelimit = time(NULL) + 300;
@@ -81,7 +76,7 @@ int TSPopt(instance *inst)
 	/*----------------RUN 2-OPT TO FIND LOCAL MINIMUM--------------*/
 	while (time(NULL) < timelimit) {
 		
-		double delta = two_opt(inst, env, lp);
+		double delta = two_opt(inst);
 		printf("Delta: %f\n", delta);
 		opt_current += delta;
 		printf("New objective function: %f\n", opt_current);
@@ -105,7 +100,7 @@ int TSPopt(instance *inst)
 	int* edges = (int*)calloc(inst->ncols, sizeof(int));
 	while (time(NULL) < timelimit) {
 
-		double delta = tabu_search(inst, env, lp);
+		double delta = tabu_search(inst);
 
 		if (VERBOSE > 200) { printf("Delta: %f\n", delta); }
 
@@ -130,14 +125,14 @@ int TSPopt(instance *inst)
 
 
 	
-	/*---------------PRINT SELECTED EDGES--------------------------------------------*/
-	selected_edges(inst);
+	
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 	printf("Starting object function is: %.0f\n", min_cost);
 	printf("Object function after 2-OPT is: %.0f\n", min_2opt);
 	printf("Best object function value is: %.0f\n", best_solution);
-	plot_gnuplot(inst);
+	/*---------------PRINT SELECTED EDGES--------------------------------------------*/
+	selected_edges(inst);
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
 	CPXfclose(log);																//CLOSE LOG FILE
 	CPXfreeprob(env, &lp);

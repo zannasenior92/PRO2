@@ -9,12 +9,12 @@ void reverse_xpos(int x, instance* inst, int* nodes);
 void update_choosen_edge(instance* inst);
 void add_edge_to_file(instance *inst);
 void plot_gnuplot(instance *inst);
-int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
+int kruskal_sst(instance *inst);
 void reset_old_edges3(instance *inst, int old1, int old2, int old3, int new1, int new2, int new3);
 void set_new_edges3(instance *inst, int old1, int old2, int old3, int new1, int new2, int new3);
 
 
-double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
+double three_opt(instance *inst)
 {
 	//EDGES OF THE OPTIMAL SOLUTION STORED INTO AN ARRAY
 	int* edges = (int*)calloc(inst->nnodes, sizeof(int));
@@ -94,7 +94,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				/*-----------------UPDATE SELECTION----------------------*/
 				set_new_edges3(inst, old_edge1, old_edge2, old_edge3, curr_new_edge1, curr_new_edge2, curr_new_edge3);
 				/*-----CHECK IF AREN'T PRESENT CONNECTED COMPONENTS------*/
-				if (kruskal_sst(env, lp, inst) == 1)
+				if (kruskal_sst(inst) == 1)
 				{
 					if (deltaA < min_delta)
 					{
@@ -123,7 +123,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				/*-----------------UPDATE SELECTION----------------------*/
 				set_new_edges3(inst, old_edge1, old_edge2, old_edge3, curr_new_edge1, curr_new_edge2, curr_new_edge3);
 				/*-----CHECK IF AREN'T PRESENT CONNECTED COMPONENTS------*/
-				if (kruskal_sst(env, lp, inst) == 1)
+				if (kruskal_sst(inst) == 1)
 				{
 					if (deltaB < min_delta)
 					{
@@ -152,7 +152,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				/*-----------------UPDATE SELECTION----------------------*/
 				set_new_edges3(inst, old_edge1, old_edge2, old_edge3, curr_new_edge1, curr_new_edge2, curr_new_edge3);
 				/*-----CHECK IF AREN'T PRESENT CONNECTED COMPONENTS------*/
-				if (kruskal_sst(env, lp, inst) == 1)
+				if (kruskal_sst(inst) == 1)
 				{
 					if (deltaC < min_delta)
 					{
@@ -181,7 +181,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				/*-----------------UPDATE SELECTION----------------------*/
 				set_new_edges3(inst, old_edge1, old_edge2, old_edge3, curr_new_edge1, curr_new_edge2, curr_new_edge3);
 				/*-----CHECK IF AREN'T PRESENT CONNECTED COMPONENTS------*/
-				if (kruskal_sst(env, lp, inst) == 1)
+				if (kruskal_sst(inst) == 1)
 				{
 					if (deltaD < min_delta)
 					{
@@ -210,7 +210,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				/*-----------------UPDATE SELECTION----------------------*/
 				set_new_edges3(inst, old_edge1, old_edge2, old_edge3, curr_new_edge1, curr_new_edge2, curr_new_edge3);
 				/*-----CHECK IF AREN'T PRESENT CONNECTED COMPONENTS------*/
-				if (kruskal_sst(env, lp, inst) == 1)
+				if (kruskal_sst(inst) == 1)
 				{
 					if (deltaE < min_delta)
 					{
@@ -239,7 +239,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				/*-----------------UPDATE SELECTION----------------------*/
 				set_new_edges3(inst, old_edge1, old_edge2, old_edge3, curr_new_edge1, curr_new_edge2, curr_new_edge3);
 				/*-----CHECK IF AREN'T PRESENT CONNECTED COMPONENTS------*/
-				if (kruskal_sst(env, lp, inst) == 1)
+				if (kruskal_sst(inst) == 1)
 				{
 					if (deltaF < min_delta)
 					{
@@ -268,7 +268,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				/*-----------------UPDATE SELECTION----------------------*/
 				set_new_edges3(inst, old_edge1, old_edge2, old_edge3, curr_new_edge1, curr_new_edge2, curr_new_edge3);
 				/*-----CHECK IF AREN'T PRESENT CONNECTED COMPONENTS------*/
-				if (kruskal_sst(env, lp, inst) == 1)
+				if (kruskal_sst(inst) == 1)
 				{
 					if (deltaG < min_delta)
 					{
@@ -297,7 +297,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				/*-----------------UPDATE SELECTION----------------------*/
 				set_new_edges3(inst, old_edge1, old_edge2, old_edge3, curr_new_edge1, curr_new_edge2, curr_new_edge3);
 				/*-----CHECK IF AREN'T PRESENT CONNECTED COMPONENTS------*/
-				if (kruskal_sst(env, lp, inst) == 1)
+				if (kruskal_sst(inst) == 1)
 				{
 					if (deltaH < min_delta)
 					{
@@ -490,7 +490,7 @@ double vns(instance *inst, CPXENVptr env, CPXLPptr lp) {
 	inst->best_sol[new_edge3] = 1.0;
 
 	/*-----------------CHECK IF CONNECTED COMPONENTS ARE PRESENT-------------*/
-	if (kruskal_sst(env, lp, inst) == 1) {
+	if (kruskal_sst(inst) == 1) {
 		if (THREE_OPT > 400)
 		{
 			printf("RESET %d;%d , %d;%d e %d;%d, AND ADD %d;%d , %d;%d e %d;%d \n",

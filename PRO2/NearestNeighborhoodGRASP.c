@@ -6,7 +6,7 @@ int xpos(int i, int j, instance *inst);
 
 
 /*--------------GREEDY ALGORITHM TO FIND A INITIAL SOLUTION FOR THE TSP PROBLEM---------------*/
-double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node)
+double nearest_neighborhood_GRASP(instance *inst, int start_node)
 {
 	int starting_node = start_node; //INITIAL NODE
 	//printf("Initial Node: %d \n", starting_node + 1);

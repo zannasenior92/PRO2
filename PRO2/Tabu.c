@@ -7,10 +7,10 @@ void reverse_xpos(int x, instance* inst, int* nodes);
 void update_choosen_edge(instance* inst);
 void add_edge_to_file(instance *inst);
 void plot_gnuplot(instance *inst);
-int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
+int kruskal_sst(instance *inst);
 
 /*-----------------------------2-OPT ALGORITHM---------------------------------------*/
-double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp) {
+double tabu_search(instance *inst) {
 	//scrivo gli archi della soluzione ottima in un array
 	int* edges = (int*)calloc(inst->nnodes, sizeof(int));
 	int n = 0;
@@ -76,7 +76,7 @@ double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp) {
 					inst->best_sol[min_new_edge1] = 1.0;
 					inst->best_sol[min_new_edge2] = 1.0;
 					
-					if (kruskal_sst(env, lp, inst) == 1) {
+					if (kruskal_sst(inst) == 1) {
 						
 						//mi salvo il minore delta trovato e gli archi associati
 						//la prima volta che faccio tabu search salto lo scambio che mi da delta=0

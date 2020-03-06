@@ -7,10 +7,10 @@ void reverse_xpos(int x, instance* inst, int* nodes);
 void update_choosen_edge(instance* inst);
 void add_edge_to_file(instance *inst);
 void plot_gnuplot(instance *inst);
-int kruskal_sst(CPXENVptr env, CPXLPptr lp, instance *inst);
+int kruskal_sst(instance *inst);
 
 /*-----------------------------2-OPT ALGORITHM---------------------------------------*/
-double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
+double two_opt(instance *inst){
 	//scrivo gli archi della soluzione ottima in un array
 	int* edges = (int*)calloc(inst->nnodes, sizeof(int));
 	int n = 0;
@@ -78,7 +78,7 @@ double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp){
 					printf("best_sol[%d]=%f\n", min_new_edge1, inst->best_sol[min_new_edge1]);
 					printf("best_sol[%d]=%f\n", min_new_edge2, inst->best_sol[min_new_edge2]);
 					*/
-					if (kruskal_sst(env, lp, inst) == 1) {
+					if (kruskal_sst(inst) == 1) {
 						/*printf("AZZERO %d, %d e %d, %d, e aggiungo %d, %d e %d %d \n",
 							nodes_edge1[0]+1, nodes_edge1[1] + 1, nodes_edge2[0] + 1, nodes_edge2[1] + 1,
 							nodes_edge1[0]+1, nodes_edge2[1] + 1, nodes_edge1[1] + 1, nodes_edge2[0] + 1);
