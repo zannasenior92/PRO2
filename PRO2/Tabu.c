@@ -86,13 +86,7 @@ double tabu_search(instance *inst) {
 							//Se la tabu list non è già stata completata (quindi azzerato il tabu index)
 							if (inst->tabu_list_complete == 0) {
 								for (int k = 0; k < inst->tabu_index; k += 4) {
-									//printf("k=%d \n", k);
-									//printf("controllo nuovo %d - tabu %d / vecchio %d - t %d / %d - %d / %d - %d con k=%d\n", min_new_edge1, inst->tabu_list[k], old_edge1,
-										//inst->tabu_list[k + 1], min_new_edge2, inst->tabu_list[k + 2], old_edge2, inst->tabu_list[k + 3], k);
-									/*if ((((min_new_edge1 == inst->tabu_list[k]) && (old_edge1 == inst->tabu_list[k + 1])) &&
-										((min_new_edge2 == inst->tabu_list[k + 2]) && (old_edge2 == inst->tabu_list[k + 3]))) ||
-										((min_new_edge2 == inst->tabu_list[k]) && (old_edge2 == inst->tabu_list[k + 1])) &&
-										((min_new_edge1 == inst->tabu_list[k + 2]) && (old_edge1 == inst->tabu_list[k + 3]))) */
+									
 									if (((min_new_edge1 == inst->tabu_list[k]) && (old_edge1 == inst->tabu_list[k + 1])) ||
 										((old_edge1 == inst->tabu_list[k]) && (min_new_edge1 == inst->tabu_list[k + 1]))) {
 										
@@ -109,12 +103,7 @@ double tabu_search(instance *inst) {
 							}
 							else {
 								for (int k = 0; k < 200; k += 4) {
-									//printf("controllo %d - %d / %d - %d / %d - %d / %d - %d\n", min_new_edge1, inst->tabu_list[k], old_edge1,
-									//inst->tabu_list[k + 1], min_new_edge2, inst->tabu_list[k + 2], old_edge2, inst->tabu_list[k + 3]);
-									/*if ((((min_new_edge1 == inst->tabu_list[k]) && (old_edge1 == inst->tabu_list[k + 1])) &&
-										((min_new_edge2 == inst->tabu_list[k + 2]) && (old_edge2 == inst->tabu_list[k + 3]))) ||
-										((min_new_edge2 == inst->tabu_list[k]) && (old_edge2 == inst->tabu_list[k + 1])) &&
-										((min_new_edge1 == inst->tabu_list[k + 2]) && (old_edge1 == inst->tabu_list[k + 3])))*/
+									
 									if (((min_new_edge1 == inst->tabu_list[k]) && (old_edge1 == inst->tabu_list[k + 1]))||
 										((old_edge1 == inst->tabu_list[k]) && (min_new_edge1 == inst->tabu_list[k + 1]))) {
 
@@ -195,20 +184,6 @@ double tabu_search(instance *inst) {
 	}
 	printf("DELTA MIN  %.0f \n", min_delta);
 	//printf("scambio %d con %d e %d con %d\n", candidate_old_edge1, candidate_edge1, candidate_old_edge2, candidate_edge2);
-	//if(inst->tabu_flag ==0) inst->tabu_flag = 1;
-	/*printf("-----------tabu list---------------\n");
-	if (inst->tabu_list_complete == 0) {
-		for (int k = 0; k < inst->tabu_index; k++) {
-			printf("%d = %d\n", k, inst->tabu_list[k]);
-			
-		}
-	}
-	else {
-		for (int k = 0; k < 200; k++) {
-			printf("%d = %d\n", k, inst->tabu_list[k]);
-			
-		}
-	}*/
 	
 	free(nodes_edge1);
 	free(nodes_edge2);
