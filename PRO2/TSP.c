@@ -42,7 +42,7 @@ int TSPopt(instance *inst)
 	
 	inst->ncols = CPXgetnumcols(env, lp);
 	//START WITH TRIVIAL INITIAL SOLUZION 1->2->3-...->n-1->1
-	//start_sol(inst);
+
 	inst->best_sol= (double*)calloc(inst->ncols, sizeof(double));
 	double cost, min_cost;
 	min_cost = INFINITY;
@@ -58,33 +58,15 @@ int TSPopt(instance *inst)
 			}
 		}
 	}
-	//CODICE PER TROVARE NEAREST NEIGHBOORHOOD CHE SCORRE TUTTI I NODI
-	/*for (int i = 0; i < inst->nnodes; i++) {
-		cost = nearest_neighborhood(inst, env, lp, i);
-		if (cost < min_cost) {
-			min_cost = cost;
-			start_node = i;
-		}
-	}*/
 
 	printf("\nBest Initial Cost After Nearest Neighborhood %f\n", min_cost);
 	inst->best_sol = minimum_solution;
-	/*inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
-	cost = nearest_neighborhood(inst, env, lp, start_node);
-	hard_fixing(inst, env, lp, 1, 1);//SET ALL EDGES
-	if (CPXmipopt(env, lp)) print_error("Error resolving model");
-	if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
-	printf("Object function optimal value is: %.0f\n", opt_current);
-	reset_lower_bound(inst, env, lp);
-	*/
+	
 	/*-------PRINT INITIAL SOLUTION--------*/
-	update_choosen_edge(inst);
-	add_edge_to_file(inst);
-	plot_gnuplot(inst);
+	selected_edges(inst);
 	
-	
-	//SET INITIAL OPTIMAL VALUE TO INFINITE
-	//opt_heu = min_cost;
+	/*---------------------SET INITIAL OPTIMAL VALUE TO INFINITE---------------------*/
+
 	opt_current = min_cost;
 	//SETTING OF CALLBACKS
 	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
@@ -96,7 +78,7 @@ int TSPopt(instance *inst)
 	double min_2opt = 0;
 	time_t timelimit = time(NULL) + 300;
 	printf("--------------------2-OPT-------------------\n");
-	//ESEGUO 2-OPT per trovare minimo locale
+	/*----------------RUN 2-OPT TO FIND LOCAL MINIMUM--------------*/
 	while (time(NULL) < timelimit) {
 		
 		double delta = two_opt(inst, env, lp);
@@ -110,7 +92,7 @@ int TSPopt(instance *inst)
 		
 
 	}
-	//ESEGUO ORA TABU SEARCH
+	/*------------------------TABU SEARCH---------------------*/
 	printf("--------------------TABU-------------------\n");
 
 	timelimit = time(NULL) + 300;
@@ -124,19 +106,21 @@ int TSPopt(instance *inst)
 	while (time(NULL) < timelimit) {
 
 		double delta = tabu_search(inst, env, lp);
-		//printf("Delta: %f\n", delta);
+
+		if (VERBOSE > 200) { printf("Delta: %f\n", delta); }
+
 		opt_current += delta;
 		printf("New objective function: %f\n\n", opt_current);
 		if (opt_current < best_solution) {
 			best_solution = opt_current;
-			//scrivo gli archi della soluzione ottima in un array
+			//WRITE ARCS OF SOLUTION INTO AN ARRAY
 			for (int i = 0; i < inst->ncols; i++) {
 				edges[i] = inst->best_sol[i];
 			}
 		}
 	}
 
-	//scrivo la miglior soluzione trovata nell'instanza
+	//WRITE BEST SOLUTION FOUNDED IN THE INSTANCE
 	for (int k = 0; k < inst->ncols; k++) {
 		inst->best_sol[k] = edges[k];
 	}
@@ -177,7 +161,6 @@ static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, v
 
 	/*APPLY CUT SEPARATOR-ADD CONSTRAINTS FOR EVERY CONNECTED COMPONENT AND RETURN NUMBER OF ADDED CONSTRAINTS*/
 	int ncuts = myseparation(inst, xstar, env, cbdata, wherefrom);
-	//Free space in xstar
 	free(xstar);
 
 	if (ncuts >= 1) {
