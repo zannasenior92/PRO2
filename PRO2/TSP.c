@@ -119,13 +119,7 @@ int TSPopt(instance *inst)
 	for (int k = 0; k < inst->ncols; k++) {
 		inst->best_sol[k] = edges[k];
 	}
-	
-	
-	
-
-
-	
-	
+		
 	/*-------------------------------------------------------------------------------*/
 	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
 	printf("Starting object function is: %.0f\n", min_cost);
@@ -137,29 +131,5 @@ int TSPopt(instance *inst)
 	CPXfclose(log);																//CLOSE LOG FILE
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
-	return 0;
-}
-
-
-
-/*------------------------ADD SUBTOUR ELIMINATION CONSTRAINTS------------------------*/
-
-static int CPXPUBLIC add_SEC_lazy(CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle, int *useraction_p) {
-	*useraction_p = CPX_CALLBACK_DEFAULT;			//Dico che non ho fatto niente 
-	instance* inst = (instance *)cbhandle; 			// casting of cbhandle to have the instance
-
-	/*-------------GET XSTAR SOLUTION--------------------------*/
-	double *xstar = (double*)calloc(inst->ncols, sizeof(double));
-
-	/*--------------CALL THE CALLBACK--------------------------------------------------------------------------*/
-	if (CPXgetcallbacknodex(env, cbdata, wherefrom, xstar, 0, inst->ncols - 1)) print_error("Error in callback");
-
-	/*APPLY CUT SEPARATOR-ADD CONSTRAINTS FOR EVERY CONNECTED COMPONENT AND RETURN NUMBER OF ADDED CONSTRAINTS*/
-	int ncuts = myseparation(inst, xstar, env, cbdata, wherefrom);
-	free(xstar);
-
-	if (ncuts >= 1) {
-		*useraction_p = CPX_CALLBACK_SET; 		// tell CPLEX that cuts have been created
-	}
 	return 0;
 }
