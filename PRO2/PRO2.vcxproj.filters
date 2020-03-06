@@ -78,10 +78,13 @@
     <ClCompile Include="NearestNeighborhoodGRASP.c">
       <Filter>Heuristics</Filter>
     </ClCompile>
-    <ClCompile Include="TwoOpt.c">
+    <ClCompile Include="Tabu.c">
       <Filter>Heuristics</Filter>
     </ClCompile>
-    <ClCompile Include="Tabu.c">
+    <ClCompile Include="3-OPT.c">
+      <Filter>Heuristics</Filter>
+    </ClCompile>
+    <ClCompile Include="2-OPT.c">
       <Filter>Heuristics</Filter>
     </ClCompile>
   </ItemGroup>

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="3-OPT.c" />
     <ClCompile Include="HardFixing.c" />
     <ClCompile Include="myseparation.c" />
     <ClCompile Include="comandiGnuplot.c" />
@@ -37,7 +38,7 @@
     <ClCompile Include="SelectedEdges.c" />
     <ClCompile Include="Tabu.c" />
     <ClCompile Include="TSP.c" />
-    <ClCompile Include="TwoOpt.c" />
+    <ClCompile Include="2-OPT.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TSP.h" />
