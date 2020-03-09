@@ -46,10 +46,10 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 
 	if (n == 1)//IF IT HAS A SINGLE CONNECTED COMPONENT I DON'T ADD CONSTRAINTS AND EXIT
 	{
-		if (MYSEPARATION >=1){printf("%d componenti connesse qui\n", n);}
+		if (MYSEPARATION >=100){printf("%d componenti connesse qui\n", n);}
 		return 0;
 	}
-	if (MYSEPARATION >=1){printf("%d componenti connesse", n);}
+	if (MYSEPARATION >=100){printf("%d componenti connesse", n);}
 
 	/*-----------------------ADD CONSTRAINTS-------------------------*/
 	int nnz = 0;
@@ -81,7 +81,7 @@ int myseparation(instance *inst, double *xstar, CPXCENVptr env, void *cbdata, in
 	free(index);
 	free(value);
 
-	if (MYSEPARATION >=1){printf("    Aggiunti %d vincoli\n", count);}
+	if (MYSEPARATION >=100){printf("    Aggiunti %d vincoli\n", count);}
 
 	return count;
 }

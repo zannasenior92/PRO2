@@ -47,8 +47,7 @@ int TSPopt(instance *inst, int i)
 
 	/*----TAKE THE BEST INITIAL SOLUTION WITH NEAREST NEIGHBORHOOD GRASP-------------*/
 	inst->best_sol= (double*)calloc(inst->ncols, sizeof(double));
-	double cost, min_cost;
-	min_cost = INFINITY;
+	opt_heu = INFINITY;
 	double *minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
 	int start_node = 0;
 	
@@ -56,9 +55,9 @@ int TSPopt(instance *inst, int i)
 		for (int j = 0; j < inst->nnodes; j++) {
 			inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
 			
-			cost = nearest_neighborhood_GRASP(inst, env, lp, j, j);
-			if (cost < min_cost) {
-				min_cost = cost;
+			opt_current= nearest_neighborhood_GRASP(inst, env, lp, j, j);
+			if (opt_current < opt_heu) {
+				opt_heu = opt_current;
 				for (int k = 0; k < inst->ncols; k++) {
 					minimum_solution[k] = inst->best_sol[k];
 
@@ -67,7 +66,7 @@ int TSPopt(instance *inst, int i)
 		}
 	}
 	
-	printf("\nBest Initial Cost After Nearest Neighborhood GRASP %f\n", min_cost);
+	printf("\nBest Initial Cost After Nearest Neighborhood GRASP %f\n", opt_heu);
 	for (int k = 0; k < inst->ncols; k++) {
 		inst->best_sol[k]= minimum_solution[k];
 	}
@@ -76,7 +75,7 @@ int TSPopt(instance *inst, int i)
 	free(minimum_solution);
 
 	
-	opt_current = min_cost;
+	opt_current = opt_heu;
 
 	/*------------SETTING OF CALLBACKS--------------*/
 	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
@@ -103,10 +102,12 @@ int TSPopt(instance *inst, int i)
 	printf("-----------SET 60%%-----------\n");
 	opt_current= loop_hard_fixing(inst, env, lp, (double)timelimit1, 0.6, opt_heu);
 	opt_heu = opt_current;
+	printf("Object function optimal value is: %.0f\n", opt_current);
 	printf("-----------SET 40%%-----------\n");
 	time_t timelimit2 = time(NULL) + 1200;
 	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit2, 0.4, opt_heu);
 	opt_heu = opt_current;
+	printf("Object function optimal value is: %.0f\n", opt_current);
 	printf("-----------SET 20%%-----------\n");
 	time_t timelimit3 = time(NULL) + 1200;
 	opt_current = loop_hard_fixing(inst, env, lp, (double)timelimit3, 0.2, opt_heu);

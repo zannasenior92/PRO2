@@ -49,15 +49,12 @@ void hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, int seed, double pr
 
 /*---------------------------------------HARD FIXING LOOP--------------------------------------------*/
 double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timelimit, double prob, double opt) {
-	int fix = 1;
-	double min_cost = opt;
+	double opt_heu = opt;
 	double opt_current;																//VALUE OPTIMAL SOL
 
 	while (time(NULL) < timelimit) {
-		if (fix == 1) {
-			hard_fixing(inst, env, lp, time(NULL), prob);
-			fix = 0;
-		}
+		hard_fixing(inst, env, lp, time(NULL), prob);
+		
 		if (CPXmipopt(env, lp)) print_error("Error resolving the model\n");
 		if (CPXgetstat(env, lp) == CPXMIP_INFEASIBLE) {
 			printf("IMPOSSIBLE PROBLEM\n");
@@ -66,24 +63,13 @@ double loop_hard_fixing(instance *inst, CPXENVptr env, CPXLPptr lp, double timel
 		}
 		if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
 		//printf("Object function optimal value is: %.0f\n", opt_current);
-		if (min_cost == opt_current) {
-			//printf("Equal optimal values, reset\n");
-			reset_lower_bound(inst, env, lp);
-			fix = 1;
-		}
-		else if(opt_current < min_cost){
+		if (opt_current < opt_heu) {
 			if (CPXgetx(env, lp, inst->best_sol, 0, inst->ncols - 1)) print_error("no solution avaialable");
-			//printf("Different optimal values, continue\n");
-			min_cost = opt_current;
-			//printf("Object function optimal value is: %.0f\n", min_cost);
+			opt_heu = opt_current;
 		}
-		/*WORST SOLUTION, RESET LOWER BOUND*/
-		else
-		{
-			reset_lower_bound(inst, env, lp);
-		}
+		reset_lower_bound(inst, env, lp);
 	}
-	return opt_current;
+	return opt_heu;
 }
 
 /*FUNZIONE CHE RESETTA TUTTI I LOWER BOUND DI TUTTE LE VARIABILI*/
