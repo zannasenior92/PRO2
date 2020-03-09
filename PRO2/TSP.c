@@ -26,7 +26,7 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
 double tabu_search(instance *inst, CPXENVptr env, CPXLPptr lp);
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
-int TSPopt(instance *inst)
+int TSPopt(instance *inst, int i)
 {
 	inst->compact = 0;
 	int error;
@@ -34,75 +34,41 @@ int TSPopt(instance *inst)
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
 	build_model(inst, env, lp);
-	//select_and_build_model(inst, env, lp);
-	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);									//Per visualizzare a video
-	FILE* log = CPXfopen("log.txt", "w");
 	
 
 	
 	inst->ncols = CPXgetnumcols(env, lp);
-	//START WITH TRIVIAL INITIAL SOLUZION 1->2->3-...->n-1->1
-	//start_sol(inst);
+	
 	inst->best_sol= (double*)calloc(inst->ncols, sizeof(double));
-	double cost, min_cost;
-	min_cost = INFINITY;
+	double cost;
+	opt_heu = INFINITY;
 	double *minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
 	int start_node = 0;
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 20; i++) {
 		for (int j = 0; j < inst->nnodes; j++) {
 			inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
 			cost = nearest_neighborhood_GRASP(inst, env, lp, j);
-			if (cost < min_cost) {
-				min_cost = cost;
+			if (cost < opt_heu) {
+				opt_heu = cost;
 				minimum_solution = inst->best_sol;
 			}
 		}
 	}
-	//CODICE PER TROVARE NEAREST NEIGHBOORHOOD CHE SCORRE TUTTI I NODI
-	/*for (int i = 0; i < inst->nnodes; i++) {
-		cost = nearest_neighborhood(inst, env, lp, i);
-		if (cost < min_cost) {
-			min_cost = cost;
-			start_node = i;
-		}
-	}*/
-
-	printf("\nBest Initial Cost After Nearest Neighborhood %f\n", min_cost);
+	
+	printf("\nBest Initial Cost After Nearest Neighborhood %f\n", opt_heu);
 	inst->best_sol = minimum_solution;
-	/*inst->best_sol = (double*)calloc(inst->ncols, sizeof(double));
-	cost = nearest_neighborhood(inst, env, lp, start_node);
-	hard_fixing(inst, env, lp, 1, 1);//SET ALL EDGES
-	if (CPXmipopt(env, lp)) print_error("Error resolving model");
-	if (CPXgetobjval(env, lp, &opt_current)) print_error("Error getting optimal value");
-	printf("Object function optimal value is: %.0f\n", opt_current);
-	reset_lower_bound(inst, env, lp);
-	*/
-	/*-------PRINT INITIAL SOLUTION--------*/
-	update_choosen_edge(inst);
-	add_edge_to_file(inst);
-	plot_gnuplot(inst);
 	
-	
-	//SET INITIAL OPTIMAL VALUE TO INFINITE
-	//opt_heu = min_cost;
-	opt_current = min_cost;
-	//SETTING OF CALLBACKS
-	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
-	CPXsetdblparam(env, CPX_PARAM_TILIM, 30);
-	CPXsetlazyconstraintcallbackfunc(env, add_SEC_lazy, inst);
-	int ncores = 1; CPXgetnumcores(env, &ncores);
-	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
-	int local_minimum = 0;
+	opt_current = opt_heu;
+
 	double min_2opt = 0;
-	time_t timelimit = time(NULL) + 300;
+	time_t timelimit = time(NULL) + 3600;
 	printf("--------------------2-OPT-------------------\n");
 	//ESEGUO 2-OPT per trovare minimo locale
 	while (time(NULL) < timelimit) {
 		
 		double delta = two_opt(inst, env, lp);
-		printf("Delta: %f\n", delta);
 		opt_current += delta;
-		printf("New objective function: %f\n", opt_current);
+		
 		if (delta == 0.0) {
 			min_2opt = opt_current;
 			break;
@@ -110,54 +76,22 @@ int TSPopt(instance *inst)
 		
 
 	}
-	//ESEGUO ORA TABU SEARCH
-	printf("--------------------TABU-------------------\n");
-
-	timelimit = time(NULL) + 300;
-	int size = 0;
-	inst->tabu_list = (int*)calloc(200, sizeof(int));
-	inst->tabu_index = 0;
-	inst->tabu_flag = 0;
-	inst->tabu_list_complete = 0;
-	double best_solution = INFINITY;
-	int* edges = (int*)calloc(inst->ncols, sizeof(int));
-	while (time(NULL) < timelimit) {
-
-		double delta = tabu_search(inst, env, lp);
-		//printf("Delta: %f\n", delta);
-		opt_current += delta;
-		printf("New objective function: %f\n\n", opt_current);
-		if (opt_current < best_solution) {
-			best_solution = opt_current;
-			//scrivo gli archi della soluzione ottima in un array
-			for (int i = 0; i < inst->ncols; i++) {
-				edges[i] = inst->best_sol[i];
-			}
-		}
-	}
-
-	//scrivo la miglior soluzione trovata nell'instanza
-	for (int k = 0; k < inst->ncols; k++) {
-		inst->best_sol[k] = edges[k];
-	}
-	
-	
-	
-
-
-	
-	/*---------------PRINT SELECTED EDGES--------------------------------------------*/
-	selected_edges(inst);
-	/*-------------------------------------------------------------------------------*/
-	/*-----------------------FIND AND PRINT THE OPTIMAL SOLUTION---------------------*/
-	printf("Starting object function is: %.0f\n", min_cost);
-	printf("Object function after 2-OPT is: %.0f\n", min_2opt);
-	printf("Best object function value is: %.0f\n", best_solution);
-	plot_gnuplot(inst);
-	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
-	CPXfclose(log);																//CLOSE LOG FILE
+	printf("New objective function: %f\n", opt_current);
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
+
+	inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
+	char out_file[100] = "";
+	strcat(out_file, "file");
+	char iter[5] = "";
+	sprintf(iter, "%d", i);
+	strcat(out_file, iter);
+	strcat(out_file, ".txt");
+	FILE* output = fopen(out_file, "w");
+
+	fprintf(output, "2-OPT,%s,%f,123456", inst->input_file_name, opt_current);
+
+	fclose(output);
 	return 0;
 }
 
