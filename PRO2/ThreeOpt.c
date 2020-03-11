@@ -87,6 +87,8 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				new_distA3 = dist(nodes_edge3[0], nodes_edge1[1], inst);
 				//---------SEE THE DIFFERENCE
 				double deltaA = new_distA1 + new_distA2 + new_distA3 - edge1_length - edge2_length - edge3_length;
+
+				printf("\nDelta A %f\n", deltaA);
 				//---------TRY TO SELECT THESE EDGES	
 				curr_new_edge1 = xpos(nodes_edge1[0], nodes_edge2[1], inst);
 				curr_new_edge2 = xpos(nodes_edge2[0], nodes_edge3[1], inst);
@@ -116,6 +118,8 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				new_distB3 = dist(nodes_edge3[1], nodes_edge2[1], inst);
 				//---------SEE THE DIFFERENCE
 				double deltaB = new_distB1 + new_distB2 + new_distB3 - edge1_length - edge2_length - edge3_length;
+
+				printf("\nDelta B %f\n", deltaB);
 				//---------TRY TO SELECT THESE EDGES	
 				curr_new_edge1 = xpos(nodes_edge1[0], nodes_edge2[0], inst);
 				curr_new_edge2 = xpos(nodes_edge1[1], nodes_edge3[0], inst);
@@ -145,6 +149,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				new_distC3 = dist(nodes_edge3[0], nodes_edge2[0], inst);
 				//---------SEE THE DIFFERENCE
 				double deltaC = new_distC1 + new_distC2 + new_distC3 - edge1_length - edge2_length - edge3_length;
+				printf("\nDelta C %f\n", deltaC);
 				//---------TRY TO SELECT THESE EDGES	
 				curr_new_edge1 = xpos(nodes_edge1[0], nodes_edge2[1], inst);
 				curr_new_edge2 = xpos(nodes_edge1[1], nodes_edge3[1], inst);
@@ -174,6 +179,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				new_distD3 = dist(nodes_edge3[1], nodes_edge2[0], inst);
 				//---------SEE THE DIFFERENCE
 				double deltaD = new_distD1 + new_distD2 + new_distD3 - edge1_length - edge2_length - edge3_length;
+				printf("\nDelta D %f\n", deltaD);
 				//---------TRY TO SELECT THESE EDGES	
 				curr_new_edge1 = xpos(nodes_edge1[1], nodes_edge2[1], inst);
 				curr_new_edge2 = xpos(nodes_edge1[0], nodes_edge3[0], inst);
@@ -203,6 +209,7 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				new_distD3 = dist(nodes_edge1[0], nodes_edge3[1], inst);
 				//---------SEE THE DIFFERENCE
 				double deltaE = new_distD1 + new_distD2 + new_distD3 - edge1_length - edge2_length - edge3_length;
+				printf("\nDelta E %f\n", deltaE);
 				//---------TRY TO SELECT THESE EDGES	
 				curr_new_edge1 = xpos(nodes_edge1[1], nodes_edge2[1], inst);
 				curr_new_edge2 = xpos(nodes_edge2[0], nodes_edge3[0], inst);
@@ -232,6 +239,8 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				new_distD3 = dist(nodes_edge2[1], nodes_edge3[1], inst);
 				//---------SEE THE DIFFERENCE
 				double deltaF = new_distD1 + new_distD2 + new_distD3 - edge1_length - edge2_length - edge3_length;
+
+				printf("\nDelta F %f\n", deltaF);
 				//---------TRY TO SELECT THESE EDGES	
 				curr_new_edge1 = xpos(nodes_edge1[1], nodes_edge2[0], inst);
 				curr_new_edge2 = xpos(nodes_edge1[0], nodes_edge3[0], inst);
@@ -261,6 +270,8 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				new_distD3 = dist(nodes_edge2[1], nodes_edge3[0], inst);
 				//---------SEE THE DIFFERENCE
 				double deltaG = new_distD1 + new_distD2 + new_distD3 - edge1_length - edge2_length - edge3_length;
+
+				printf("\nDelta G %f\n", deltaG);
 				//---------TRY TO SELECT THESE EDGES	
 				curr_new_edge1 = xpos(nodes_edge1[1], nodes_edge2[0], inst);
 				curr_new_edge2 = xpos(nodes_edge1[0], nodes_edge3[1], inst);
@@ -290,6 +301,8 @@ double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp)
 				new_distD3 = dist(nodes_edge2[1], nodes_edge3[0], inst);
 				//---------SEE THE DIFFERENCE
 				double deltaH = new_distD1 + new_distD2 + new_distD3 - edge1_length - edge2_length - edge3_length;
+
+				printf("\nDelta H %f\n", deltaH);
 				//---------TRY TO SELECT THESE EDGES	
 				curr_new_edge1 = xpos(nodes_edge1[1], nodes_edge3[1], inst);
 				curr_new_edge2 = xpos(nodes_edge1[0], nodes_edge2[0], inst);

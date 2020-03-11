@@ -6,7 +6,7 @@ int xpos(int i, int j, instance *inst);
 double cost_alg(instance* inst);
 
 /*--------------GREEDY ALGORITHM TO FIND A INITIAL SOLUTION FOR THE TSP PROBLEM---------------*/
-double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node, int seed)
+double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node)
 {
 	inst->choosen_nodes = (int *)malloc(inst->nnodes * sizeof(int));
 	int starting_node = start_node; //INITIAL NODE
@@ -22,7 +22,6 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 	selected_nodes[start_node] = 1;										//START NODE SELECTED
 	inst->choosen_nodes[n] = start_node;								//INITIAL NODE
 	int j = 0;
-	srand(seed);
 	double random;														//START NODE
 
 	/*------------------------FIND THE CIRCUIT------------------------*/
