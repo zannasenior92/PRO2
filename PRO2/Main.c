@@ -7,7 +7,7 @@ void parse_command_line(int argc, char** argv, instance *inst);
 void read_input(instance *inst);
 void plot_gnuplot(instance *inst);
 int xpos(int i, int j, instance *inst);
-int TSPopt(instance *inst);
+int TSPopt(instance *inst, int i);
 double dist(int i, int j, instance *inst);
 void print_error(const char *err) { printf("\n\n ERROR: %s \n\n", err); fflush(NULL); exit(1); } 
 void free_instance(instance *inst) {
@@ -19,26 +19,56 @@ void free_instance(instance *inst) {
 
 /*----------------------------------------MAIN-------------------------------------------*/
 int main(int argc, char **argv) {
-	
 	instance inst;															//CREATE VARIABLE inst OF TYPE instance
 	inst.model_type = 0;
-	parse_command_line(argc, argv, &inst);									//keep the arguments of the command line
-	read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
-	printf("Input used: %s\n", inst.input_file_name);
+	char* instances[] = {
+		/*
+		0 "att532.tsp",
+		1 "ali535.tsp",
+		2 "d493.tsp",
+		3 "fl417.tsp",
+		4 "gr431.tsp",
+		5 "lin318.tsp",
+		6 "rd400.tsp",
+		7 "pr439.tsp",*/
+		/* to do "d657.tsp"
+		8 "pcb442.tsp",
+		9 "rat575.tsp",
+		10 "u574.tsp",
+		11 "u724.tsp",
+		12 "p654.tsp",
+		13 "d657.tsp"*/
+		
+		/*"att532.tsp",
+		"ali535.tsp",
+		"d493.tsp",
+		"fl417.tsp",
+		"gr431.tsp"
+		"lin318.tsp",
+		"rd400.tsp",*/
+		/*"pr439.tsp",
+		"pcb442.tsp",
+		"u574.tsp",
+		"u724.tsp",
+		"rat575.tsp"
+		"p654.tsp",*/
+		"d657.tsp"
+	};
 
+	char name_file[100] = "";
+	for (int i = 0; i < sizeof(instances) / sizeof(instances[0]); i++) {
 
-	if(VERBOSE>=200){
-		printf("Il file di input e': %s\n", inst.input_file);
-		for (int i = 0; i < inst.nnodes; i++) {
-			printf("Capitale %d coord x:%.0f coord y:%.0f\n", i + 1, inst.xcoord[i], inst.ycoord[i]);
-		}
-
+		strcat(name_file, "C:\\Users\\marco\\Documents\\RO2\\");
+		strcat(name_file, instances[i]);
+		printf("%s\n", name_file);
+		strcpy(inst.input_file, name_file);
+		read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
+		if (TSPopt(&inst, i+13)) print_error(" error within TSPopt()");
+		strcpy(name_file, "");
 	}
-
-	if (TSPopt(&inst)) print_error(" error within TSPopt()");
-	//plot_gnuplot(&inst);													//PLOT COORDINATES IN GNUPLOT WINDOW
 	free_instance(&inst);													//FREE MEMORY OCCUPIED BY instance TSP.h
 	return 0;
+
 }
 
 
