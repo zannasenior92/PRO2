@@ -27,7 +27,7 @@ int index_best_cost_tsp(instance *inst, double *tsp_fitness, int num_sel_tsp);
 void update_bestsol(instance *inst, int *tsp_opt);
 
 
-void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
+double genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 {
 	srand((unsigned int)time(NULL));							//NEW RANDOM NUMBERS
 
@@ -73,9 +73,6 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	best_fitness = TSP_fitness[index_best_fitness];
 	update_bestsol(inst, TSP_solutions[index_best_fitness]);
 	printf("Start Best Fitness is: %lf \n", best_fitness);
-	printf("\n");
-
-	Sleep(4000);
 
 	/*------------------------------NEXT POPULATIONS-----------------------------------*/
 	int **newTSP_solutions = (int **)malloc(rows * cols * sizeof(int)); //NEW POPULATION (NEW POPULATION FORMED BY SUBSTITUTING BETTER TSPs CREATED WITH CROSSOVER WITH OLD TSPs OF PREVIOUS POPULATION)
@@ -97,8 +94,11 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 		newTSP_solutions[j] = TSP_solutions[j];
 		newTSP_fitness[j] = TSP_fitness[j];
 	}
+
+	time_t timelimit = time(NULL) + 3600;
+
 	/*-----------------------------GENERO LE POPOLAZIONI-------------------------------*/
-	while (num_of_populations < max_num_pop)
+	while (time(NULL) < timelimit) 
 	{
 		if (GENETIC_ALG > 400) { printf("\n Worst cost: %lf \n", worst_fitness); }
 
@@ -294,16 +294,18 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 				printf("Tsp%d fitness: %lf \n", i, TSP_fitness[i]);
 			}
 		}
-		printf("\n");
+		//printf("\n");
 		index_best_fitness = index_best_cost_tsp(inst, TSP_fitness, num_sel_tsp);
 		best_fitness = TSP_fitness[index_best_fitness];
 		update_bestsol(inst, TSP_solutions[index_best_fitness]);
-
-		printf("Worst fitness index: %d \n", index_worst_tsp_parent);
-		printf("Worst fitness:       %lf \n", worst_fitness);
-		printf("Best fitness index:  %d \n", index_best_fitness);
-		printf("Best Fitness :       %lf \n", best_fitness);
-		printf("\n");
+		if (GENETIC_ALG > 200)
+		{
+			printf("Worst fitness index: %d \n", index_worst_tsp_parent);
+			printf("Worst fitness:       %lf \n", worst_fitness);
+			printf("Best fitness index:  %d \n", index_best_fitness);
+			printf("Best Fitness :       %lf \n", best_fitness);
+			printf("\n");
+		}
 		num_of_populations++;
 
 		free(inst->new_SON);
@@ -315,6 +317,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	free(newTSP_solutions);
 	free(TSP_solutions);
 	free(TSP_fitness);
+	return best_fitness;
 }
 /*******************************************************************************************************************/
 /*******************************************************************************************************************/
