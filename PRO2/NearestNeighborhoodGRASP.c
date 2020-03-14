@@ -8,22 +8,21 @@ double cost_alg(instance* inst);
 /*--------------GREEDY ALGORITHM TO FIND A INITIAL SOLUTION FOR THE TSP PROBLEM---------------*/
 double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, int start_node, int seed)
 {
-	inst->choosen_nodes = (int *)malloc(inst->nnodes * sizeof(int));
 	int starting_node = start_node; //INITIAL NODE
 	if (NEAREST_NEIGH_GRASP > 400)
 	{
 		printf("Initial Node: %d \n", starting_node + 1);
 	}
 
-	double distance, nearest_distance;									//DISTANCE i-TH
-	int n = 0;															//SELECTED EDGES COUNTER
-	double cost = 0;													//COST OF THE SOLUTION
-	int *selected_nodes = (int*)calloc(inst->nnodes, sizeof(int));		//ARRAY OF SELECTED NODES
+	double	distance, nearest_distance;									//DISTANCE i-TH
+	int		n = 0;														//SELECTED EDGES COUNTER
+	double	cost = 0;													//COST OF THE SOLUTION
+	int		*selected_nodes = (int*)calloc(inst->nnodes, sizeof(int));	//ARRAY OF SELECTED NODES
 	selected_nodes[start_node] = 1;										//START NODE SELECTED
 	inst->choosen_nodes[n] = start_node;								//INITIAL NODE
-	int j = 0;
+	int		j = 0;
 	srand(seed);
-	double random;														//START NODE
+	double	random;														//START NODE
 
 	/*------------------------FIND THE CIRCUIT------------------------*/
 	while (n < inst->nnodes - 1)
@@ -128,6 +127,7 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 	{
 		printf("Last edge selected is x(%d,%d)", starting_node + 1, start_node + 1);
 	}
+
 	free(selected_nodes);
 	
 	return cost;
