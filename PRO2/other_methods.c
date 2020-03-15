@@ -58,7 +58,7 @@ double update_worst_cost_population(instance *inst, double *tsp_fitness, int num
 //i_b_f = index_best_fitness
 //n_p_t = num_pop_tsp
 
-void update_bestsol(instance *inst, int **tsp_opt, int i_b_f, int n_p_t)
+void update_bestsol(instance *inst, int *tsp_opt, int i_b_f, int n_p_t)
 {
 	for (int h = 0; h < inst->ncols; h++)//RESET BEST SOLUTION
 	{
@@ -66,10 +66,9 @@ void update_bestsol(instance *inst, int **tsp_opt, int i_b_f, int n_p_t)
 	}
 	for (int i = 0; i < inst->nnodes-1; i++)
 	{
-		printf("Nodo1 %d  e nodo2 %d\n", tsp_opt[i_b_f*n_p_t + i], tsp_opt[i_b_f* n_p_t + i + 1]);
-		inst->best_sol[xpos(tsp_opt[i_b_f*n_p_t + i], tsp_opt[i_b_f* n_p_t + i+1], inst)] = 1.0;
+		inst->best_sol[xpos(tsp_opt[i_b_f*inst->nnodes+i], tsp_opt[i_b_f*inst->nnodes+i+1], inst)] = 1.0;
 	}
-	inst->best_sol[xpos(tsp_opt[i_b_f*n_p_t + inst->nnodes - 1], tsp_opt[i_b_f*n_p_t + 0], inst)] = 1.0;
+	inst->best_sol[xpos(tsp_opt[i_b_f*inst->nnodes+inst->nnodes - 1], tsp_opt[i_b_f*inst->nnodes+0], inst)] = 1.0;
 }
 
 /**********************************************************************************************/

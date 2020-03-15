@@ -3,7 +3,7 @@
 #include <time.h>
 
 /*-------------------CROSS-OVER TO MERGE TWO TSPs----------------------*/
-int* cross_over(instance *inst, int *tsps, int father, int mother, int num_pop_tsp)
+void cross_over(instance *inst, int* tsps, int father, int mother, int num_pop_tsp)
 {
 	int rand_cut = rand() % inst->nnodes;						//CUT WHERE TO CREATE SON WITH SOME FATHER'S AND MOTHER'S CHROMOSOMES
 	int* son_flags = (int*)calloc(inst->nnodes, sizeof(int));	//FLAG WHO REPRESENT HOW NODE IS INSERTED
@@ -15,13 +15,13 @@ int* cross_over(instance *inst, int *tsps, int father, int mother, int num_pop_t
 		printf("Nodes of the father are: ");
 		for (int i = 0; i < inst->nnodes; i++)
 		{
-			printf("%d ", tsps[father*num_pop_tsp + i] + 1);
+			printf("%d ", tsps[father*inst->nnodes + i] + 1);
 		}
 		printf("\n\n");
 		printf("Nodes of the mother are: ");
 		for (int i = 0; i < inst->nnodes; i++)
 		{
-			printf("%d ", tsps[mother*num_pop_tsp + i] + 1);
+			printf("%d ", tsps[mother*inst->nnodes + i] + 1);
 		}
 		printf("\n\n");
 	}
@@ -30,16 +30,16 @@ int* cross_over(instance *inst, int *tsps, int father, int mother, int num_pop_t
 
 	for (int i = 0; i < rand_cut; i++)							//ADD FATHER ELEMENTS
 	{
-		inst->new_SON[son_index++] = tsps[father*num_pop_tsp + i];						//CHOOSE FATHER NODE
-		son_flags[tsps[father*num_pop_tsp + i]] = 1;
+		inst->new_SON[son_index++] = tsps[father*inst->nnodes + i];						//CHOOSE FATHER NODE
+		son_flags[tsps[father*inst->nnodes + i]] = 1;
 
 	}
 	for (int m = rand_cut; m < inst->nnodes; m++)				//ADD MOTHER ELEMENTS
 	{
-		if (son_flags[tsps[mother*num_pop_tsp + m]] != 1)						//DON'T TAKE ELEMENTS ALREADY SELECTED FROM FATHER
+		if (son_flags[tsps[mother*inst->nnodes + m]] != 1)						//DON'T TAKE ELEMENTS ALREADY SELECTED FROM FATHER
 		{
-			inst->new_SON[son_index++] = tsps[mother*num_pop_tsp + m];					//CHOOSE MOTHER NODE
-			son_flags[tsps[mother*num_pop_tsp + m]] = 1;
+			inst->new_SON[son_index++] = tsps[mother*inst->nnodes + m];					//CHOOSE MOTHER NODE
+			son_flags[tsps[mother*inst->nnodes + m]] = 1;
 		}
 	}
 	int last_son_index = son_index;
@@ -62,15 +62,15 @@ int* cross_over(instance *inst, int *tsps, int father, int mother, int num_pop_t
 		printf("\n\n");
 	}
 	free(son_flags);
-	return inst->new_SON;
+	//return inst->new_SON;
 }
 
 /*MUTATION TO MODIFY ONLY SOME CRHOMOSOMES OF AN INDIVIDUAL*/
-int* mutation(instance* inst, int **tsps, int tspParent, int num_pop_tsp)
+void mutation(instance* inst, int *tsps, int tspParent, int num_pop_tsp)
 {
 	for (int l = 0; l < inst->nnodes; l++)
 	{
-		inst->new_SON[l] = tsps[tspParent*num_pop_tsp + l];
+		inst->new_SON[l] = tsps[tspParent*inst->nnodes+l];
 	}
 
 	if (GENETIC_ALG > 400)
@@ -122,5 +122,5 @@ int* mutation(instance* inst, int **tsps, int tspParent, int num_pop_tsp)
 		printf("\n\n");
 	}
 
-	return inst->new_SON;
+	//return inst->new_SON;
 }

@@ -23,10 +23,10 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 int update_index_worst_cost_tsp(instance *inst, double *opt_cost, int num_sel_tsp);
 double cost_tsp(instance *inst, int* tsp);
 int* cross_over(instance *inst, int *tsps, int father, int mother, int num_pop_tsp);
-int* mutation(instance* inst, int **tsps, int tspParent, int num_pop_tsp);
+int* mutation(instance* inst, int *tsps, int tspParent, int num_pop_tsp);
 double update_worst_cost_population(instance *inst, double *opt_cost, int num_sel_tsp);
 int index_best_cost_tsp(instance *inst, double *tsp_fitness, int num_sel_tsp);
-void update_bestsol(instance *inst, int **tsp_opt, int index_best_fitness, int num_pop_tsp);
+void update_bestsol(instance *inst, int *tsp_opt, int index_best_fitness, int num_pop_tsp);
 
 
 void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
@@ -37,7 +37,9 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	int num_pop_tsp = POPULATION_SIZE;			//NUMBER OF TSPs OF THE POPULATION(CANNOT BE LESS THAN nnodes!)
 
 	//MATRIX OF SOLUTIONS OF NEIGHBORHOODS TO CREATE SONS (EVERY ROW RAPPRESENT THE SOLUTION'S SET OF NODES)
-	int **TSP_solutions = (int **)malloc(num_pop_tsp * inst->nnodes * sizeof(int));
+	int *TSP_solutions = (int*) malloc( sizeof(int)*num_pop_tsp*inst->nnodes);
+	
+
 	double *TSP_fitness = (double *)malloc(num_pop_tsp * sizeof(double));		//NEIGHBORHOOD'S FITNESSES(COSTS) ARRAY (CONTAIN TSP COSTS OF TSP FINDED WITH HEURISTIC NEAREST NEIGHBORHOOD)
 	
 	int		index_best_fitness;									//FITNESS BEST SOLUTION INDEX
@@ -56,7 +58,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 		TSP_fitness[i] = nearest_neighborhood_GRASP(inst, env, lp, 1, i);	//TSP COST
 		for (int n = 0; n < inst->nnodes; n++)//COPY SOLUTION OF GRASP INTO A MATRIX THAT CONTAIN ALL TSP'S SOLUTIONS
 		{
-			TSP_solutions[i*num_pop_tsp + n] = inst->choosen_nodes[n];
+			TSP_solutions[i*inst->nnodes+n] = inst->choosen_nodes[n];
 		}
 
 		if (GENETIC_ALG > 400) {
@@ -70,14 +72,14 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 		}
 	}
 
-	if (GENETIC_ALG > 50)
+	if (GENETIC_ALG > 500)
 	{
 		for (int k = 0; k < num_pop_tsp; k++)
 		{
 			printf("TSP%d : ", k);
 			for (int m = 0; m < inst->nnodes; m++)
 			{
-				printf("%d ", TSP_solutions[k* num_pop_tsp + m]);
+				printf("%d ", TSP_solutions[k*inst->nnodes+m]);
 			}
 			printf("\n\n");
 		}
@@ -92,7 +94,9 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	/*---------------------------------------------------------------------------------*/
 
 	/*------------------------------NEXT POPULATIONS-----------------------------------*/
-	int **newTSP_solutions = (int **)malloc(num_pop_tsp * inst->nnodes * sizeof(int));	//NEW POPULATION (NEW POPULATION FORMED BY SUBSTITUTING BETTER TSPs CREATED WITH CROSSOVER WITH OLD TSPs OF PREVIOUS POPULATION)
+	int *newTSP_solutions = (int*)calloc(num_pop_tsp*inst->nnodes, sizeof(int));
+	
+	//int **newTSP_solutions = (int **)malloc(num_pop_tsp * inst->nnodes * sizeof(int));	//NEW POPULATION (NEW POPULATION FORMED BY SUBSTITUTING BETTER TSPs CREATED WITH CROSSOVER WITH OLD TSPs OF PREVIOUS POPULATION)
 	double *newTSP_fitness = (double *)malloc(num_pop_tsp * sizeof(double));	//NEW SOLUTIONS COST
 	inst->new_SON = (int*)calloc(inst->nnodes, sizeof(int));					//NEW SON GENERATED
 
@@ -104,20 +108,20 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	{
 		for (int j = 0; j < inst->nnodes; j++)
 		{
-			newTSP_solutions[i* num_pop_tsp + j] = TSP_solutions[i* num_pop_tsp + j];
+			newTSP_solutions[i*inst->nnodes+j] = TSP_solutions[i*inst->nnodes+j];
 		}
 		newTSP_fitness[i] = TSP_fitness[i];
 	}
 	
 
-	if (GENETIC_ALG > 50)
+	if (GENETIC_ALG > 500)
 	{
 		for (int k = 0; k < num_pop_tsp; k++)
 		{
 			printf("newTSP%d : ", k);
 			for (int m = 0; m < inst->nnodes; m++)
 			{
-				printf("%d ", TSP_solutions[k*num_pop_tsp + m]);
+				printf("%d ", TSP_solutions[k*inst->nnodes+m]);
 			}
 			printf("\n\n");
 		}
@@ -125,11 +129,15 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 
 	/*-----------------------------GENERO LE POPOLAZIONI-------------------------------*/
 
-	int* current_son1 = (int*)calloc(inst->nnodes, sizeof(int));	//SON GENERATED FROM PARENTS WITH CROSS-OVER OR MUTATION
-	int* current_son2 = (int*)calloc(inst->nnodes, sizeof(int));
-	
 	while (num_of_populations < max_num_pop)
 	{
+		int* current_son1 = (int*)malloc(inst->nnodes * sizeof(int));	//SON GENERATED FROM PARENTS WITH CROSS-OVER OR MUTATION
+		int* current_son2 = (int*)malloc(inst->nnodes * sizeof(int));
+
+		int *cross_over_solutions = (int*)malloc(sizeof(int)*num_pop_tsp*inst->nnodes);
+		//int	**cross_over_solutions = (int **)malloc(num_pop_tsp * inst->nnodes * sizeof(int));
+		double *cross_over_fitness = (double *)malloc(num_pop_tsp * sizeof(double));
+
 		if (GENETIC_ALG > 400) { printf("\n Worst cost: %lf \n", worst_fitness); }
 
 		choice_add_bad = (double)rand() / (double)RAND_MAX;				//GENERATE A RANDOM CHOICE FOR ADD A BAD MEMBER TO A NEW POPULATION
@@ -140,8 +148,6 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 		int		new_tsp_index = 0;
 		int		flag_DUPLICATE1;										//FLAG FOR CHECK IF THERE IS A DUPLICATE IN THE POPULATION
 		int		flag_DUPLICATE2;
-		int	**cross_over_solutions = (int **)malloc(num_pop_tsp * inst->nnodes * sizeof(int));
-		double *cross_over_fitness = (double *)malloc(num_pop_tsp * sizeof(double));
 		
 
 		for (int i = 0; i < num_pop_tsp; i++)
@@ -151,7 +157,10 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 
 			if (choice_of_new_gen < CHOICE_OF_POPULATION)//---------------CHOOSE MUTATION
 			{
-				current_son1 = mutation(inst, TSP_solutions, i, num_pop_tsp);
+				mutation(inst, TSP_solutions, i, num_pop_tsp);
+				for (int ind = 0; ind < inst->nnodes; ind++) {
+					current_son1[ind] = inst->new_SON[ind];
+				}
 				current_cost1 = cost_tsp(inst, current_son1);
 				
 					//-------------------------------SUBSTITUTE THE NEW BETTER TSP SON WITH A PARENT
@@ -159,7 +168,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 					{
 						for (int k = 0; k < inst->nnodes; k++)
 						{
-							newTSP_solutions[num_pop_tsp*i + k] = current_son1[k];
+							newTSP_solutions[i*inst->nnodes + k] = current_son1[k];
 						}
 						newTSP_fitness[i] = current_cost1;
 						index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_pop_tsp);	//UPDATE WORST TSPs INDEX
@@ -171,7 +180,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 						{
 							for (int g = 0; g < inst->nnodes; g++)
 							{
-								newTSP_solutions[num_pop_tsp*i + g] = current_son1[g];
+								newTSP_solutions[i*inst->nnodes + g] = current_son1[g];
 							}
 							newTSP_fitness[i] = current_cost1;
 							index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_pop_tsp);	//UPDATE WORST TSPs INDEX
@@ -181,7 +190,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 						{
 							for (int g = 0; g < inst->nnodes; g++)
 							{
-								newTSP_solutions[num_pop_tsp*i + g] = TSP_solutions[g];
+								newTSP_solutions[i*inst->nnodes + g] = TSP_solutions[i*inst->nnodes+g];
 							}
 							newTSP_fitness[i] = TSP_fitness[i];
 							index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_pop_tsp);	//UPDATE WORST TSPs INDEX
@@ -194,7 +203,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 			{
 				for (int g = 0; g < inst->nnodes; g++)
 				{
-					newTSP_solutions[num_pop_tsp*i + g] = TSP_solutions[g];
+					newTSP_solutions[i*inst->nnodes + g] = TSP_solutions[i*inst->nnodes + g];
 				}
 				newTSP_fitness[i] = TSP_fitness[i];
 				index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_pop_tsp);	//UPDATE WORST TSPs INDEX
@@ -214,8 +223,15 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 					flag_DUPLICATE2 = 0;
 					subs_index_choice = rand() % inst->nnodes;//RANDOM INDEX FOR SUBSTITUTE A TSP WITH A BAD TSP
 
-					current_son1 = cross_over(inst, TSP_solutions, i, j, num_pop_tsp);	//NODES CURRENT SON
-					current_son2 = cross_over(inst, TSP_solutions, j, i, num_pop_tsp);
+
+					cross_over(inst, TSP_solutions, i, j, num_pop_tsp);	//NODES CURRENT SON
+					for (int ind = 0; ind < inst->nnodes; ind++) {
+						current_son1[ind] = inst->new_SON[ind];
+					}
+					cross_over(inst, TSP_solutions, j, i, num_pop_tsp);
+					for (int ind = 0; ind < inst->nnodes; ind++) {
+						current_son2[ind] = inst->new_SON[ind];
+					}
 					
 					current_cost1 = cost_tsp(inst, current_son1);									//COST CURRENT SON
 					current_cost2 = cost_tsp(inst, current_son2);
@@ -230,7 +246,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 					{
 						for (int g = 0; g < inst->nnodes; g++)
 						{
-							cross_over_solutions[num_pop_tsp*cross_over_index + g] = current_son1[g];
+							cross_over_solutions[cross_over_index*inst->nnodes + g] = current_son1[g];
 						}
 						cross_over_fitness[cross_over_index] = current_cost1;
 						cross_over_index++;
@@ -241,7 +257,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 					{
 						for (int g = 0; g < inst->nnodes; g++)
 						{
-							cross_over_solutions[num_pop_tsp*cross_over_index + g] = current_son2[g];
+							cross_over_solutions[cross_over_index*inst->nnodes + g] = current_son2[g];
 						}
 						cross_over_fitness[cross_over_index] = current_cost2;
 						cross_over_index++;
@@ -254,7 +270,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 						{
 							for (int g = 0; g < inst->nnodes; g++)
 							{
-								cross_over_solutions[num_pop_tsp*index_worst_co + g] = current_son1[g];
+								cross_over_solutions[index_worst_co*inst->nnodes + g] = current_son1[g];
 							}
 							cross_over_fitness[index_worst_co] = current_cost1;
 							index_worst_co = update_index_worst_cost_tsp(inst, cross_over_fitness, num_pop_tsp);
@@ -264,7 +280,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 						{
 							for (int g = 0; g < inst->nnodes; g++)
 							{
-								cross_over_solutions[num_pop_tsp*index_worst_co + g] = current_son2[g];
+								cross_over_solutions[index_worst_co*inst->nnodes + g] = current_son2[g];
 							}
 							cross_over_fitness[index_worst_co] = current_cost2;
 							index_worst_co = update_index_worst_cost_tsp(inst, cross_over_fitness, num_pop_tsp);
@@ -277,7 +293,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 				{
 					for (int g = 0; g < inst->nnodes; g++)
 					{
-						newTSP_solutions[num_pop_tsp*i + g] = TSP_solutions[num_pop_tsp*i + g];
+						newTSP_solutions[i*inst->nnodes + g] = TSP_solutions[i*inst->nnodes + g];
 					}
 					newTSP_fitness[i] = TSP_fitness[i];
 					index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_pop_tsp);	//UPDATE WORST TSPs INDEX
@@ -287,7 +303,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 				{
 					for (int g = 0; g < inst->nnodes; g++)
 					{
-						newTSP_solutions[num_pop_tsp*i + g] = cross_over_solutions[num_pop_tsp*index_best_co + g];
+						newTSP_solutions[i*inst->nnodes + g] = cross_over_solutions[index_best_co*inst->nnodes + g];
 					}
 					newTSP_fitness[i] = cross_over_fitness[index_best_co];
 					index_worst_tsp_parent = update_index_worst_cost_tsp(inst, newTSP_fitness, num_pop_tsp);	//UPDATE WORST TSPs INDEX
@@ -298,8 +314,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 			}
 			
 		}
-		free(cross_over_solutions);
-		free(cross_over_fitness);
+		
 
 
 		if (GENETIC_ALG > 400)
@@ -311,7 +326,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 				printf("NewTsp%d Solution: ", u);
 				for (int t = 0; t < inst->nnodes; t++)
 				{
-					printf("%d ", newTSP_solutions[u][t] + 1);
+					printf("%d ", newTSP_solutions[u*inst->nnodes + t] + 1);
 				}
 				printf("\n");
 			}
@@ -321,7 +336,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 		{
 			for (int g = 0; g < inst->nnodes; g++)
 			{
-				TSP_solutions[num_pop_tsp*i + g] = newTSP_solutions[num_pop_tsp*i + g];
+				TSP_solutions[i*inst->nnodes + g] = newTSP_solutions[i*inst->nnodes + g];
 			}
 			TSP_fitness[i] = newTSP_fitness[i];
 		}
@@ -348,15 +363,23 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 		num_of_populations++;
 
 		//Sleep(5000);
+		
+		free(cross_over_solutions);
+		free(cross_over_fitness);
+		free(current_son1);
 
+		free(current_son2);
 	}
-	free(current_son1);
-	free(current_son2);
 
-	free(newTSP_solutions);
 	free(newTSP_fitness);
 	free(TSP_solutions);
 	free(TSP_fitness);
+
+	free(newTSP_solutions);
+
+	
+
+	
 }
 /*******************************************************************************************************************/
 /*******************************************************************************************************************/

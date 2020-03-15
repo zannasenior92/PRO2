@@ -52,8 +52,6 @@ int TSPopt(instance *inst)
 
 	double cost, min_cost;
 	min_cost = INFINITY;
-	double *minimum_solution = (double*)calloc(inst->ncols, sizeof(double));
-	int start_node = 0;
 	/************************************************************************************/
 	/************************************************************************************/
 	/*GENETICO*/
@@ -64,18 +62,6 @@ int TSPopt(instance *inst)
 	/*-------PRINT INITIAL SOLUTION--------*/
 	selected_edges(inst);
 	
-	/*------------SETTING OF CALLBACKS--------------*/
-	CPXsetintparam(env, CPX_PARAM_MIPCBREDLP, CPX_OFF);								// let MIP callbacks work on the original model
-	CPXsetdblparam(env, CPX_PARAM_TILIM, 30);
-	CPXsetlazyconstraintcallbackfunc(env, add_SEC_lazy, inst);
-	int ncores = 1; CPXgetnumcores(env, &ncores);
-	CPXsetintparam(env, CPX_PARAM_THREADS, ncores);
-	int local_minimum = 0;
-	time_t timelimit = time(NULL) + 120;
-	double delta, delta_vns;
-
-	
-	free(minimum_solution);
 	
 	CPXfclose(log);																//CLOSE LOG FILE
 	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
