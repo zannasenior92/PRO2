@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 		printf("%s\n", name_file);
 		strcpy(inst.input_file, name_file);
 		read_input(&inst);														//READ VARIABLES FROM INPUT AND SAVE INTO inst
-		if (TSPopt(&inst, i+11)) print_error(" error within TSPopt()");
+		if (TSPopt(&inst, i+100)) print_error(" error within TSPopt()");
 		strcpy(name_file, "");
 	}
 	free_instance(&inst);													//FREE MEMORY OCCUPIED BY instance TSP.h
