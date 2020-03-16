@@ -27,21 +27,19 @@ double nearest_neighborhood_GRASP(instance *inst, CPXENVptr env, CPXLPptr lp, in
 double two_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
 double three_opt(instance *inst, CPXENVptr env, CPXLPptr lp);
 double vns(instance *inst, CPXENVptr env, CPXLPptr lp);
-void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp);
+double genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp);
 int cost_alg(instance* inst);
 
 /*------------------------------SOLVE THE MODEL--------------------------------------*/
-int TSPopt(instance *inst)
+int TSPopt(instance *inst, int i)
 {
 	inst->compact = 0;
 	int error;
-	double opt_heu, opt_current;
+	double opt_heu;
 	CPXENVptr env = CPXopenCPLEX(&error);									//create the environment(env)
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP");						//create the structure for our model(lp)
 	build_model(inst, env, lp);
-	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);							//to visualize in video
-	FILE* log = CPXfopen("log.txt", "w");
-	
+
 
 	/*------------------------HARD FIXING WITH LAZYCALLBACK--------------------------*/
 	inst->ncols = CPXgetnumcols(env, lp);
@@ -50,23 +48,27 @@ int TSPopt(instance *inst)
 	inst->best_sol= (double*)calloc(inst->ncols, sizeof(double));
 	inst->choosen_nodes = (int *)malloc(inst->nnodes * sizeof(int));
 
-	double cost, min_cost;
-	min_cost = INFINITY;
 	/************************************************************************************/
 	/************************************************************************************/
 	/*GENETICO*/
-	genetic_alg(inst, env, lp);
+	opt_heu= genetic_alg(inst, env, lp);
 	/************************************************************************************/
-	
-	
-	/*-------PRINT INITIAL SOLUTION--------*/
-	selected_edges(inst);
-	
-	
-	CPXfclose(log);																//CLOSE LOG FILE
-	/*------------------------------CLEAN AND CLOSE THE CPLEX ENVIRONMENT------------*/
+	printf("MINIMUM SOLUTION: %f\n", opt_heu);
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env);
+	inst->input_file_name[strlen(inst->input_file_name) - 1] = '\0';
+	char out_file[100] = "";
+	strcat(out_file, "file");
+	char iter[5] = "";
+	sprintf(iter, "%d", i);
+	strcat(out_file, iter);
+	strcat(out_file, ".txt");
+	FILE* output = fopen(out_file, "w");
+
+	fprintf(output, "Genetic,%s,%f", inst->input_file_name, opt_heu);
+
+	fclose(output);
+
 	return 0;
 }
 

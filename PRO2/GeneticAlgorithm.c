@@ -9,7 +9,6 @@
 #define CHOICE_OF_POPULATION 0.2	//REPRESENT THE PERCENTAGE FOR WHICH I SELECT MUTATION OR CROSS-OVER
 #define VARIANCE_CHOICE_OF_POP 0.2	//REPRESENT THE DIMENSION OF RANGE FOR SELECT A FATHER AS SON IN NEXT POPULATION
 #define POPULATION_SIZE 50			//REPRESENT THE DIMENSION OF THE POPULATION CREATED EACH TIME7
-#define NUMBER_OF_POPULATIONS 200	//REPRESENT THE NUMBER OF POPULATIONS CREATED
 
 
 /*-----------------------------FUNCTIONS & METHODS-----------------------------------*/
@@ -29,16 +28,16 @@ int index_best_cost_tsp(instance *inst, double *tsp_fitness, int num_sel_tsp);
 void update_bestsol(instance *inst, int *tsp_opt, int index_best_fitness, int num_pop_tsp);
 
 
-void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
+double genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 {
 	srand((unsigned int)time(NULL));							//NEW RANDOM NUMBERS
 
-	int max_num_pop = NUMBER_OF_POPULATIONS;	//LIMIT THE NUMBER OF CREATED POPULATION, END AFTER ANALYZE THIS NUMBER OF POPULATIONS
 	int num_pop_tsp = POPULATION_SIZE;			//NUMBER OF TSPs OF THE POPULATION(CANNOT BE LESS THAN nnodes!)
 
 	//MATRIX OF SOLUTIONS OF NEIGHBORHOODS TO CREATE SONS (EVERY ROW RAPPRESENT THE SOLUTION'S SET OF NODES)
 	int *TSP_solutions = (int*) malloc( sizeof(int)*num_pop_tsp*inst->nnodes);
 	
+	double minimum = CPX_INFBOUND;
 
 	double *TSP_fitness = (double *)malloc(num_pop_tsp * sizeof(double));		//NEIGHBORHOOD'S FITNESSES(COSTS) ARRAY (CONTAIN TSP COSTS OF TSP FINDED WITH HEURISTIC NEAREST NEIGHBORHOOD)
 	
@@ -46,9 +45,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	double	best_fitness = 0;									//BEST SOLUTION COST
 	double	worst_fitness = 0;									//FITNESS(COST) WORST FATHER
 	int		index_worst_tsp_parent = 0;							//WORST FATHER INDEX
-	int		num_of_populations = 0;								//COUNTER REGARDING NUMBER OF POPULATION THAT I'M ANALIZING
-	int		done = 1;
-
+	
 	for (int i = 0; i < num_pop_tsp; i++)//COMPUTE INITIAL POPULATION WITH NEAREST NEIGHBORHOOD
 	{
 
@@ -128,8 +125,8 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	}//PRINT NEW TSPs
 
 	/*-----------------------------GENERO LE POPOLAZIONI-------------------------------*/
-
-	while (num_of_populations < max_num_pop)
+	time_t timelimit = time(NULL) + 3600;
+	while (time(NULL) < timelimit)
 	{
 		int* current_son1 = (int*)malloc(inst->nnodes * sizeof(int));	//SON GENERATED FROM PARENTS WITH CROSS-OVER OR MUTATION
 		int* current_son2 = (int*)malloc(inst->nnodes * sizeof(int));
@@ -350,18 +347,20 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 				printf("Tsp%d fitness: %lf \n", i, TSP_fitness[i]);
 			}
 		}
-		printf("\n");
+		//printf("\n");
 		index_best_fitness = index_best_cost_tsp(inst, TSP_fitness, num_pop_tsp);
 		best_fitness = TSP_fitness[index_best_fitness];
 		update_bestsol(inst, TSP_solutions, index_best_fitness, num_pop_tsp);
-
+		/*
 		printf("Worst fitness index: %d \n", index_worst_tsp_parent);
 		printf("Worst fitness:       %lf \n", worst_fitness);
 		printf("Best fitness index:  %d \n", index_best_fitness);
 		printf("Best Fitness :       %lf \n", best_fitness);
 		printf("\n");
-		num_of_populations++;
-
+		*/
+		if (best_fitness < minimum) {
+			minimum = best_fitness;
+		}
 		//Sleep(5000);
 		
 		free(cross_over_solutions);
@@ -376,7 +375,7 @@ void genetic_alg(instance *inst, CPXENVptr env, CPXLPptr lp)
 	free(TSP_fitness);
 
 	free(newTSP_solutions);
-
+	return minimum;
 	
 
 	
